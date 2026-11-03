@@ -270,7 +270,11 @@ h1, h2, h3, p { margin-top: 0px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after { transition: none !important; }
-}</style>
+}
+.pw-inline {display:flex;gap:7px;align-items:stretch}
+.pw-inline input {min-width:0;flex:1}
+.pw-inline .btn {flex:none;padding:10px 12px}
+</style>
 
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f8f3e7">
@@ -288,7 +292,7 @@ h1, h2, h3, p { margin-top: 0px; }
   <p>Review kiriman band, kelola video, rilisan, dan profil dalam satu dashboard. Hanya moderator Wingking yang berwenang dapat masuk.</p>
   <form id="loginform">
    <label class="field"><span>Email admin</span><input id="email" type="email" autocomplete="username" required="" placeholder="email admin"></label>
-   <label class="field"><span>Password admin</span><input id="password" type="password" autocomplete="current-password" required="" placeholder="password"></label>
+   <label class="field"><span>Password admin</span><span class="pw-inline"><input id="password" type="password" autocomplete="current-password" required="" placeholder="Password"><button class="btn" id="toggle-login-password" type="button" aria-label="Tampilkan password">Lihat</button></span></label>
    <button class="btn btn-dark" type="submit" id="loginbutton">MASUK DASHBOARD</button>
    <div id="login-message" class="muted" style="font-size:12px"></div>
   </form>
@@ -309,10 +313,10 @@ h1, h2, h3, p { margin-top: 0px; }
    <button data-nav="trash">Tempat Sampah <span class="num" data-count="trash">0</span></button>
    <button data-nav="activity">Riwayat Aktivitas</button>
   </nav>
-  <div class="sidebar-foot"><span class="preview">ADMIN ONLY</span><p>Semua operasi memerlukan sesi moderator aktif. Hapus permanen tidak dapat dibatalkan.</p><button id="logout">Keluar akun</button></div>
+  <div class="sidebar-foot"><span class="preview">ADMIN ONLY</span><p>Semua operasi memerlukan sesi moderator aktif. Hapus permanen tidak dapat dibatalkan.</p><button id="change-password" type="button" style="margin-bottom:10px">Ganti password</button><button id="logout">Keluar akun</button></div>
  </aside>
  <main class="main">
-  <div class="topline"><div class="eyebrow">WINGKING STUDIO / ADMIN ONLY</div><div class="right"><span id="logged-user" class="eyebrow" style="letter-spacing:0;font-size:10px"></span><button id="refresh" class="mini">Muat ulang</button><button id="export" class="mini">Ekspor CSV</button><button id="mobilelogout" class="mini mobile-bar">Keluar</button></div></div>
+  <div class="topline"><div class="eyebrow">WINGKING STUDIO / ADMIN ONLY</div><div class="right"><span id="logged-user" class="eyebrow" style="letter-spacing:0;font-size:10px"></span><button id="refresh" class="mini">Muat ulang</button><button id="export" class="mini">Ekspor CSV</button><button id="mobile-password" class="mini mobile-bar" type="button">Ganti password</button><button id="mobilelogout" class="mini mobile-bar">Keluar</button></div></div>
   <section class="hero"><div><div class="eyebrow">Manage every beat</div><h1>ADMIN<br><em>HUB.</em></h1><p>Satu panel untuk memeriksa kiriman band, menyetujui atau menolak, dan mengelola semua konten Wingking.</p></div><div class="squiggle">KEEP IT<br>LOUD</div></section>
   <div class="stats" id="stats"></div>
   <section id="review-section" aria-label="Review pengajuan" hidden>
@@ -515,7 +519,31 @@ function render(){
 }
 function modal(content){$("modalbox").innerHTML=content;$("modal").hidden=false;document.body.style.overflow="hidden"}
 function closeModal(){$("modal").hidden=true;$("modalbox").innerHTML="";document.body.style.overflow=""}
-function modalHead(t){return '<div class="modal-top"><div><div class="eyebrow">Wingking Content Manager</div><h2>'+esc(t)+'</h2></div><button class="close" data-modal-close aria-label="Tutup">×</button></div>'}
+function modalHead(t){return '<div class="modal-top"><div><div class="eyebrow">Wingking Admin Hub</div><h2>'+esc(t)+'</h2></div><button class="close" data-modal-close aria-label="Tutup">×</button></div>'}
+function passwordModal(){
+ modal(modalHead("Ganti password admin")+
+ '<p class="muted" style="font-size:13px">Gunakan password baru minimal 12 karakter. Perubahan langsung disimpan melalui Supabase Auth, tidak melalui GitHub.</p>'+
+ '<form id="password-change-form"><label class="field"><span>Password baru</span><input name="newPassword" autocomplete="new-password" type="password" minlength="12" required></label>'+
+ '<label class="field" style="margin-top:14px"><span>Ulangi password baru</span><input name="confirmPassword" autocomplete="new-password" type="password" minlength="12" required></label>'+
+ '<label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:12px"><input type="checkbox" id="show-new-password" style="width:auto">Tampilkan password</label>'+
+ '<div class="modal-actions"><button class="btn" type="button" data-modal-close>Batal</button><button class="btn btn-dark" type="submit">Simpan password baru</button></div></form>');
+}
+async function updateAdminPassword(form){
+ const next=form.elements.newPassword.value,again=form.elements.confirmPassword.value;
+ if(next.length<12){toast("Password minimal 12 karakter",true);return}
+ if(next!==again){toast("Konfirmasi password tidak cocok",true);return}
+ if(state.busy)return;
+ state.busy=true;
+ const btn=form.querySelector('button[type="submit"]');btn.disabled=true;
+ try{
+  const token=await getToken();
+  const response=await fetch(SB+"/auth/v1/user",{method:"PUT",headers:{"apikey":PUB,"authorization":"Bearer "+token,"content-type":"application/json"},body:JSON.stringify({password:next}),cache:"no-store"});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(data.message||data.msg||data.error_description||"Password gagal diubah");
+  closeModal();toast("Password admin berhasil diperbarui");
+ }catch(e){toast(String(e.message||e),true)}
+ finally{state.busy=false;btn.disabled=false}
+}
 function openEdit(x){
  const f=fieldDefs[x.source]||[];
  const fields=f.map(([key,label,kind])=>{
@@ -575,12 +603,16 @@ document.addEventListener("click",e=>{
  }
 });
 document.addEventListener("submit",e=>{
+ if(e.target.id==="password-change-form"){e.preventDefault();updateAdminPassword(e.target);return}
  if(e.target.id==="editform"){
   e.preventDefault();const f=e.target,p={};for(const [k,v]of new FormData(f))p[k]=String(v);
   mutate({action:"edit",source:f.dataset.source,id:f.dataset.id,patch:p},"Perubahan berhasil disimpan");
  }
 });
 $("loginform").addEventListener("submit",login);
+$("toggle-login-password").addEventListener("click",()=>{const el=$("password");const visible=el.type==="password";el.type=visible?"text":"password";$("toggle-login-password").textContent=visible?"Sembunyikan":"Lihat"});
+for(const id of ["change-password","mobile-password"])$(id).addEventListener("click",passwordModal);
+document.addEventListener("change",e=>{if(e.target.id==="show-new-password"){const modal=$("modalbox");for(const el of modal.querySelectorAll('#password-change-form input[type="password"], #password-change-form input[type="text"]'))el.type=e.target.checked?"text":"password"}});
 $("search").addEventListener("input",e=>{state.search=e.target.value.trim();render()});
 $("statusfilter").addEventListener("change",e=>{state.status=e.target.value;render()});
 $("refresh").addEventListener("click",()=>load().then(()=>toast("Data terbaru berhasil dimuat")).catch(e=>toast(e.message,true)));
