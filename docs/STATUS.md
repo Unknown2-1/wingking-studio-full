@@ -4,6 +4,7 @@ As of 2026-11-03:
 
 | Directory | Source | Completeness |
 |---|---|---|
+| `apps/admin-unified/index.html` | Consolidated from recovered Content Manager preview and existing admin queue endpoints | Editable standalone HTML/JS; original guest review + content CRUD under one login; **must test on authorized host** |
 | `legacy-nextjs/` | `Epan0310/wingking-studio`, merged Oct 29 source, development branch `dev/unknown2-1` | All relevant original text source copied; third-party editor skill duplicates and binary icon excluded |
 | `apps/live-public/dist/` | `https://wingking-studio.vercel.app/`, live Vite/React build | Actual HTML, JS bundles, CSS, WebP art, upload scripts and logo; **compiled build**, not latest editable React JSX |
 | `apps/live-public/source/` | Selected untruncated Vercel deployment source files | Partial Vite config/helpers; large original `main.jsx` was not retrievable in full |
@@ -22,3 +23,7 @@ As of 2026-11-03:
 - **No secrets, database rows, private uploaded files, real user video contents, private auth records, or admin passwords** are included.
 - `wingking-admin-provision-once` and internal QA storage-cleanup functions are deliberately NOT copied; do not deploy such temporary administrative functions to public-facing projects.
 - The GitHub repository is PUBLIC as created by its owner. Use a PRIVATE repository if the project source should be team-only.
+
+## Admin consolidation (2026-11-03)
+
+`apps/admin-unified/index.html` provides a single moderator sign-in, a review queue for pending guest/public submissions, plus video, band, release, archive, trash and audit views. It calls the existing live `wingking-guest-submissions` and `wingking-content-manager` Edge Functions and relies on their JWT/moderator checks. The old separate admin apps remain as rollback artifacts. CORS only allows the existing review-console production host (and the old Content Manager preview for its own functions); new staging hostnames need backend CORS configuration before end-to-end login testing. Static JS syntax is verified, but iPhone and live authenticated operations are not validated automatically.
