@@ -1,0 +1,32 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Tabel 1: Jenis Layanan Studio
+model Service {
+  id           String    @id @default(cuid())
+  name         String
+  pricePerHour Float
+  bookings     Booking[]
+  createdAt    DateTime  @default(now())
+}
+
+// Tabel 2: Data Booking dari Pelanggan
+model Booking {
+  id            String   @id @default(cuid())
+  customerName  String
+  customerPhone String
+  serviceId     String
+  service       Service  @relation(fields: [serviceId], references: [id])
+  date          DateTime
+  startTime     String
+  durationHours Int
+  status        String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  createdAt     DateTime @default(now())
+}
