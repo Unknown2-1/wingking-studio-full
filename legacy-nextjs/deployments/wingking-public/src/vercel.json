@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "rewrites": [ { "source": "/", "destination": "/v27.html" } ],
+  "redirects": [
+    { "source": "/admin", "destination": "https://wingking-studio-admin.vercel.app/admin", "permanent": false },
+    { "source": "/admin/:path*", "destination": "https://wingking-studio-admin.vercel.app/admin/:path*", "permanent": false }
+  ],
+  "headers": [
+    { "source": "/v27.html", "headers": [ { "key": "Cache-Control", "value": "public,max-age=0,must-revalidate" } ] },
+    { "source": "/booking-live.js", "headers": [ { "key": "Cache-Control", "value": "public,max-age=0,must-revalidate" } ] }
+  ]
+}
