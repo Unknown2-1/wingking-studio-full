@@ -1,6 +1,6 @@
 # WINGKING STUDIO
 
-**Full team repository — legacy editable source, latest deployed public website, two admin UIs, and Supabase backend.**
+**Full team repository — editable unified Admin Hub, preserved original snapshots, public website and Supabase backend.**
 
 [Live website](https://wingking-studio.vercel.app/) · [Private review](https://wingking-private-review-console.vercel.app/) · [Content Manager preview](https://wingking-content-manager-preview.vercel.app/)
 
@@ -8,6 +8,7 @@
 
 | Directory | What's inside |
 |---|---|
+| `apps/admin-unified/index.html` | **Editable single-login Admin Hub** combining guest/public review queue with content management; deployed to the existing private review alias (runtime authenticated QA pending) |
 | `legacy-nextjs/` | Complete relevant original editable Next.js project source, booking logic, Prisma schema, old admin app, tests and historical releases |
 | `apps/live-public/dist/` | New live Vite/React website **production build**, upload interface, JS/CSS bundles, original WebP illustrations, logo |
 | `apps/live-public/source/` | Available Vite configuration and helpers (original newest JSX entrypoint could not be fully retrieved) |
@@ -28,8 +29,8 @@ git clone https://github.com/Unknown2-1/wingking-studio-full.git
 cd wingking-studio-full
 
 npm run dev:public   # http://localhost:3000
-npm run dev:review   # http://localhost:3001
-npm run dev:manager  # http://localhost:3002
+npm run dev:admin    # http://localhost:3001 (review + content manager in one login)
+npm run dev:review   # same unified Admin Hub, http://localhost:3001
 ```
 
 Run each command in a separate terminal. These static snapshot viewers require no `npm install`.
@@ -43,6 +44,8 @@ npm ci
 npx prisma generate
 npm run dev
 ```
+
+The original separate admin snapshots are retained for historical reference. `npm run dev:review:legacy` and `npm run dev:manager:legacy` run those old snapshots on ports 3003 and 3002. The unified Admin Hub is live at https://wingking-private-review-console.vercel.app/. The former https://wingking-content-manager-preview.vercel.app/ now redirects there. The original compiled admin snapshots are still in this repository for reference or rollback.
 
 For full instructions, use [TEAM_SETUP](docs/TEAM_SETUP.md), [STATUS](docs/STATUS.md), and [SECURITY](docs/SECURITY.md).
 
