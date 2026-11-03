@@ -41,7 +41,7 @@ Legacy Next.js project, live React/Vite website and private review dashboard are
 Set each as a different Vercel project with its own Root Directory:
 
 - **Static public snapshot:** `apps/live-public/dist`, Framework Other, no build command.
-- **Unified Admin Hub (new):** `apps/admin-unified`, Framework Other, no build command; target existing Wingking review-console domain only after smoke tests. The Supabase Edge Functions have an exact CORS allowlist for that host.
+- **Unified Admin Hub (new):** `apps/admin-unified`, Framework Other, no build command; deployed to existing Wingking review-console production domain. Previous admin snapshots remain in the repository; validate authenticated flows with test data before further rollout. The Supabase Edge Functions have an exact CORS allowlist for that host.
 - **Historical review snapshot:** `apps/private-review/dist`, Framework Other, no build command.
 - **Historical Content Manager snapshot:** `apps/content-manager`, Framework Other, no build command.
 - **Editable legacy Next.js:** `legacy-nextjs`, Framework Next.js, environment variables configured in Vercel.
