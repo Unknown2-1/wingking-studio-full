@@ -13,12 +13,14 @@ Node.js 20+ and npm are recommended for the legacy Next.js app. The static Verce
 
 ```bash
 npm run dev:public   # localhost:3000 — public festival website
-npm run dev:review   # localhost:3001 — separate moderator review panel
-npm run dev:manager  # localhost:3002 — content manager preview
+npm run dev:admin    # localhost:3001 — unified review + content management
+npm run dev:review   # alias for the same unified Admin Hub
+npm run dev:review:legacy  # localhost:3003 — former review snapshot
+npm run dev:manager:legacy # localhost:3002 — former content manager snapshot
 npm run check:assets
 ```
 
-Run each site command in a separate terminal. The review and manager apps share the existing Supabase Auth identity; only authorized Wingking moderator accounts can access private operations.
+Run each site command in a separate terminal. The unified Admin Hub has one login and combines the pending review queue with content management. Existing Supabase Auth JWT and `wk_moderators` membership are required for operations. **Do not use real client data during QA.**
 
 **CAUTION:** static bundles can talk to live Supabase. Do not test delete, publish or reject actions against production data.
 
@@ -39,8 +41,9 @@ Legacy Next.js project, live React/Vite website and private review dashboard are
 Set each as a different Vercel project with its own Root Directory:
 
 - **Static public snapshot:** `apps/live-public/dist`, Framework Other, no build command.
-- **Static private review:** `apps/private-review/dist`, Framework Other, no build command.
-- **Static Content Manager preview:** `apps/content-manager`, Framework Other, no build command.
+- **Unified Admin Hub (new):** `apps/admin-unified`, Framework Other, no build command; target existing Wingking review-console domain only after smoke tests. The Supabase Edge Functions have an exact CORS allowlist for that host.
+- **Historical review snapshot:** `apps/private-review/dist`, Framework Other, no build command.
+- **Historical Content Manager snapshot:** `apps/content-manager`, Framework Other, no build command.
 - **Editable legacy Next.js:** `legacy-nextjs`, Framework Next.js, environment variables configured in Vercel.
 
 An actual production release should be tested on **staging** first. Do not attach the current production domain or point tests at the live database until verified.
