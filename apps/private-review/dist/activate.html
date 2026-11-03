@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="id"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style rel="stylesheet" type="text/css">@charset "utf-8";
+
+* { box-sizing: border-box; }
+
+body { margin: 0px; min-height: 100svh; background: rgb(249, 241, 223); color: rgb(23, 62, 49); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; display: grid; place-items: center; padding: 20px; }
+
+main { width: min(100%, 520px); padding: clamp(25px, 5vw, 40px); background: rgb(255, 249, 236); border: 2px solid rgb(23, 62, 49); border-radius: 26px; box-shadow: rgb(239, 184, 74) 8px 8px; }
+
+header { font-weight: 900; font-size: 12px; letter-spacing: 0.11em; }
+
+h1 { font-size: clamp(40px, 9vw, 66px); font-weight: 1000; line-height: 0.93; letter-spacing: -0.07em; margin: 23px 0px 20px; }
+
+h1 i { color: rgb(233, 98, 85); font-style: normal; }
+
+p { font-size: 14px; line-height: 1.65; }
+
+label { display: block; font-size: 13px; font-weight: 800; margin-top: 16px; }
+
+input { display: block; width: 100%; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; line-height: inherit; font-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-language-override: inherit; font-size: 16px; border: 2px solid rgb(23, 62, 49); border-radius: 12px; background: white; color: rgb(23, 62, 49); margin-top: 7px; padding: 14px; }
+
+button { margin-top: 23px; width: 100%; border: 0px; border-radius: 12px; background: rgb(23, 62, 49); color: white; padding: 16px; font: 900 14px system-ui; cursor: pointer; }
+
+button:disabled { opacity: 0.5; }
+
+#msg { display: none; padding: 14px; margin-top: 18px; border-radius: 12px; background: rgb(233, 242, 223); line-height: 1.5; font-size: 14px; }
+
+#msg.bad { background: rgb(255, 218, 213); color: rgb(160, 46, 32); }
+
+small { display: block; margin-top: 24px; line-height: 1.5; color: rgb(84, 108, 90); }
+
+a { color: inherit; font-weight: 800; }</style><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#173e31"><title>Aktivasi Admin Wingking Studio</title></head><body><main><header>WINGKING STUDIO · PRIVATE ACTIVATION</header><h1>AKUN<br><i>ADMIN.</i></h1><p>Buat password untuk email pengelola yang telah ditetapkan. Akun baru akan memperoleh hak Setujui / Tolak <strong>hanya setelah verifikasi email</strong>.</p><form id="form"><label for="mail">Email pengelola</label><input id="mail" type="email" autocomplete="email" required="" placeholder="Masukkan email Wingking"><label for="pass">Password admin (minimal 12 karakter)</label><input id="pass" type="password" autocomplete="new-password" minlength="12" required="" placeholder="Huruf, angka dan simbol"><button id="submit" type="submit">DAFTAR &amp; KIRIM KONFIRMASI</button></form><p id="msg" role="status" aria-live="polite"></p><small>Password langsung dikirim melalui koneksi HTTPS ke Supabase Auth, tidak disimpan di halaman ini. Pendaftaran tidak otomatis memberi izin moderator.</small><p><a href="https://wingking-private-review-console.vercel.app/">← Login admin</a></p></main><script>(()=>{'use strict';const form=document.querySelector('#form'),btn=document.querySelector('#submit'),msg=document.querySelector('#msg');const show=(t,bad=false)=>{msg.textContent=t;msg.className=bad?'bad':'';msg.style.display='block';};form.addEventListener('submit',async e=>{e.preventDefault();const email=document.querySelector('#mail').value.trim().toLowerCase(),password=document.querySelector('#pass').value;if(!email||password.length<12){show('Email harus valid dan password minimal 12 karakter.',true);return}btn.disabled=true;show('Mengirim pendaftaran...');try{const r=await fetch('https://kiuhzrowbypovoydymam.supabase.co/auth/v1/signup',{method:'POST',headers:{'apikey':'sb_publishable_USjBvA86ZzhKG9DMLX0SEg_AehbVr5M','Content-Type':'application/json'},body:JSON.stringify({email,password}),cache:'no-store'});const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(j.msg||j.message||j.error_description||'Layanan menolak pendaftaran');form.reset();show('Pendaftaran diterima. Buka email konfirmasi, termasuk folder Spam, lalu kembali ke halaman Login Admin.');}catch(err){show('Aktivasi gagal: '+(err.message||'Cek koneksi'),true);}finally{btn.disabled=false;}});})();</script></body></html>
