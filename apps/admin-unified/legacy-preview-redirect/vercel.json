@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "https://wingking-private-review-console.vercel.app/",
+      "permanent": false
+    }
+  ]
+}
