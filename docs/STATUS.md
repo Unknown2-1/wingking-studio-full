@@ -27,3 +27,7 @@ As of 2026-11-03:
 ## Admin consolidation (2026-11-03)
 
 `apps/admin-unified/index.html` provides a single moderator sign-in, a review queue for pending guest/public submissions, plus video, band, release, archive, trash and audit views. It calls the existing live `wingking-guest-submissions` and `wingking-content-manager` Edge Functions and relies on their JWT/moderator checks. The old separate admin apps remain as rollback artifacts. CORS only allows the existing review-console production host (and the old Content Manager preview for its own functions); new staging hostnames need backend CORS configuration before end-to-end login testing. Static JS syntax is verified, but iPhone and live authenticated operations are not validated automatically.
+
+## Unified admin deployment status
+
+On 2026-11-03, the Admin Hub in `apps/admin-unified/index.html` was deployed to `https://wingking-private-review-console.vercel.app/` on the existing production Vercel project (`dpl_CEAPNeZ1JSrUPfX5P1YEBCweRtzV`, READY). The old Content Manager preview URL was replaced with a redirect to the unified admin (`dpl_BJqh21tcRNX7R5fNMFmLUM7gSofr`, READY). Frontend script syntax and preview HTTP 200 were checked. No test credentials were used; authenticated review, password rotation, media upload, and mobile interactions require end-to-end QA with a safe test account and staged content. Supabase function code and production data were not modified by this consolidation.
