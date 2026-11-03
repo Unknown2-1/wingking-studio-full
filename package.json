@@ -1,0 +1,15 @@
+{
+  "name": "wingking-studio-full",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Wingking Studio team monorepo: original Next.js source and live website/admin/static previews plus Supabase functions",
+  "scripts": {
+    "dev:public": "node scripts/serve-static.mjs apps/live-public/dist 3000",
+    "dev:review": "node scripts/serve-static.mjs apps/private-review/dist 3001",
+    "dev:manager": "node scripts/serve-static.mjs apps/content-manager 3002",
+    "dev:legacy": "npm --prefix legacy-nextjs run dev",
+    "test:legacy": "npm --prefix legacy-nextjs test",
+    "check:assets": "node scripts/check-assets.mjs"
+  }
+}
