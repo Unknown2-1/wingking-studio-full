@@ -1,0 +1,521 @@
+<!DOCTYPE html><html lang="id"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style rel="stylesheet" type="text/css">@charset "utf-8";
+
+:root { --ink: #18392e; --cream: #f8f3e7; --paper: #fffdf5; --muted: #68756b; --yellow: #f8cd63; --pink: #f399b5; --lime: #d2e9b7; --red: #ef857a; --line: #264639; --shadow: 5px 6px 0 var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: var(--ink); background: var(--cream); }
+
+* { box-sizing: border-box; }
+
+body { margin: 0px; min-height: 100vh; }
+
+button, input, textarea, select { font: inherit; }
+
+button { cursor: pointer; }
+
+button:disabled { opacity: 0.55; cursor: wait; }
+
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+
+a { color: inherit; }
+
+button { transition: transform 0.12s, background 0.12s; }
+
+button:not(:disabled):active { transform: translateY(2px); }
+
+[hidden] { display: none !important; }
+
+.eyebrow { font-weight: 900; letter-spacing: 2.2px; font-size: 10px; text-transform: uppercase; }
+
+.topband { height: 12px; background: repeating-linear-gradient(105deg,var(--ink) 0 28px,var(--pink) 28px 53px,var(--yellow) 53px 81px,var(--lime) 81px 103px); }
+
+.auth { min-height: calc(-12px + 100vh); display: grid; place-items: center; padding: 28px; background: radial-gradient(circle at 82% 11%,#f4b7ba 0,transparent 27%),radial-gradient(circle at 15% 80%,#e7dea0 0,transparent 29%),var(--cream); }
+
+.auth-card { max-width: 500px; width: 100%; background: var(--paper); border: 2px solid var(--ink); box-shadow: var(--shadow); border-radius: 20px; padding: 34px; }
+
+.auth-card img { width: 190px; max-width: 80%; }
+
+h1, h2, h3, p { margin-top: 0px; }
+
+.auth-card h1 { font-size: clamp(42px, 6vw, 68px); line-height: 0.97; letter-spacing: -0.075em; margin: 26px 0px 14px; }
+
+.auth-card h1 em, .hero h1 em { font-style: normal; color: rgb(228, 109, 146); }
+
+.auth-card p { color: var(--muted); line-height: 1.6; font-size: 14px; }
+
+.auth-card form { display: grid; gap: 14px; margin-top: 26px; }
+
+.field { display: grid; gap: 7px; }
+
+.field > span { font-size: 12px; font-weight: 850; }
+
+.field input, .field textarea, .field select, .searchbar input, .filters select { background: rgb(255, 255, 255); border: 1.6px solid var(--ink); padding: 12px 13px; border-radius: 9px; width: 100%; color: var(--ink); outline-color: var(--pink); }
+
+.field textarea { resize: vertical; min-height: 82px; line-height: 1.5; }
+
+.btn { border: 1.7px solid var(--ink); border-radius: 10px; background: var(--paper); padding: 10px 15px; font-size: 12px; font-weight: 850; color: var(--ink); white-space: nowrap; }
+
+.btn:hover { background: rgb(242, 237, 219); }
+
+.btn-dark { background: var(--ink); color: rgb(255, 255, 255); }
+
+.btn-dark:hover { background: rgb(43, 88, 71); }
+
+.btn-pink { background: var(--pink); }
+
+.btn-lime { background: var(--lime); }
+
+.btn-red { background: rgb(246, 212, 209); }
+
+.btn-outline { background: transparent; }
+
+.auth-card .btn { padding: 14px; }
+
+.muted { color: var(--muted); }
+
+.workspace { min-height: calc(-12px + 100vh); display: grid; grid-template-columns: 245px minmax(0px, 1fr); }
+
+.sidebar { background: var(--ink); color: rgb(249, 245, 233); min-height: 100%; padding: 24px 18px 20px; display: flex; flex-direction: column; gap: 17px; position: sticky; top: 0px; height: calc(-12px + 100vh); }
+
+.sidebar .brand { padding: 8px 12px 17px; border-bottom: 1px solid rgb(84, 115, 103); }
+
+.sidebar .brand img { width: 165px; max-height: 80px; object-fit: contain; }
+
+.brand-label { font-size: 10px; letter-spacing: 2px; color: rgb(200, 219, 200); font-weight: 800; margin-top: 11px; }
+
+.side-nav { display: grid; gap: 5px; }
+
+.side-nav button { display: flex; justify-content: space-between; align-items: center; text-align: left; width: 100%; background: transparent; border: 1px solid transparent; color: rgb(225, 234, 220); border-radius: 8px; padding: 13px 14px; font-weight: 750; font-size: 13px; }
+
+.side-nav button.active { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
+
+.side-nav button:hover:not(.active) { background: rgb(42, 87, 68); }
+
+.side-nav .num { font-size: 11px; opacity: 0.75; }
+
+.sidebar-foot { margin-top: auto; padding: 16px 10px 0px; border-top: 1px solid rgb(84, 115, 103); }
+
+.sidebar-foot .preview { display: inline-block; background: var(--pink); color: var(--ink); border-radius: 4px; padding: 5px 7px; font-size: 9px; font-weight: 950; letter-spacing: 1px; }
+
+.sidebar-foot p { font-size: 11px; line-height: 1.5; color: rgb(185, 205, 187); margin: 11px 0px; }
+
+.sidebar-foot button { width: 100%; border: 1px solid rgb(153, 181, 166); background: transparent; color: rgb(250, 248, 236); padding: 11px; border-radius: 8px; font-weight: 800; }
+
+.main { padding: 31px clamp(20px, 4vw, 65px) 80px; max-width: 1640px; width: 100%; margin: auto; }
+
+.topline { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 23px; }
+
+.topline .eyebrow { color: rgb(100, 121, 107); }
+
+.topline .right { display: flex; gap: 8px; align-items: center; }
+
+.mini { padding: 8px 10px; border: 1.5px solid var(--ink); border-radius: 7px; font-size: 11px; font-weight: 800; background: rgb(255, 253, 247); }
+
+.hero { display: flex; justify-content: space-between; gap: 18px; align-items: end; padding: 10px 0px 27px; border-bottom: 2px solid var(--ink); }
+
+.hero h1 { font-size: clamp(42px, 6vw, 89px); letter-spacing: -0.085em; line-height: 0.93; margin: 10px 0px 13px; font-weight: 1000; }
+
+.hero p { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 520px; margin: 0px; }
+
+.squiggle { width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; background: var(--yellow); border: 2px solid var(--ink); transform: rotate(12deg); box-shadow: 4px 5px 0 var(--ink); font-size: 13px; font-weight: 1000; line-height: 1.15; text-align: center; flex-shrink: 0; }
+
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0px, 1fr)); gap: 13px; margin: 23px 0px 29px; }
+
+.stat { border: 1.8px solid var(--ink); border-radius: 12px; background: var(--paper); padding: 18px; box-shadow: 3px 4px 0 var(--ink); }
+
+.stat:nth-child(2) { background: var(--lime); }
+
+.stat:nth-child(3) { background: var(--yellow); }
+
+.stat:nth-child(4) { background: rgb(246, 219, 214); }
+
+.stat .label { font-size: 11px; font-weight: 850; }
+
+.stat .value { font-size: 42px; font-weight: 1000; line-height: 1.1; letter-spacing: -0.06em; margin: 9px 0px 2px; }
+
+.stat small { font-size: 10px; color: rgb(85, 106, 91); }
+
+.section-head { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin: 22px 0px 14px; }
+
+.section-head h2 { font-size: 28px; letter-spacing: -0.06em; margin: 0px; line-height: 1.1; }
+
+.section-head .muted { font-size: 12px; }
+
+.filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+
+.searchbar { flex: 1 1 0%; min-width: 210px; }
+
+.searchbar input { background: var(--paper); }
+
+.filters select { width: auto; min-width: 160px; background: var(--paper); font-size: 12px; font-weight: 800; }
+
+.countnote { font-size: 11px; font-weight: 800; color: rgb(97, 115, 99); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(295px, 1fr)); gap: 16px; }
+
+.item { display: flex; flex-direction: column; border: 1.8px solid var(--ink); border-radius: 13px; background: var(--paper); overflow: hidden; box-shadow: 3px 4px 0 var(--ink); min-width: 0px; }
+
+.item-media { height: 154px; background: rgb(216, 231, 203); display: grid; place-items: center; overflow: hidden; position: relative; }
+
+.item-media img, .item-media video { width: 100%; height: 100%; object-fit: cover; }
+
+.item-media .placeholder { font-size: 48px; font-weight: 1000; letter-spacing: -0.07em; opacity: 0.36; transform: rotate(-6deg); }
+
+.item-media .media-type { position: absolute; bottom: 11px; left: 12px; background: var(--cream); padding: 5px 8px; border-radius: 5px; border: 1px solid var(--ink); font-size: 10px; font-weight: 900; }
+
+.item-body { padding: 17px; flex: 1 1 0%; }
+
+.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 9px; }
+
+.pill { font-size: 9px; text-transform: uppercase; letter-spacing: 0.45px; font-weight: 950; border: 1px solid var(--ink); border-radius: 5px; padding: 5px 7px; background: var(--cream); }
+
+.pill.published { background: var(--lime); }
+
+.pill.pending { background: var(--yellow); }
+
+.pill.rejected, .pill.trash { background: rgb(248, 208, 204); }
+
+.pill.archived { background: rgb(218, 224, 228); }
+
+.item h3 { font-size: 21px; letter-spacing: -0.04em; margin: 2px 0px 5px; word-break: break-word; }
+
+.item .sub { font-size: 11px; color: rgb(91, 110, 97); font-weight: 750; line-height: 1.4; }
+
+.item p { font-size: 12px; line-height: 1.55; color: rgb(89, 104, 93); margin: 12px 0px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.item time { font-size: 10px; color: rgb(122, 134, 123); }
+
+.item-actions { padding: 12px; display: flex; gap: 7px; flex-wrap: wrap; border-top: 1px solid rgb(214, 221, 207); }
+
+.item-actions .btn { font-size: 11px; padding: 8px 10px; }
+
+.item-actions .danger { margin-left: auto; }
+
+.empty { grid-column: 1 / -1; background: var(--paper); border: 1.8px dashed var(--ink); border-radius: 14px; text-align: center; padding: 65px 25px; }
+
+.empty strong { font-size: 24px; display: block; margin-bottom: 8px; }
+
+.empty p { font-size: 13px; color: var(--muted); }
+
+.activity-list { display: grid; gap: 10px; }
+
+.activity-row { display: flex; gap: 14px; justify-content: space-between; align-items: center; background: var(--paper); padding: 17px 20px; border: 1.5px solid var(--ink); border-radius: 9px; }
+
+.activity-row strong { font-size: 13px; }
+
+.activity-row span { font-size: 11px; color: var(--muted); }
+
+.activity-row .tag { font-size: 10px; font-weight: 900; border-radius: 5px; background: var(--yellow); padding: 6px 8px; }
+
+.modal { position: fixed; inset: 0px; background: rgba(16, 36, 29, 0.867); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 18px; }
+
+.modal-box { width: min(650px, 100%); max-height: calc(-35px + 100svh); overflow: auto; background: var(--paper); border: 2px solid var(--ink); border-radius: 18px; box-shadow: rgb(10, 20, 15) 8px 9px 0px; padding: 24px; }
+
+.modal-top { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-bottom: 19px; }
+
+.modal-top h2 { font-size: 26px; letter-spacing: -0.06em; margin: 5px 0px 0px; }
+
+.close { border: 1.5px solid var(--ink); background: transparent; width: 36px; height: 36px; border-radius: 8px; font-size: 22px; }
+
+.edit-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+
+.edit-fields .long { grid-column: 1 / -1; }
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px; flex-wrap: wrap; }
+
+.modal video, .modal img { max-width: 100%; border-radius: 10px; max-height: 65vh; object-fit: contain; }
+
+.note { padding: 12px 14px; background: rgb(255, 241, 199); border-left: 4px solid var(--ink); font-size: 12px; line-height: 1.5; }
+
+.toasts { position: fixed; bottom: 18px; right: 20px; z-index: 200; display: grid; gap: 8px; max-width: min(92vw, 450px); }
+
+.toast { background: var(--ink); color: white; border-radius: 10px; padding: 14px 17px; font-size: 12px; box-shadow: rgb(233, 178, 172) 3px 4px 0px; line-height: 1.5; }
+
+.toast.error { background: rgb(140, 52, 47); }
+
+.mobile-bar { display: none; }
+
+.hint { font-size: 11px; color: rgb(111, 127, 113); line-height: 1.6; margin-top: 20px; }
+
+.hint a { text-decoration: underline; }
+
+@media (max-width: 1050px) {
+  .stats { grid-template-columns: repeat(2, minmax(0px, 1fr)); }
+  .workspace { grid-template-columns: 190px minmax(0px, 1fr); }
+  .sidebar { padding: 20px 10px; }
+  .side-nav button { padding: 12px 9px; }
+}
+
+@media (max-width: 720px) {
+  .workspace { display: block; }
+  .sidebar { position: sticky; top: 0px; z-index: 10; height: auto; min-height: auto; padding: 11px 14px; gap: 5px; }
+  .sidebar .brand { display: none; }
+  .side-nav { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; }
+  .side-nav::-webkit-scrollbar { display: none; }
+  .side-nav button { width: auto; white-space: nowrap; padding: 10px 13px; font-size: 11px; }
+  .side-nav .num { display: none; }
+  .sidebar-foot { display: none; }
+  .main { padding: 23px 16px 60px; }
+  .topline .right { flex-wrap: wrap; justify-content: flex-end; }
+  .hero h1 { font-size: 56px; }
+  .hero .squiggle { width: 66px; height: 66px; font-size: 10px; }
+  .stat { padding: 14px; }
+  .stat .value { font-size: 32px; }
+  .stat .label { font-size: 10px; }
+  .cards { grid-template-columns: 1fr; }
+  .edit-fields { grid-template-columns: 1fr; }
+  .edit-fields .long { grid-column: auto; }
+  .modal-box { padding: 16px; }
+  .filters .searchbar { min-width: 100%; }
+  .auth-card { padding: 24px; }
+  .section-head h2 { font-size: 23px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after { transition: none !important; }
+}</style>
+
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f8f3e7">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Wingking Studio — Content Manager Preview</title>
+
+</head>
+<body>
+<div class="topband"></div>
+<section class="auth" id="login">
+ <div class="auth-card">
+  <img src="https://wingking-studio.vercel.app/wingking-logo-festival.webp" alt="Wingking Studio">
+  <div class="eyebrow" style="margin-top:22px">Private content workspace / preview</div>
+  <h1>YOUR MUSIC.<br><em>YOUR CONTROL.</em></h1>
+  <p>Kelola video, profil band, dan rilisan dari satu tempat. Hanya akun moderator Wingking yang bisa masuk.</p>
+  <form id="loginform">
+   <label class="field"><span>Email admin</span><input id="email" type="email" autocomplete="username" required="" placeholder="email admin"></label>
+   <label class="field"><span>Password admin</span><input id="password" type="password" autocomplete="current-password" required="" placeholder="password"></label>
+   <button class="btn btn-dark" type="submit" id="loginbutton">MASUK CONTENT ROOM</button>
+   <div id="login-message" class="muted" style="font-size:12px"></div>
+  </form>
+  <div class="hint">Preview terpisah dari website produksi. Hak akses tetap mengikuti akun admin Supabase yang sudah terdaftar.</div>
+ </div>
+</section>
+<div id="workspace" class="workspace">
+ <aside class="sidebar">
+  <div class="brand"><img src="https://wingking-studio.vercel.app/wingking-logo-festival.webp" alt="Wingking Studio"><div class="brand-label">CONTENT MANAGEMENT / V1</div></div>
+  <nav id="nav" class="side-nav" aria-label="Menu pengelolaan">
+   <button data-nav="all" class="active">Semua Konten <span class="num" data-count="all">0</span></button>
+   <button data-nav="video">Kelola Video <span class="num" data-count="video">0</span></button>
+   <button data-nav="band">Profil Band <span class="num" data-count="band">0</span></button>
+   <button data-nav="release">Rilisan Musik <span class="num" data-count="release">0</span></button>
+   <button data-nav="upload">Upload Langsung <span class="num" data-count="upload">0</span></button>
+   <button data-nav="archive">Arsip <span class="num" data-count="archive">0</span></button>
+   <button data-nav="trash">Tempat Sampah <span class="num" data-count="trash">0</span></button>
+   <button data-nav="activity">Riwayat Aktivitas</button>
+  </nav>
+  <div class="sidebar-foot"><span class="preview">STAGING PREVIEW</span><p>Semua operasi memerlukan sesi moderator aktif. Hapus permanen tidak dapat dibatalkan.</p><button id="logout">Keluar akun</button></div>
+ </aside>
+ <main class="main">
+  <div class="topline"><div class="eyebrow">WINGKING STUDIO / ADMIN ONLY</div><div class="right"><span id="logged-user" class="eyebrow" style="letter-spacing:0;font-size:10px"></span><button id="refresh" class="mini">Muat ulang</button><button id="export" class="mini">Ekspor CSV</button><button id="mobilelogout" class="mini mobile-bar">Keluar</button></div></div>
+  <section class="hero"><div><div class="eyebrow">Manage every beat</div><h1>CONTENT<br><em>ROOM.</em></h1><p>Satu panel untuk video, band, rilisan, moderasi, arsip, dan tempat sampah. Semua perubahan tercatat.</p></div><div class="squiggle">KEEP IT<br>LOUD</div></section>
+  <div class="stats" id="stats"></div>
+  <div class="section-head"><div><h2 id="section-title">Semua Konten</h2><div class="muted" id="section-sub">Konten Wingking Studio</div></div><div class="countnote" id="countnote"></div></div>
+  <div class="filters" id="filters"><div class="searchbar"><input id="search" type="search" placeholder="Cari judul, band, genre, caption..." aria-label="Cari konten"></div><select id="statusfilter" aria-label="Filter status"><option value="all">Semua status</option><option value="pending">Menunggu review</option><option value="published">Tayang</option><option value="rejected">Ditolak</option><option value="archived">Arsip</option></select></div>
+  <div class="cards" id="cards"></div>
+  <div class="activity-list" id="activity"></div>
+  <div class="hint">🛡️ File media baru dibersihkan setelah admin memilih <strong>Hapus permanen</strong> dengan konfirmasi. Mengarsipkan tidak menghapus file. <a href="https://wingking-private-review-console.vercel.app/" target="_blank" rel="noopener noreferrer">Dashboard review lama</a> tetap tersedia selama migrasi.</div>
+ </main>
+</div>
+<div id="modal" class="modal" role="dialog" aria-modal="true"><div class="modal-box" id="modalbox"></div></div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<script type="module">
+const SB="https://kiuhzrowbypovoydymam.supabase.co";
+const PUB="sb_publishable_USjBvA86ZzhKG9DMLX0SEg_AehbVr5M";
+const END=SB+"/functions/v1/wingking-content-manager";
+const SESSION="wingking-manager-session-v1";
+const state={auth:null,items:[],activity:[],view:"all",search:"",status:"all",busy:false};
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function safeURL(v){try{let u=new URL(String(v||""));return u.protocol==="https:"?u.href:""}catch{return ""}}
+const date=v=>v?new Date(v).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"}):"—";
+function typeOf(x){if(x.source==="public")return x.kind==="video"?"video":x.kind==="release"?"release":"band";if(x.source==="guest")return x.clip_url?"video":x.release_title?"release":"band";if(x.source==="clip")return "video";if(x.source==="release")return "release";return "band"}
+function labelOf(x){return x.source==="public"?(x.title||x.band_name||"Konten"):x.source==="guest"||x.source==="band"?(x.name||"Profil band"):(x.title||"Konten")}
+function bandOf(x){return x.band_name||x.name||((x.source==="release"||x.source==="clip")?"Konten profil band":"")}
+function statusOf(x){if(x.deleted_at)return "trash";if(x.archived_at)return "archived";if(x.source==="guest")return x.is_visible?"published":"pending";if(x.review_status==="rejected")return "rejected";if(x.review_status==="pending")return "pending";return x.is_published?"published":"archived"}
+const statusLabels={trash:"Sampah",archived:"Arsip",pending:"Menunggu",published:"Tayang",rejected:"Ditolak"};
+const sourceLabels={public:"Upload langsung",guest:"Upload tanpa akun",band:"Profil band",release:"Rilisan",clip:"Video"};
+const fieldDefs={
+ public:[["band_name","Nama band"],["title","Judul konten"],["genre","Genre"],["city","Kota"],["description","Deskripsi / caption","long"],["instagram_url","Link Instagram"],["music_url","Link musik"],["price_text","Daftar harga","long"]],
+ guest:[["name","Nama band"],["genre","Genre"],["city","Kota"],["tagline","Perkenalan","long"],["story","Cerita band","long"],["instagram_url","Link Instagram"],["spotify_url","Link Spotify"],["release_title","Judul rilisan"],["release_caption","Caption rilisan","long"],["release_listen_url","Link lagu"],["clip_title","Judul video"],["clip_caption","Caption video","long"],["clip_instagram_url","Link Instagram video"]],
+ band:[["name","Nama band"],["genre","Genre"],["city","Kota"],["tagline","Perkenalan","long"],["story","Cerita band","long"],["instagram_url","Link Instagram"],["spotify_url","Link Spotify"]],
+ release:[["title","Judul rilisan"],["kind","Jenis rilisan"],["caption","Caption","long"],["listen_url","Link lagu"]],
+ clip:[["title","Judul video"],["caption","Caption video","long"],["instagram_url","Link Instagram"]]
+};
+function toast(message,error=false){const el=document.createElement("div");el.className="toast"+(error?" error":"");el.textContent=message;$("toasts").prepend(el);setTimeout(()=>el.remove(),6500)}
+function readSession(){try{const s=JSON.parse(sessionStorage.getItem(SESSION)||"null");return s?.access_token&&s?.refresh_token?s:null}catch{return null}}
+function writeSession(a){state.auth=a;if(a)sessionStorage.setItem(SESSION,JSON.stringify(a));else sessionStorage.removeItem(SESSION)}
+async function authRequest(path,body,token){
+ const r=await fetch(SB+"/auth/v1/"+path,{method:body?"POST":"GET",headers:{"apikey":PUB,"content-type":"application/json",...(token?{"authorization":"Bearer "+token}:{})},body:body?JSON.stringify(body):undefined,cache:"no-store"});
+ const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(j.msg||j.error_description||j.error||j.message||"Autentikasi gagal");
+ return j;
+}
+async function getToken(){
+ let a=state.auth;if(!a)throw Error("Silakan login");
+ if(Date.now()>a.expires_at-70000){
+  const fresh=await authRequest("token?grant_type=refresh_token",{refresh_token:a.refresh_token});
+  a={...fresh,expires_at:Date.now()+Number(fresh.expires_in||3600)*1000,user:a.user};writeSession(a);
+ }
+ return a.access_token;
+}
+async function api(body){
+ const token=await getToken();
+ const r=await fetch(END,{method:"POST",headers:{"authorization":"Bearer "+token,"apikey":PUB,"content-type":"application/json"},body:JSON.stringify(body),cache:"no-store"});
+ const j=await r.json().catch(()=>({error:"Respons server tidak valid"}));
+ if(!r.ok||!j.ok)throw Error(j.error||"Permintaan gagal");
+ return j;
+}
+function showApp(){ $("login").hidden=true;$("workspace").hidden=false;$("logged-user").textContent=state.auth?.user?.email||"ADMIN"; }
+function showLogin(){ $("workspace").hidden=true;$("login").hidden=false }
+async function login(e){
+ e.preventDefault();const btn=$("loginbutton");btn.disabled=true;$("login-message").textContent="Menghubungkan akun...";
+ try{const j=await authRequest("token?grant_type=password",{email:$("email").value.trim(),password:$("password").value});writeSession({...j,expires_at:Date.now()+Number(j.expires_in||3600)*1000});await load();showApp();$("password").value="";toast("Berhasil masuk sebagai moderator")}
+ catch(e){writeSession(null);$("login-message").textContent=e.message;toast(e.message,true)}
+ finally{btn.disabled=false}
+}
+async function startup(){
+ const sess=readSession();if(!sess)return showLogin();
+ writeSession(sess);
+ try{const jwt=await getToken();const u=await authRequest("user",null,jwt);state.auth.user=u;writeSession(state.auth);await load();showApp()}
+ catch(e){writeSession(null);showLogin();$("login-message").textContent="Sesi berakhir, silakan login lagi"}
+}
+async function load(){
+ const data=await api({action:"list"});
+ state.items=Array.isArray(data.items)?data.items:[];
+ state.activity=Array.isArray(data.activity)?data.activity:[];
+ render();return data;
+}
+function matchesView(x){
+ if(state.view==="trash")return !!x.deleted_at;
+ if(state.view==="archive")return !x.deleted_at&&!!x.archived_at;
+ if(x.deleted_at||x.archived_at)return false;
+ if(state.view==="all")return true;
+ if(state.view==="upload")return x.source==="public"||x.source==="guest";
+ return typeOf(x)===state.view;
+}
+function mediaOf(x){return safeURL(x.video_url||x.clip_url||x.photo_url||x.release_cover_url||x.cover_url||"")}
+function videoOf(x){return safeURL(x.video_url||x.clip_url||"")}
+function coverOf(x){return safeURL(x.photo_url||x.release_cover_url||x.cover_url||"")}
+function card(x){
+ const key=esc(x.id),s=esc(x.source),typ=typeOf(x),st=statusOf(x),name=esc(labelOf(x)),band=esc(bandOf(x)),d=x.submitted_at||x.created_at;
+ const caption=esc((x.description||x.tagline||x.caption||x.story||x.release_caption||x.clip_caption||"Tanpa deskripsi").slice(0,185));
+ let media='<div class="placeholder">'+(typ==="video"?"VIDEO":typ==="release"?"RELEASE":"WING")+'</div>';
+ const poster=coverOf(x),v=videoOf(x);
+ if(poster)media='<img loading="lazy" src="'+esc(poster)+'" alt="Poster konten">';
+ else if(v)media='<video preload="metadata" muted playsinline src="'+esc(v)+'#t=0.1"></video>';
+ const buttons=[];
+ buttons.push('<button class="btn" data-op="edit" data-source="'+s+'" data-id="'+key+'">Edit</button>');
+ if(v||poster)buttons.push('<button class="btn" data-op="preview" data-source="'+s+'" data-id="'+key+'">Preview</button>');
+ if(st==="trash"){
+  buttons.push('<button class="btn btn-lime" data-op="restore_trash" data-source="'+s+'" data-id="'+key+'">Pulihkan</button>');
+  buttons.push('<button class="btn btn-red danger" data-op="purge" data-source="'+s+'" data-id="'+key+'">Hapus permanen</button>');
+ } else if(st==="archived"){
+  buttons.push('<button class="btn btn-lime" data-op="restore" data-source="'+s+'" data-id="'+key+'">Tayangkan lagi</button>');
+  buttons.push('<button class="btn btn-red danger" data-op="trash" data-source="'+s+'" data-id="'+key+'">Ke Sampah</button>');
+ } else {
+  if(x.review_status==="pending"&&x.source!=="guest"){
+   buttons.push('<button class="btn btn-lime" data-op="approve" data-source="'+s+'" data-id="'+key+'">Setujui</button>');
+   buttons.push('<button class="btn btn-red" data-op="reject" data-source="'+s+'" data-id="'+key+'">Tolak</button>');
+  }
+  buttons.push('<button class="btn" data-op="archive" data-source="'+s+'" data-id="'+key+'">Arsip</button>');
+  buttons.push('<button class="btn btn-red danger" data-op="trash" data-source="'+s+'" data-id="'+key+'">Ke Sampah</button>');
+ }
+ return '<article class="item"><div class="item-media">'+media+'<span class="media-type">'+(typ==="video"?"VIDEO":typ==="release"?"RILISAN":"BAND")+'</span></div><div class="item-body"><div class="pills"><span class="pill '+st+'">'+esc(statusLabels[st])+'</span><span class="pill">'+esc(sourceLabels[x.source])+'</span></div><h3>'+name+'</h3><div class="sub">'+band+(band&&typ?" · ":"")+esc(typ==="video"?"Video":typ==="release"?"Rilisan musik":"Profil band")+'</div><p>'+caption+'</p><time>'+date(d)+'</time></div><div class="item-actions">'+buttons.join("")+'</div></article>';
+}
+const titles={all:"Semua Konten",video:"Kelola Video",band:"Profil Band",release:"Rilisan Musik",upload:"Upload Langsung",archive:"Arsip Konten",trash:"Tempat Sampah",activity:"Riwayat Aktivitas"};
+function render(){
+ const s=state.items,active=s.filter(x=>!x.archived_at&&!x.deleted_at),published=active.filter(x=>statusOf(x)==="published").length,pending=active.filter(x=>statusOf(x)==="pending").length,archived=s.filter(x=>x.archived_at&&!x.deleted_at).length,trashed=s.filter(x=>x.deleted_at).length;
+ $("stats").innerHTML=[["Total aktif",active.length,"Band, rilisan dan video"],["Tayang",published,"Konten dipublikasikan"],["Menunggu",pending,"Butuh review admin"],["Arsip / sampah",archived+" / "+trashed,"Konten disembunyikan"]].map(x=>'<div class="stat"><div class="label">'+x[0]+'</div><div class="value">'+x[1]+'</div><small>'+x[2]+'</small></div>').join("");
+ const counts={all:active.length,video:active.filter(x=>typeOf(x)==="video").length,band:active.filter(x=>typeOf(x)==="band").length,release:active.filter(x=>typeOf(x)==="release").length,upload:active.filter(x=>x.source==="public"||x.source==="guest").length,archive:archived,trash:trashed};
+ for(const [k,v]of Object.entries(counts)){let e=document.querySelector('[data-count="'+k+'"]');if(e)e.textContent=v}
+ for(const b of document.querySelectorAll("[data-nav]"))b.classList.toggle("active",b.dataset.nav===state.view);
+ $("section-title").textContent=titles[state.view];$("section-sub").textContent=state.view==="trash"?"Konten yang belum dihapus permanen masih bisa dipulihkan":state.view==="archive"?"Konten disembunyikan dari website publik, tetapi file tetap tersimpan":"Kelola data asli Wingking Studio dengan aman";
+ $("filters").hidden=state.view==="activity";$("activity").hidden=state.view!=="activity";$("cards").hidden=state.view==="activity";
+ if(state.view==="activity"){
+  $("countnote").textContent=state.activity.length+" aktivitas terakhir";
+  $("activity").innerHTML=state.activity.length?state.activity.map(a=>'<div class="activity-row"><div><strong>'+esc(a.label)+'</strong><div><span>'+esc(sourceLabels[a.source]||a.source)+' · '+date(a.created_at)+'</span></div></div><span class="tag">'+esc(({edit:"EDIT",archive:"ARSIP",restore:"PULIHKAN",trash:"SAMPAH",restore_trash:"KEMBALI",purge:"HAPUS",approve:"SETUJUI",reject:"TOLAK"})[a.action]||a.action)+'</span></div>').join(""):'<div class="empty"><strong>Belum ada aktivitas</strong><p>Perubahan konten yang baru akan dicatat di sini.</p></div>';
+  return;
+ }
+ const term=state.search.toLowerCase(),rows=s.filter(matchesView).filter(x=>state.status==="all"||statusOf(x)===state.status||["trash","archive"].includes(state.view)).filter(x=>[labelOf(x),bandOf(x),x.genre,x.city,x.description,x.caption,x.story,x.release_caption,x.clip_caption].some(v=>String(v||"").toLowerCase().includes(term))).sort((a,b)=>Date.parse(b.submitted_at||b.created_at||0)-Date.parse(a.submitted_at||a.created_at||0));
+ $("countnote").textContent=rows.length+" konten";
+ $("cards").innerHTML=rows.length?rows.map(card).join(""):'<div class="empty"><strong>Belum ada konten di sini.</strong><p>Coba filter lain atau tunggu kiriman baru.</p></div>';
+}
+function modal(content){$("modalbox").innerHTML=content;$("modal").hidden=false;document.body.style.overflow="hidden"}
+function closeModal(){$("modal").hidden=true;$("modalbox").innerHTML="";document.body.style.overflow=""}
+function modalHead(t){return '<div class="modal-top"><div><div class="eyebrow">Wingking Content Manager</div><h2>'+esc(t)+'</h2></div><button class="close" data-modal-close aria-label="Tutup">×</button></div>'}
+function openEdit(x){
+ const f=fieldDefs[x.source]||[];
+ const fields=f.map(([key,label,kind])=>{
+  const val=esc(x[key]||"");
+  if(key==="kind")return '<label class="field"><span>'+esc(label)+'</span><select name="'+key+'">'+["Single","EP","Album","Live Session"].map(v=>'<option '+(v===(x.kind||"")?"selected":"")+'>'+v+'</option>').join("")+'</select></label>';
+  if(kind==="long")return '<label class="field long"><span>'+esc(label)+'</span><textarea name="'+key+'" rows="3">'+val+'</textarea></label>';
+  return '<label class="field"><span>'+esc(label)+'</span><input name="'+key+'" value="'+val+'"></label>';
+ }).join("");
+ modal(modalHead("Edit konten")+'<div class="note">Perubahan judul, caption, dan link tidak memerlukan upload ulang file.</div><form id="editform" data-source="'+esc(x.source)+'" data-id="'+esc(x.id)+'"><div class="edit-fields" style="margin-top:17px">'+fields+'</div><div class="modal-actions"><button type="button" class="btn" data-modal-close>Batal</button><button class="btn btn-dark" type="submit">Simpan perubahan</button></div></form>');
+}
+function openPreview(x){
+ const video=videoOf(x),poster=coverOf(x),content=video?'<video src="'+esc(video)+'" controls playsinline preload="metadata"></video>':poster?'<img src="'+esc(poster)+'" alt="Pratinjau">':'<p>Media tidak tersedia.</p>';
+ modal(modalHead("Preview: "+labelOf(x))+content+'<p class="muted" style="font-size:12px;margin-top:14px">File sumber tidak diubah saat melakukan preview.</p><div class="modal-actions"><button class="btn" data-modal-close>Tutup</button></div>');
+}
+function openPurge(x){
+ const label=labelOf(x);
+ modal(modalHead("Hapus permanen?")+'<div class="note">Tindakan ini tidak bisa dibatalkan. Data akan dihapus, dan file yang hanya dipakai konten ini akan dibersihkan dari Supabase Storage.</div><p style="font-size:13px;margin-top:17px">Ketik judul persis seperti ini untuk mengonfirmasi: <strong>'+esc(label)+'</strong></p><label class="field"><span>Konfirmasi judul</span><input id="purge-confirm" autocomplete="off" placeholder="'+esc(label)+'"></label><div class="modal-actions"><button class="btn" data-modal-close>Batal</button><button class="btn btn-red" id="purge-submit" data-id="'+esc(x.id)+'" data-source="'+esc(x.source)+'">HAPUS PERMANEN</button></div>');
+}
+async function mutate(payload,success){
+ if(state.busy)return;state.busy=true;
+ try{const data=await api(payload);closeModal();toast(success+(data.warning?" · "+data.warning:""));await load()}
+ catch(e){toast(e.message,true)}
+ finally{state.busy=false}
+}
+async function interact(e){
+ const button=e.target.closest("[data-op]");if(!button||state.busy)return;
+ const source=button.dataset.source,id=button.dataset.id,op=button.dataset.op,x=state.items.find(r=>r.source===source&&r.id===id);
+ if(!x){toast("Konten tidak ditemukan, coba muat ulang",true);return}
+ if(op==="edit")return openEdit(x);
+ if(op==="preview")return openPreview(x);
+ if(op==="purge")return openPurge(x);
+ let note="",ok=false;
+ const name=labelOf(x);
+ if(op==="archive")ok=confirm("Arsipkan "+name+"? Konten akan hilang dari website publik, tetapi file tetap aman.");
+ else if(op==="trash")ok=confirm("Pindahkan "+name+" ke Tempat Sampah? File belum dihapus dan masih bisa dipulihkan.");
+ else if(op==="restore"||op==="restore_trash")ok=confirm("Pulihkan "+name+"? Konten yang sebelumnya disetujui bisa kembali tampil di website.");
+ else if(op==="approve")ok=confirm("Setujui dan tayangkan "+name+" di website publik?");
+ else if(op==="reject"){note=prompt("Alasan penolakan untuk "+name+" (minimal 5 karakter):")||"";ok=note.trim().length>=5;if(note&&!ok)toast("Alasan minimal 5 karakter",true)}
+ if(ok)await mutate({action:op,source,id,note},name+" berhasil diproses");
+}
+async function exportCSV(){
+ const header=["Jenis","Sumber","Judul","Band","Status","Tanggal","ID"],rows=state.items.map(x=>[typeOf(x),x.source,labelOf(x),bandOf(x),statusOf(x),x.submitted_at||x.created_at||"",x.id]);
+ const quote=s=>'"'+String(s??"").replace(/"/g,'""')+'"';
+ const text=[header,...rows].map(r=>r.map(quote).join(",")).join("\r\n"),blob=new Blob(["\uFEFF"+text],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="wingking-content-"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(url);toast("Data CSV berhasil diekspor");
+}
+document.addEventListener("click",e=>{
+ if(e.target.closest("[data-modal-close]")||e.target===$("modal")){closeModal();return}
+ const b=e.target.closest("[data-nav]");if(b){state.view=b.dataset.nav;state.status="all";state.search="";$("search").value="";$("statusfilter").value="all";render();return}
+ if(e.target.closest("[data-op]")){interact(e);return}
+ if(e.target.closest("#purge-submit")){
+  const btn=e.target.closest("#purge-submit"),x=state.items.find(r=>r.id===btn.dataset.id&&r.source===btn.dataset.source);
+  if(!x)return;
+  if($("purge-confirm").value!==labelOf(x)){toast("Judul konfirmasi belum sesuai",true);return}
+  mutate({action:"purge",source:x.source,id:x.id,confirm:$("purge-confirm").value},"Konten dihapus permanen");
+ }
+});
+document.addEventListener("submit",e=>{
+ if(e.target.id==="editform"){
+  e.preventDefault();const f=e.target,p={};for(const [k,v]of new FormData(f))p[k]=String(v);
+  mutate({action:"edit",source:f.dataset.source,id:f.dataset.id,patch:p},"Perubahan berhasil disimpan");
+ }
+});
+$("loginform").addEventListener("submit",login);
+$("search").addEventListener("input",e=>{state.search=e.target.value.trim();render()});
+$("statusfilter").addEventListener("change",e=>{state.status=e.target.value;render()});
+$("refresh").addEventListener("click",()=>load().then(()=>toast("Data terbaru berhasil dimuat")).catch(e=>toast(e.message,true)));
+$("export").addEventListener("click",exportCSV);
+for(const key of ["logout","mobilelogout"])$(key).addEventListener("click",()=>{writeSession(null);state.items=[];state.activity=[];showLogin();toast("Berhasil keluar")});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modal").hidden)closeModal()});
+startup();
+</script>
+</body></html>
