@@ -1,0 +1,42 @@
+name: Verify Wingking editable web source
+
+on:
+  push:
+    branches: [main, dev/unknown2-1]
+    paths:
+      - "apps/web/**"
+      - "apps/live-public/dist/**"
+      - ".github/workflows/verify-web.yml"
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - "apps/live-public/dist/**"
+      - ".github/workflows/verify-web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  web-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Checkout all source and assets
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install web dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check editable Vite/React project builds
+        run: npm run build
+      - name: Verify output and upload route assets
+        run: |
+          test -s dist/index.html
+          test -s dist/upload.html
+          test -d dist/assets
+          grep -q '<div id="root"></div>' dist/index.html
