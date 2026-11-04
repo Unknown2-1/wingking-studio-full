@@ -21,6 +21,18 @@ npm run build                  # menghasilkan apps/web/dist/
 
 Tanpa konfigurasi Supabase, homepage memakai data contoh. Untuk menguji simpan/review/upload gunakan **proyek staging** dan data dummy.
 
+## Verifikasi email untuk pengajuan
+
+Tab Band, Video, dan Rilisan serta halaman `/upload.html` meminta OTP email dari Supabase Auth sebelum pengunjung dapat mengunggah. Pastikan:
+
+1. Supabase **Authentication → Providers → Email** dan konfirmasi email aktif.
+2. Template email OTP menampilkan `{{ .Token }}` (kode verifikasi), bukan hanya tautan login.
+3. SMTP produksi dikonfigurasi agar email OTP terkirim dengan andal dan batas pengiriman sesuai kebutuhan.
+4. URL production Vercel diizinkan pada konfigurasi Auth Supabase. Edge Function `wingking-public-intake` juga memeriksa email terverifikasi dan memiliki allowlist origin tersendiri; tambahkan origin Vercel preview atau custom domain secara eksplisit bila diperlukan.
+5. Terapkan migrasi `20261104142500_wingking_guest_submission_email_auth.sql`, lalu deploy Edge Function `wingking-public-intake` dan `wingking-guest-submissions` ke Supabase. Perubahan backend ini terpisah dari deploy frontend Vercel.
+
+Setelah OTP valid, pengajuan tetap berstatus menunggu dan baru tampil setelah admin Wingking menyetujuinya. Untuk pengujian ujung ke ujung, gunakan project Supabase staging serta alamat email uji.
+
 ## Lokasi file
 - `src/App.jsx`: komponen & logika website (hasil rekonstruksi React.createElement; perlu refactor untuk penamaan dan JSX lebih bersih).
 - `src/main.jsx`: entry React.

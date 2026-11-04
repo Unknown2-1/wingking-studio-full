@@ -1,15 +1,60 @@
 import { config } from "./config.js";
+import { createClient } from "@supabase/supabase-js";
 const T = config.supabaseUrl,
   F = T + "/functions/v1/wingking-guest-submissions",
   E = config.supabaseKey,
+  authClient =
+    T && E
+      ? createClient(T, E, {
+          auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true,
+          },
+        })
+      : null,
   f = document.getElementById("form"),
   h = document.getElementById("send"),
   x = document.getElementById("status"),
   P = document.getElementById("ticket"),
   z = document.getElementById("code"),
   C = document.getElementById("check"),
-  M = document.getElementById("result");
-if (!f || !h || !x || !P || !z || !C || !M)
+  M = document.getElementById("result"),
+  authGate = document.getElementById("auth-gate"),
+  emailForm = document.getElementById("email-form"),
+  emailCodeForm = document.getElementById("email-code-form"),
+  authEmail = document.getElementById("auth-email"),
+  authCode = document.getElementById("auth-code"),
+  authStatus = document.getElementById("auth-status"),
+  otpInstruction = document.getElementById("otp-instruction"),
+  sendOtpButton = document.getElementById("send-otp"),
+  verifyOtpButton = document.getElementById("verify-otp"),
+  resendOtpButton = document.getElementById("resend-otp"),
+  changeEmailButton = document.getElementById("change-email"),
+  signOutButton = document.getElementById("sign-out"),
+  verifiedEmail = document.getElementById("verified-email");
+if (
+  !f ||
+  !h ||
+  !x ||
+  !P ||
+  !z ||
+  !C ||
+  !M ||
+  !authGate ||
+  !emailForm ||
+  !emailCodeForm ||
+  !authEmail ||
+  !authCode ||
+  !authStatus ||
+  !otpInstruction ||
+  !sendOtpButton ||
+  !verifyOtpButton ||
+  !resendOtpButton ||
+  !changeEmailButton ||
+  !signOutButton ||
+  !verifiedEmail
+)
   throw Error("Bagian form upload tidak lengkap");
 f.noValidate = !0;
 for (const e of f.querySelectorAll('input[type="url"]'))
@@ -58,6 +103,116 @@ function H() {
   p && ((P.hidden = !1), (z.textContent = p.id + " / " + p.receipt));
 }
 H();
+let verifiedUser = null;
+function setVerifiedUser(user) {
+  verifiedUser = user?.email_confirmed_at ? user : null;
+  authGate.hidden = !!verifiedUser;
+  f.hidden = !verifiedUser;
+  if (verifiedUser) verifiedEmail.textContent = verifiedUser.email || "";
+}
+async function requestOtp() {
+  if (!authClient) throw Error("Login email belum dikonfigurasi.");
+  const { error } = await authClient.auth.signInWithOtp({
+    email: authEmail.value.trim(),
+    options: { shouldCreateUser: true },
+  });
+  if (error) throw error;
+  otpInstruction.textContent =
+    "Masukkan kode yang dikirim ke " +
+    authEmail.value.trim() +
+    ". Cek folder spam juga.";
+  emailForm.hidden = true;
+  emailCodeForm.hidden = false;
+  authStatus.textContent = "Kode OTP dikirim.";
+}
+if (authClient) {
+  const {
+    data: { subscription },
+  } = authClient.auth.onAuthStateChange((_event, session) =>
+    setVerifiedUser(session?.user),
+  );
+  authClient.auth
+    .getSession()
+    .then(({ data, error }) => {
+      if (error) {
+        authStatus.textContent = error.message;
+        return;
+      }
+      setVerifiedUser(data.session?.user);
+    })
+    .catch((error) => {
+      authStatus.textContent =
+        error.message || "Sesi email tidak dapat diperiksa.";
+    });
+  window.addEventListener("pagehide", () => subscription.unsubscribe(), {
+    once: true,
+  });
+} else {
+  authStatus.textContent = "Login email belum dikonfigurasi untuk website ini.";
+  sendOtpButton.disabled = true;
+}
+emailForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  sendOtpButton.disabled = true;
+  try {
+    await requestOtp();
+  } catch (error) {
+    authStatus.textContent = error.message || "Kode OTP gagal dikirim.";
+  } finally {
+    sendOtpButton.disabled = false;
+  }
+});
+emailCodeForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  verifyOtpButton.disabled = true;
+  try {
+    if (!authClient) throw Error("Login email belum dikonfigurasi.");
+    const { data, error } = await authClient.auth.verifyOtp({
+      email: authEmail.value.trim(),
+      token: authCode.value.trim(),
+      type: "email",
+    });
+    if (error) throw error;
+    if (!data.user?.email_confirmed_at)
+      throw Error("Email belum berhasil diverifikasi. Coba kode terbaru.");
+    setVerifiedUser(data.user);
+    authCode.value = "";
+    authStatus.textContent =
+      "Email terverifikasi. Pengajuan tetap menunggu persetujuan admin.";
+  } catch (error) {
+    authStatus.textContent = error.message || "Kode OTP tidak valid.";
+  } finally {
+    verifyOtpButton.disabled = false;
+  }
+});
+resendOtpButton.addEventListener("click", async () => {
+  resendOtpButton.disabled = true;
+  try {
+    await requestOtp();
+  } catch (error) {
+    authStatus.textContent = error.message || "Kode OTP gagal dikirim.";
+  } finally {
+    resendOtpButton.disabled = false;
+  }
+});
+changeEmailButton.addEventListener("click", () => {
+  emailCodeForm.hidden = true;
+  emailForm.hidden = false;
+  authCode.value = "";
+  authStatus.textContent = "";
+});
+signOutButton.addEventListener("click", async () => {
+  if (!authClient) return;
+  signOutButton.disabled = true;
+  try {
+    const { error } = await authClient.auth.signOut();
+    if (error) throw error;
+  } catch (error) {
+    authStatus.textContent = error.message || "Gagal keluar dari akun.";
+  } finally {
+    signOutButton.disabled = false;
+  }
+});
 const N = {
   mp4: "video/mp4",
   m4v: "video/mp4",
@@ -196,11 +351,22 @@ async function S(e, a) {
     throw Error(
       "Frontend masih mode demo. Tambahkan kredensial Supabase STAGING di .env.local dahulu.",
     );
+  const { data, error } = await authClient.auth.getSession();
+  if (error) throw error;
+  const accessToken = data.session?.access_token;
+  if (e !== "status" && !accessToken)
+    throw Error("Verifikasi email terlebih dahulu.");
   let i;
   try {
     i = await fetch(F, {
       method: "POST",
-      headers: { "content-type": "application/json", apikey: E },
+      headers: {
+        "content-type": "application/json",
+        apikey: E,
+        ...(accessToken && e !== "status"
+          ? { authorization: "Bearer " + accessToken }
+          : {}),
+      },
       body: JSON.stringify({ action: e, ...a }),
       cache: "no-store",
     });

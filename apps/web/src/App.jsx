@@ -905,8 +905,8 @@ function BandDetailsModal({ band: s, releases: a, onClose: r }) {
                 target: "_blank",
                 rel: "noopener noreferrer",
               },
-              React.createElement(Fy, { size: 16 }),
-              " Musik mereka ",
+              React.createElement(GE, { size: 16 }),
+              " Link band ",
               React.createElement(dt, { size: 16 }),
             ),
         ),
@@ -1123,14 +1123,30 @@ function UploadBandModal({
     [P, H] = React.useState(""),
     [W, C] = React.useState(""),
     [N, L] = React.useState(null),
+    [authUser, setAuthUser] = React.useState(null),
+    [authReady, setAuthReady] = React.useState(false),
+    [authEmail, setAuthEmail] = React.useState(""),
+    [otpCode, setOtpCode] = React.useState(""),
+    [otpSent, setOtpSent] = React.useState(false),
+    [authBusy, setAuthBusy] = React.useState(false),
     D = (ae, oe) => h((J) => ({ ...J, [ae]: oe })),
     Q = config.supabaseUrl + "/functions/v1/wingking-public-intake",
     Z = async (ae) => {
+      if (!supabase) throw Error("Login dan upload belum dikonfigurasi");
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const accessToken = sessionData.session?.access_token;
+      if (ae.action !== "status" && !accessToken)
+        throw Error("Verifikasi email terlebih dahulu");
       const oe = await fetch(Q, {
           method: "POST",
           headers: {
             "content-type": "application/json",
             apikey: config.supabaseKey,
+            ...(accessToken && ae.action !== "status"
+              ? { authorization: "Bearer " + accessToken }
+              : {}),
           },
           body: JSON.stringify(ae),
         }),
@@ -1163,6 +1179,8 @@ function UploadBandModal({
       if ((ae.preventDefault(), !R)) {
         k(!0);
         try {
+          if (!authUser?.email_confirmed_at)
+            throw Error("Verifikasi email terlebih dahulu");
           if (l === "video" && !d) throw Error("Pilih video terlebih dahulu");
           if (
             m &&
@@ -1244,6 +1262,93 @@ function UploadBandModal({
         r(oe.message);
       }
     };
+  React.useEffect(() => {
+    if (!supabase) {
+      setAuthReady(true);
+      return;
+    }
+    let active = true;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) {
+        setAuthUser(session?.user || null);
+        setAuthReady(true);
+      }
+    });
+    supabase.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) r(error.message);
+        setAuthUser(data.session?.user || null);
+        setAuthReady(true);
+      })
+      .catch((error) => {
+        if (!active) return;
+        r(error.message || "Sesi login tidak dapat diperiksa");
+        setAuthReady(true);
+      });
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+  const sendEmailOtp = async (ae) => {
+    ae.preventDefault();
+    if (authBusy) return;
+    if (!supabase) {
+      r("Login email belum dikonfigurasi untuk website ini");
+      return;
+    }
+    setAuthBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: authEmail.trim(),
+        options: { shouldCreateUser: true },
+      });
+      if (error) throw error;
+      setOtpSent(true);
+      r("Kode OTP dikirim. Cek inbox atau folder spam emailmu.");
+    } catch (error) {
+      r(error.message || "Kode OTP gagal dikirim");
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+  const verifyEmailOtp = async (ae) => {
+    ae.preventDefault();
+    if (authBusy) return;
+    setAuthBusy(true);
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: authEmail.trim(),
+        token: otpCode.trim(),
+        type: "email",
+      });
+      if (error) throw error;
+      if (!data.user?.email_confirmed_at)
+        throw Error("Email belum berhasil diverifikasi. Coba kode terbaru.");
+      setAuthUser(data.user);
+      setOtpCode("");
+      r("Email terverifikasi. Kamu bisa mengirim pengajuan.");
+    } catch (error) {
+      r(error.message || "Kode OTP tidak valid");
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+  const signOutSubmitter = async () => {
+    if (!supabase) return;
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      r(error.message || "Gagal keluar dari akun");
+      return;
+    }
+    setOtpSent(false);
+    setOtpCode("");
+    setAuthEmail("");
+  };
   return React.createElement(
     "div",
     {
@@ -1274,14 +1379,153 @@ function UploadBandModal({
         React.createElement(
           "div",
           { className: "panel-welcome" },
-          React.createElement("h2", null, "Kirim karyamu."),
-          React.createElement(
-            "p",
-            null,
-            "Tanpa email, tanpa login. Tim Wingking periksa sebelum tayang.",
+            React.createElement(
+              "h2",
+              null,
+              l === "band"
+                ? "Kenalkan bandmu."
+                : l === "release"
+                  ? "Kirim rilisanmu."
+                  : "Kirim karyamu.",
+            ),
+            React.createElement(
+              "p",
+              null,
+              l === "band"
+                ? "Isi profil, cerita, harga booking, dan tautan bandmu. Tim Wingking akan meninjau sebelum ditayangkan."
+                : "Verifikasi email diperlukan. Tim Wingking akan meninjau sebelum konten ditayangkan.",
           ),
         ),
-        P
+        !authReady
+          ? React.createElement(
+              "p",
+              { className: "auth-message", role: "status" },
+              "Memeriksa sesi email...",
+            )
+          : !authUser
+            ? otpSent
+              ? React.createElement(
+                  "form",
+                  { className: "editor-form auth-form", onSubmit: verifyEmailOtp },
+                  React.createElement("h3", null, "Masukkan kode OTP"),
+                  React.createElement(
+                    "p",
+                    { className: "auth-message" },
+                    "Kode 6 digit dikirim ke ",
+                    React.createElement("strong", null, authEmail),
+                    ". Cek juga folder spam.",
+                  ),
+                  React.createElement(
+                    Ln,
+                    { label: "KODE OTP *" },
+                    React.createElement("input", {
+                      type: "text",
+                      inputMode: "numeric",
+                      autoComplete: "one-time-code",
+                      pattern: "[0-9]{6}",
+                      minLength: 6,
+                      maxLength: 6,
+                      required: !0,
+                      value: otpCode,
+                      onChange: (ae) =>
+                        setOtpCode(ae.target.value.replace(/\D/g, "").slice(0, 6)),
+                      placeholder: "123456",
+                    }),
+                  ),
+                  React.createElement(
+                    "button",
+                    {
+                      className: "pill-button form-submit",
+                      type: "submit",
+                      disabled: authBusy,
+                    },
+                    authBusy ? "Memverifikasi..." : "Verifikasi email",
+                  ),
+                  React.createElement(
+                    "div",
+                    { className: "auth-secondary-actions" },
+                    React.createElement(
+                      "button",
+                      {
+                        className: "text-button",
+                        type: "button",
+                        disabled: authBusy,
+                        onClick: async () => {
+                          setAuthBusy(!0);
+                          try {
+                            const { error } = await supabase.auth.signInWithOtp({
+                              email: authEmail.trim(),
+                              options: { shouldCreateUser: !0 },
+                            });
+                            if (error) throw error;
+                            r("Kode OTP baru sudah dikirim.");
+                          } catch (error) {
+                            r(error.message || "Kode OTP gagal dikirim");
+                          } finally {
+                            setAuthBusy(!1);
+                          }
+                        },
+                      },
+                      "Kirim ulang kode",
+                    ),
+                    React.createElement(
+                      "button",
+                      {
+                        className: "text-button",
+                        type: "button",
+                        disabled: authBusy,
+                        onClick: () => {
+                          (setOtpSent(!1), setOtpCode(""));
+                        },
+                      },
+                      "Ganti email",
+                    ),
+                  ),
+                )
+              : React.createElement(
+                  "form",
+                  { className: "editor-form auth-form", onSubmit: sendEmailOtp },
+                  React.createElement("h3", null, "Verifikasi email dulu"),
+                  React.createElement(
+                    "p",
+                    { className: "auth-message" },
+                    "Masukkan email aktif. Kami kirim kode sekali pakai sebelum kamu bisa mengajukan konten.",
+                  ),
+                  React.createElement(
+                    Ln,
+                    { label: "EMAIL AKTIF *" },
+                    React.createElement("input", {
+                      type: "email",
+                      autoComplete: "email",
+                      maxLength: 254,
+                      required: !0,
+                      value: authEmail,
+                      onChange: (ae) => setAuthEmail(ae.target.value),
+                      placeholder: "nama@email.com",
+                    }),
+                  ),
+                  React.createElement(
+                    "button",
+                    {
+                      className: "pill-button form-submit",
+                      type: "submit",
+                      disabled: authBusy || !supabase,
+                    },
+                    authBusy ? "Mengirim kode..." : "Kirim kode OTP",
+                  ),
+                  !supabase &&
+                    React.createElement(
+                      "p",
+                      { className: "auth-message", role: "status" },
+                      "Login email belum tersedia di konfigurasi lokal ini.",
+                    ),
+                  React.createElement(
+                    "p",
+                    { className: "tiny-hint" },
+                    "Pengajuan hanya tayang setelah ditinjau admin Wingking.",
+                  ),
+                )
+            : P
           ? React.createElement(
               "div",
               { className: "success-box" },
@@ -1345,6 +1589,25 @@ function UploadBandModal({
                 ),
               ),
               React.createElement(
+                "div",
+                { className: "auth-session" },
+                React.createElement(
+                  "span",
+                  null,
+                  "Email terverifikasi: ",
+                  React.createElement("strong", null, authUser.email),
+                ),
+                React.createElement(
+                  "button",
+                  {
+                    className: "text-button",
+                    type: "button",
+                    onClick: signOutSubmitter,
+                  },
+                  "Keluar",
+                ),
+              ),
+              React.createElement(
                 Ln,
                 { label: "NAMA BAND *" },
                 React.createElement("input", {
@@ -1353,7 +1616,7 @@ function UploadBandModal({
                   maxLength: 80,
                   value: c.band_name,
                   onChange: (ae) => D("band_name", ae.target.value),
-                  placeholder: "Nama band",
+                  placeholder: "Contoh: Sore Sebelah",
                 }),
               ),
               l !== "band" &&
@@ -1381,6 +1644,7 @@ function UploadBandModal({
                       maxLength: 60,
                       value: c.genre,
                       onChange: (ae) => D("genre", ae.target.value),
+                      placeholder: "Contoh: Indie pop",
                     }),
                   ),
                   React.createElement(
@@ -1390,54 +1654,83 @@ function UploadBandModal({
                       maxLength: 70,
                       value: c.city,
                       onChange: (ae) => D("city", ae.target.value),
+                      placeholder: "Contoh: Purwokerto",
                     }),
                   ),
                 ),
-              React.createElement(
-                Ln,
-                { label: "CERITA / DESKRIPSI" },
-                React.createElement("textarea", {
-                  rows: 3,
-                  maxLength: 1200,
-                  value: c.description,
-                  onChange: (ae) => D("description", ae.target.value),
-                  placeholder: "Ceritakan singkat...",
-                }),
-              ),
-              l === "band" &&
                 React.createElement(
                   Ln,
-                  { label: "PRICE LIST (OPSIONAL)" },
+                  {
+                    label:
+                      l === "band"
+                        ? "CERITA BAND *"
+                        : "CERITA / DESKRIPSI",
+                  },
                   React.createElement("textarea", {
-                    rows: 2,
-                    maxLength: 600,
-                    value: c.price_text,
-                    onChange: (ae) => D("price_text", ae.target.value),
-                    placeholder: `Full band | 2500000
-Akustik | 1500000`,
+                    required: l === "band",
+                    minLength: l === "band" ? 10 : void 0,
+                    rows: 3,
+                    maxLength: 1200,
+                    value: c.description,
+                    onChange: (ae) => D("description", ae.target.value),
+                    placeholder:
+                      l === "band"
+                        ? "Ceritakan perjalanan band, karakter musik, dan hal yang ingin dikenal orang..."
+                        : "Ceritakan singkat...",
                   }),
                 ),
-              React.createElement(
-                "div",
+                l === "band" &&
+                  React.createElement(
+                    Ln,
+                    { label: "HARGA BOOKING (OPSIONAL)" },
+                    React.createElement("textarea", {
+                      rows: 2,
+                      maxLength: 600,
+                      value: c.price_text,
+                      onChange: (ae) => D("price_text", ae.target.value),
+                      placeholder: `Full band | 2500000
+Akustik | 1500000`,
+                      "aria-describedby": "band-price-hint",
+                    }),
+                    React.createElement(
+                      "small",
+                      { id: "band-price-hint" },
+                      "Satu layanan per baris dengan format Nama layanan | harga angka. Maksimal 7 layanan.",
+                    ),
+                  ),
+                React.createElement(
+                  "div",
                 { className: "form-pair" },
                 React.createElement(
                   Ln,
-                  { label: "INSTAGRAM" },
+                  { label: "INSTAGRAM (OPSIONAL)" },
                   React.createElement("input", {
                     type: "url",
                     value: c.instagram_url,
                     onChange: (ae) => D("instagram_url", ae.target.value),
                     placeholder: "https://instagram.com/...",
+                    pattern: "https://.+",
+                    title: "Gunakan tautan HTTPS, misalnya https://instagram.com/namaband",
                   }),
                 ),
                 React.createElement(
                   Ln,
-                  { label: "LINK MUSIK" },
+                  {
+                    label:
+                      l === "band"
+                        ? "LINK MUSIK / YOUTUBE (OPSIONAL)"
+                        : "LINK MUSIK",
+                  },
                   React.createElement("input", {
                     type: "url",
                     value: c.music_url,
                     onChange: (ae) => D("music_url", ae.target.value),
-                    placeholder: "https://open.spotify.com/...",
+                    placeholder:
+                      l === "band"
+                        ? "YouTube, Spotify, SoundCloud, atau situs band"
+                        : "https://open.spotify.com/...",
+                    pattern: "https://.+",
+                    title: "Gunakan tautan HTTPS, misalnya https://youtube.com/@namaband",
                   }),
                 ),
               ),
@@ -1473,7 +1766,10 @@ Akustik | 1500000`,
                     ),
                   )
                 : React.createElement(UploadFileField, {
-                    name: "Pilih foto / cover (opsional)",
+                    name:
+                      l === "band"
+                        ? "Pilih foto band / logo (opsional)"
+                        : "Pilih foto / cover (opsional)",
                     current:
                       (m == null ? void 0 : m.name) || "JPG/PNG/WebP maks 5 MB",
                     onChange: y,
@@ -1507,7 +1803,7 @@ Akustik | 1500000`,
               React.createElement(
                 "p",
                 { className: "tiny-hint" },
-                "Tidak perlu email. Konten baru tayang setelah admin menyetujui.",
+                "Email sudah terverifikasi. Konten baru tayang setelah admin menyetujui.",
               ),
             ),
         React.createElement(
@@ -1794,15 +2090,26 @@ function HomePage() {
             href: safeHref(config.locationUrl),
             target: "_blank",
             rel: "noopener noreferrer",
+            "aria-label": "Buka lokasi Wingking Hub Studio di Google Maps",
           },
           React.createElement(MapPin, { size: 17 }),
-          React.createElement("span", null, "Wingking Hub Studio"),
+          React.createElement(
+            "span",
+            { className: "location-label-full" },
+            "Wingking Hub Studio",
+          ),
+          React.createElement(
+            "span",
+            { className: "location-label-short" },
+            "Maps",
+          ),
         ),
         React.createElement(
           "button",
           {
             className: "mobile-menu",
-            "aria-label": "Buka navigasi",
+            "aria-label": y ? "Tutup navigasi" : "Buka navigasi",
+            "aria-expanded": y,
             onClick: () => d((F) => !F),
           },
           y ? React.createElement(Mi, null) : React.createElement(PE, null),

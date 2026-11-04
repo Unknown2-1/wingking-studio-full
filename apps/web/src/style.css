@@ -4453,3 +4453,183 @@ html[data-motion="off"] .hero h1 {
     max-width: 100%;
   }
 }
+
+.location-label-short {
+  display: none;
+}
+
+.mobile-menu {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  border-radius: 12px;
+}
+
+.mobile-menu:hover {
+  background: #183b2c12;
+}
+
+.mobile-menu:active {
+  transform: scale(0.94);
+}
+
+@media (max-width: 830px) {
+  .mobile-menu {
+    display: grid;
+  }
+}
+
+@media (max-width: 580px) {
+  .nav-inner {
+    gap: 7px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+  .brand-original {
+    width: 100px !important;
+    max-height: 52px;
+  }
+  .nav-action {
+    min-height: 42px;
+    margin-left: auto;
+    padding: 9px 10px;
+    font-size: 10px;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .location-link {
+    min-width: 42px;
+    min-height: 42px;
+    margin-left: 0;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 12px;
+  }
+  .location-link:hover {
+    background: #183b2c12;
+  }
+  .location-label-full {
+    display: none;
+  }
+  .location-label-short {
+    display: inline;
+    font-size: 10px;
+  }
+  .mobile-menu {
+    margin-left: 0;
+  }
+  .nav-links {
+    top: 66px;
+    padding: 20px;
+    gap: 18px;
+  }
+  .hero-actions {
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .hero-actions .pill-button,
+  .hero-text-link {
+    min-height: 46px;
+  }
+  .hero-art {
+    min-height: 330px;
+    margin: 24px auto 4px;
+  }
+  .hero-art-label {
+    top: 3%;
+    left: 3%;
+  }
+  .hero-gallery-link {
+    bottom: 4%;
+    left: 3%;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-inner {
+    gap: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+  .brand-original {
+    width: 86px !important;
+  }
+  .nav-action {
+    padding-right: 8px;
+    padding-left: 8px;
+    font-size: 9px;
+    gap: 4px;
+  }
+  .location-link {
+    min-width: 36px;
+  }
+  .location-label-short {
+    display: none;
+  }
+  .mobile-menu {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+}
+
+.auth-form {
+  margin-top: 20px;
+}
+
+.auth-form h3 {
+  margin: 0 0 8px;
+  font: 900 24px/1.1 Outfit, sans-serif;
+}
+
+.auth-message {
+  margin: 0 0 18px;
+  color: #536758;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.auth-secondary-actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 8px;
+}
+
+.auth-secondary-actions .text-button {
+  cursor: pointer;
+}
+
+.auth-secondary-actions .text-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.auth-session {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #183b2c33;
+  border-radius: 12px;
+  background: #d9efb9;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.auth-session strong {
+  font-weight: 900;
+}
+
+.auth-session .text-button {
+  flex-shrink: 0;
+  cursor: pointer;
+}

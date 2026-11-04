@@ -171,6 +171,49 @@
         font-weight: 850;
       }
 
+      .auth-gate {
+        margin-top: 24px;
+        padding: 18px;
+        border: 2px solid rgb(36, 53, 40);
+        border-radius: 12px;
+        background: white;
+        box-shadow: rgb(36, 53, 40) 4px 5px 0px;
+      }
+
+      .auth-gate h2 {
+        margin-top: 0;
+      }
+
+      .auth-gate label {
+        margin-top: 18px;
+      }
+
+      .auth-gate input {
+        width: 100%;
+        border: 2px solid rgb(36, 53, 40);
+        border-radius: 9px;
+        padding: 12px;
+        font: inherit;
+      }
+
+      .auth-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .auth-session {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 9px;
+        background: rgb(217, 239, 185);
+        overflow-wrap: anywhere;
+      }
+
       small {
         color: rgb(83, 100, 83);
       }
@@ -221,11 +264,60 @@
       <div class="tag">WINGKING / MUSIC PLAYGROUND</div>
       <h1>UPLOAD<br /><em>BANDMU!</em></h1>
       <p class="intro">
-        Langsung isi dan kirim dari website.
-        <b>Tanpa email, tanpa daftar akun.</b> Admin Wingking akan mengecek dulu
-        sebelum konten muncul di halaman utama.
+        Verifikasi email dengan kode OTP, lalu isi dan kirim profil band, rilisan,
+        atau video. Admin Wingking akan mengecek dulu sebelum konten muncul di
+        halaman utama.
       </p>
-      <form id="form" novalidate="">
+      <section id="auth-gate" class="auth-gate" aria-labelledby="auth-title">
+        <h2 id="auth-title">Verifikasi email dulu</h2>
+        <p>Masukkan email aktif. Kode sekali pakai diperlukan sebelum upload.</p>
+        <form id="email-form">
+          <label
+            >Email aktif *<input
+              id="auth-email"
+              type="email"
+              required
+              maxlength="254"
+              autocomplete="email"
+              placeholder="nama@email.com"
+          /></label>
+          <button class="secondary" id="send-otp" type="submit">
+            KIRIM KODE OTP
+          </button>
+        </form>
+        <form id="email-code-form" hidden>
+          <p id="otp-instruction"></p>
+          <label
+            >Kode OTP 6 digit *<input
+              id="auth-code"
+              type="text"
+              required
+              minlength="6"
+              maxlength="6"
+              pattern="[0-9]{6}"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              placeholder="123456"
+          /></label>
+          <div class="auth-actions">
+            <button class="secondary" id="verify-otp" type="submit">
+              VERIFIKASI EMAIL
+            </button>
+            <button class="secondary" id="resend-otp" type="button">
+              KIRIM ULANG KODE
+            </button>
+            <button class="secondary" id="change-email" type="button">
+              GANTI EMAIL
+            </button>
+          </div>
+        </form>
+        <p id="auth-status" role="status"></p>
+      </section>
+      <form id="form" novalidate="" hidden>
+        <div class="auth-session">
+          <span>Email terverifikasi: <strong id="verified-email"></strong></span>
+          <button class="secondary" id="sign-out" type="button">KELUAR</button>
+        </div>
         <div class="grid">
           <label
             >Nama band *<input
