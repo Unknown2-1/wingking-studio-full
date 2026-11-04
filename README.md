@@ -1,4 +1,43 @@
-# WINGKING STUDIO
+# WINGKING STUDIO — TEAM DEVELOPMENT
+
+> **Mulai dari sini untuk edit website.** Website publik versi terbaru kini memiliki workspace React/Vite di `apps/web/`. Kode komponen dipulihkan secara fungsional dari bundle produksi; penamaan komponen masih perlu dirapikan. Dashboard admin gabungan memakai `apps/admin-unified/`, sementara backend dan database berada di `supabase/`.
+
+## Teknologi yang dipakai
+
+| Bagian | Teknologi | Folder |
+| --- | --- | --- |
+| Frontend publik | React 19, Vite 6, JavaScript/JSX, CSS | `apps/web/src/` |
+| Dashboard admin | HTML/CSS/JS, Supabase Auth | `apps/admin-unified/` |
+| Backend API | Supabase Edge Functions (Deno/TypeScript) | `supabase/functions/` |
+| Database | PostgreSQL, Supabase Storage, RLS | `supabase/migrations/` |
+| Website Next.js lama | Next.js + Prisma (arsip versi terdahulu) | `legacy-nextjs/` |
+| Backup deployment lama | Snapshot build JS/CSS dan aset gambar | `apps/live-public/dist/` |
+
+## Jalankan di VS Code
+
+```bash
+git clone https://github.com/Unknown2-1/wingking-studio-full.git
+cd wingking-studio-full
+cd apps/web
+npm install
+npm run dev
+```
+
+Buka `http://localhost:3000`. Kamu bisa mengubah `apps/web/src/App.jsx` dan `apps/web/src/style.css`.
+
+Di terminal lain, kembali ke root repo dan jalankan `npm run dev:admin` untuk dashboard di `http://localhost:3001`. **Tidak perlu menggunakan akun produksi saat mencoba perubahan.**
+
+**Production assets:** Untuk menjaga kesamaan desain, Vite memakai gambar dan halaman upload yang tersimpan pada `apps/live-public/dist/`. Jangan hapus folder itu sebelum seluruh aset dipindahkan. `apps/web/dist/` akan dibuat otomatis ketika `npm run build` dan diabaikan Git.
+
+## Konfigurasi & keamanan
+
+Salin `apps/web/.env.example` menjadi `apps/web/.env.local`. Biarkan key kosong untuk mode demo. Untuk menguji upload dan database, gunakan **staging Supabase**. Jangan masukkan service-role keys atau password admin ke repository public.
+
+Lihat [panduan frontend](apps/web/README.md), [team setup](docs/TEAM_SETUP.md), [status yang belum selesai](docs/STATUS.md), dan [keamanan](docs/SECURITY.md).
+
+---
+
+## Snapshot dan dokumentasi sebelumnya
 
 **Full team repository — editable unified Admin Hub, preserved original snapshots, public website and Supabase backend.**
 
@@ -28,7 +67,7 @@ Requires Node.js 20+.
 git clone https://github.com/Unknown2-1/wingking-studio-full.git
 cd wingking-studio-full
 
-npm run dev:public   # http://localhost:3000
+npm run dev:public:snapshot   # localhost:3000 (historical static deploy)
 npm run dev:admin    # http://localhost:3001 (review + content manager in one login)
 npm run dev:review   # same unified Admin Hub, http://localhost:3001
 ```
