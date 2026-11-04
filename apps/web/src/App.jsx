@@ -14,6 +14,7 @@ import {
   Instagram,
   MapPin,
   Menu,
+  Play,
   Plus,
   ShieldCheck,
   Sparkles,
@@ -164,6 +165,24 @@ const DEMO_BANDS = [
       art: "#F7C966",
       emoji: "✿",
       demo: !0,
+    },
+  ],
+  STUDIO_SEASON_CLIPS = [
+    {
+      id: "studio-season-1530",
+      title: '15:30 "mau" LIVE SESSION',
+      source: "AUDIO POOLS LIVE SESSION",
+      video_url: "/assets/studio-season/1530.mp4",
+      thumbnail_url: "/assets/studio-season/1530.jpg",
+      youtube_url: "https://youtu.be/lkJx5p1979E?si=pm-qp-QmrmBoBPCl",
+    },
+    {
+      id: "studio-season-amarka",
+      title: "AMARKA",
+      source: "AUDIO POOLS LIVE SESSION",
+      video_url: "/assets/studio-season/amarka.mp4",
+      thumbnail_url: "/assets/studio-season/amarka.jpg",
+      youtube_url: "https://youtu.be/20knJ8LzgkI?si=v1ivnW4YAfFaP7rO",
     },
   ],
   supabase = hasBackend
@@ -579,6 +598,71 @@ function VideoCard({ item: s, index: a }) {
     ),
   );
 }
+function StudioSeasonCard({ item: s, index: a }) {
+  const r = React.useRef(null),
+    [l, u] = React.useState(!1);
+  React.useEffect(() => {
+    const c = r.current;
+    if (!c) return;
+    const h = new IntersectionObserver(
+      ([m]) => {
+        if (m.isIntersecting) c.play().catch(() => {});
+        else c.pause();
+      },
+      { threshold: 0.25 },
+    );
+    return h.observe(c), () => (h.disconnect(), c.pause());
+  }, []);
+  return React.createElement(
+    "a",
+    {
+      className: "clip-card studio-season-card",
+      href: safeHref(s.youtube_url),
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        "--clip-accent": ["#f5a7c1", "#ffce5e", "#c0e7dd"][a % 3],
+      },
+      "aria-label": "Tonton " + s.title + " di YouTube",
+    },
+    React.createElement("video", {
+      ref: r,
+      className: "clip-video",
+      src: s.video_url,
+      poster: s.thumbnail_url,
+      playsInline: !0,
+      muted: !0,
+      loop: !0,
+      preload: "metadata",
+      onError: () => u(!0),
+      "aria-hidden": "true",
+    }),
+    l &&
+      React.createElement("img", {
+        className: "clip-video-fallback",
+        src: s.thumbnail_url,
+        alt: "",
+      }),
+    React.createElement("div", { className: "clip-shade" }),
+    React.createElement(
+      "span",
+      { className: "clip-youtube-play", "aria-hidden": "true" },
+      React.createElement(Play, { size: 25, fill: "currentColor" }),
+    ),
+    React.createElement(
+      "div",
+      { className: "clip-bottom" },
+      React.createElement("p", null, s.source),
+      React.createElement("h3", null, s.title),
+      React.createElement(
+        "span",
+        { className: "clip-youtube-hint" },
+        "TONTON DI YOUTUBE ",
+        React.createElement(ArrowUpRight, { size: 15 }),
+      ),
+    ),
+  );
+}
 function VideoPlaceholder({ index: s }) {
   return React.createElement(
     "article",
@@ -607,7 +691,7 @@ function VideoPlaceholder({ index: s }) {
   );
 }
 function VideoSection({ clips: s, onAdd: a }) {
-  const r = s.length > 0;
+  const r = [...STUDIO_SEASON_CLIPS, ...s].slice(0, 8);
   return React.createElement(
     "section",
     { id: "keseruan", className: "clip-section section-pad" },
@@ -643,17 +727,19 @@ function VideoSection({ clips: s, onAdd: a }) {
       React.createElement(
         "div",
         { className: "clip-rail" },
-        r
-          ? s.slice(0, 8).map((l, u) =>
-              React.createElement(VideoCard, {
+        r.map((l, u) =>
+          STUDIO_SEASON_CLIPS.some((c) => c.id === l.id)
+            ? React.createElement(StudioSeasonCard, {
+                item: l,
+                index: u,
+                key: l.id,
+              })
+            : React.createElement(VideoCard, {
                 item: l,
                 index: u,
                 key: l.id,
               }),
-            )
-          : Array.from({ length: 3 }, (l, u) =>
-              React.createElement(VideoPlaceholder, { index: u, key: u }),
-            ),
+        ),
       ),
       React.createElement(
         "div",
