@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Wingking Studio team monorepo: original Next.js source and live website/admin/static previews plus Supabase functions",
   "scripts": {
-    "dev:public": "node scripts/serve-static.mjs apps/live-public/dist 3000",
+    "dev:public": "npm --prefix apps/web run dev",
     "dev:review": "node scripts/serve-static.mjs apps/admin-unified 3001",
     "dev:manager": "node scripts/serve-static.mjs apps/admin-unified 3001",
     "dev:legacy": "npm --prefix legacy-nextjs run dev",
@@ -13,6 +13,10 @@
     "check:assets": "node scripts/check-assets.mjs",
     "dev:review:legacy": "node scripts/serve-static.mjs apps/private-review/dist 3003",
     "dev:manager:legacy": "node scripts/serve-static.mjs apps/content-manager 3002",
-    "dev:admin": "node scripts/serve-static.mjs apps/admin-unified 3001"
+    "dev:admin": "node scripts/serve-static.mjs apps/admin-unified 3001",
+    "dev:public:snapshot": "node scripts/serve-static.mjs apps/live-public/dist 3000",
+    "dev:web": "npm --prefix apps/web run dev",
+    "build:web": "npm --prefix apps/web run build",
+    "check:web": "npm --prefix apps/web run build"
   }
 }
