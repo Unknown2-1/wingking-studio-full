@@ -12,8 +12,8 @@ import {
   ExternalLink,
   Headphones,
   Instagram,
+  MapPin,
   Menu,
-  MessageCircle,
   Plus,
   ShieldCheck,
   Sparkles,
@@ -29,7 +29,6 @@ const Lc = ArrowRight,
   Fy = Headphones,
   eg = Instagram,
   PE = Menu,
-  $E = MessageCircle,
   KE = Plus,
   VE = ShieldCheck,
   tg = Sparkles,
@@ -46,6 +45,28 @@ function isValidHttpUrl(s) {
 }
 function validatedUrl(s) {
   return isValidHttpUrl(s) ? s : null;
+}
+function WhatsAppIcon() {
+  return React.createElement(
+    "svg",
+    {
+      width: 22,
+      height: 22,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      "aria-hidden": "true",
+    },
+    React.createElement("circle", {
+      cx: 12,
+      cy: 12,
+      r: 10,
+      fill: "#25d366",
+    }),
+    React.createElement("path", {
+      d: "M7.5 4.8c-.5-.1-1.1.1-1.5.5L4.9 6.4c-.5.6-.7 1.4-.5 2.1 1.3 4.8 5.1 8.6 9.9 9.9.8.2 1.6-.1 2.1-.6l1-1c.4-.4.6-1 .4-1.5l-1.3-2.8c-.2-.5-.8-.8-1.3-.6l-1.9.6a11.2 11.2 0 0 1-2.5-2.5l.6-1.9c.2-.5-.1-1.1-.6-1.3L8 5.5c-.2-.1-.4-.2-.5-.2Z",
+      fill: "#fff",
+    }),
+  );
 }
 function formatRupiah(s) {
   return new Intl.NumberFormat("id-ID", {
@@ -518,12 +539,6 @@ function VideoCard({ item: s, index: a }) {
         { className: "clip-error" },
         "Video tidak dapat diputar",
       ),
-    React.createElement(
-      "div",
-      { className: "clip-top" },
-      React.createElement("span", null, "WINGKING / LIVE"),
-      React.createElement("span", null, String(a + 1).padStart(2, "0")),
-    ),
     React.createElement("div", { className: "clip-shade" }),
     React.createElement(
       "div",
@@ -573,12 +588,6 @@ function VideoPlaceholder({ index: s }) {
     },
     React.createElement(
       "div",
-      { className: "clip-placeholder-badge" },
-      "WINGKING / ",
-      String(s + 1).padStart(2, "0"),
-    ),
-    React.createElement(
-      "div",
       { className: "clip-placeholder-center" },
       React.createElement(
         "span",
@@ -623,11 +632,7 @@ function VideoSection({ clips: s, onAdd: a }) {
             React.createElement("br", null),
             React.createElement("span", null, "WINGKING!"),
           ),
-          React.createElement(
-            "p",
-            null,
-            "Yang di panggung, yang di studio, semuanya di sini.",
-          ),
+          React.createElement("p", null, "AUDIO POOLS"),
         ),
         React.createElement(AssetImage, {
           name: "boombox-pose-4",
@@ -684,6 +689,62 @@ function ToastMessage({ message: s, onClose: a }) {
           ),
         )
       : null
+  );
+}
+function StudioGalleryModal({ onClose: s }) {
+  const a = Array.from({ length: 12 }, (r, l) =>
+    String(l + 1).padStart(2, "0"),
+  );
+  return React.createElement(
+    "div",
+    {
+      className: "overlay",
+      onMouseDown: (a) => a.target === a.currentTarget && s(),
+    },
+    React.createElement(
+      "section",
+      {
+        className: "studio-gallery-modal",
+        role: "dialog",
+        "aria-modal": "true",
+        "aria-labelledby": "studio-gallery-title",
+      },
+      React.createElement(
+        "button",
+        { className: "close-btn", onClick: s, "aria-label": "Tutup galeri" },
+        React.createElement(Mi, null),
+      ),
+      React.createElement(SectionKicker, null, "WINGKING HUB STUDIO"),
+      React.createElement(
+        "h2",
+        { id: "studio-gallery-title" },
+        "GALERI STUDIO",
+      ),
+      React.createElement("p", null, "Intip suasana di studio musik Wingking."),
+      React.createElement(
+        "div",
+        { className: "studio-gallery-grid" },
+        a.map((r) =>
+          React.createElement(
+            "a",
+            {
+              className: "studio-gallery-item",
+              href: "/assets/studio-gallery/studio-" + r + ".jpg",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              key: r,
+              "aria-label": "Buka foto studio " + Number(r),
+            },
+            React.createElement("img", {
+              src: "/assets/studio-gallery/studio-" + r + ".jpg",
+              alt: "Suasana Wingking Hub Studio " + Number(r),
+              loading: "lazy",
+              decoding: "async",
+            }),
+          ),
+        ),
+      ),
+    ),
   );
 }
 function BandDetailsModal({ band: s, releases: a, onClose: r }) {
@@ -951,8 +1012,13 @@ function UploadFileField({
     ),
   );
 }
-function UploadBandModal({ onClose: s, onSaved: a, showToast: r }) {
-  const [l, u] = React.useState("band"),
+function UploadBandModal({
+  onClose: s,
+  onSaved: a,
+  showToast: r,
+  initialTab: t = "band",
+}) {
+  const [l, u] = React.useState(t),
     [c, h] = React.useState({
       band_name: "",
       title: "",
@@ -1408,16 +1474,21 @@ function HomePage() {
     [r, l] = React.useState(null),
     [u, c] = React.useState(null),
     [h, m] = React.useState(!1),
+    [galleryOpen, setGalleryOpen] = React.useState(!1),
     [y, d] = React.useState(!1),
     [b, R] = React.useState(!1),
     [k, B] = React.useState(!1),
     [K, P] = React.useState(""),
     [H, W] = React.useState(null),
+    [uploadTab, setUploadTab] = React.useState("band"),
     [C, N] = React.useState([]),
     [L, D] = React.useState([]),
     [Q, Z] = React.useState([]),
     [ie, ee] = React.useState(!1),
     je = (F) => P(String(F || "")),
+    openUpload = (F = "band") => {
+      (setUploadTab(F), m(!0));
+    },
     ae = async () => {
       var F, w, E;
       if (!supabase) {
@@ -1528,14 +1599,22 @@ function HomePage() {
     return () => F.unsubscribe();
   }, []),
     React.useEffect(() => {
-      const F = h || r || u;
+      const F = h || r || u || galleryOpen;
       return (
         (document.body.style.overflow = F ? "hidden" : ""),
         () => {
           document.body.style.overflow = "";
         }
       );
-    }, [h, r, u]),
+    }, [h, r, u, galleryOpen]),
+    React.useEffect(() => {
+      if (!galleryOpen) return;
+      const F = (w) => {
+        if (w.key === "Escape") setGalleryOpen(!1);
+      };
+      window.addEventListener("keydown", F);
+      return () => window.removeEventListener("keydown", F);
+    }, [galleryOpen]),
     React.useEffect(() => {
       document.documentElement.dataset.motion = s;
       try {
@@ -1584,39 +1663,54 @@ function HomePage() {
         { className: "nav-inner" },
         React.createElement(WingkingLogo, null),
         React.createElement(
-          "nav",
-          { className: y ? "nav-links is-open" : "nav-links" },
+          "div",
+          { className: "nav-center-group" },
           React.createElement(
-            "a",
-            { href: "#keseruan", onClick: () => d(!1) },
-            "Keseruan",
+            "nav",
+            { className: y ? "nav-links is-open" : "nav-links" },
+            React.createElement(
+              "a",
+              { href: "#keseruan", onClick: () => d(!1) },
+              "Studio Season",
+            ),
+            React.createElement(
+              "a",
+              { href: "#band", onClick: () => d(!1) },
+              "Band & Harga",
+            ),
+            React.createElement(
+              "a",
+              { href: "#rilisan", onClick: () => d(!1) },
+              "Rilisan",
+            ),
+            React.createElement(
+              "a",
+              { href: "#kontak", onClick: () => d(!1) },
+              "Kontak",
+            ),
           ),
           React.createElement(
-            "a",
-            { href: "#rilisan", onClick: () => d(!1) },
-            "Rilisan",
-          ),
-          React.createElement(
-            "a",
-            { href: "#band", onClick: () => d(!1) },
-            "Band & harga",
-          ),
-          React.createElement(
-            "a",
-            { href: "#kontak", onClick: () => d(!1) },
-            "Kontak",
+            "button",
+            {
+              className: "nav-action",
+              onClick: () => {
+                (openUpload(), d(!1));
+              },
+            },
+            "Upload band ",
+            React.createElement(dt, { size: 18, strokeWidth: 2.5 }),
           ),
         ),
         React.createElement(
-          "button",
+          "a",
           {
-            className: "nav-action",
-            onClick: () => {
-              (m(!0), d(!1));
-            },
+            className: "location-link",
+            href: safeHref(config.locationUrl),
+            target: "_blank",
+            rel: "noopener noreferrer",
           },
-          "Upload band ",
-          React.createElement(dt, { size: 18, strokeWidth: 2.5 }),
+          React.createElement(MapPin, { size: 17 }),
+          React.createElement("span", null, "Wingking Hub Studio"),
         ),
         React.createElement(
           "button",
@@ -1671,8 +1765,7 @@ function HomePage() {
         React.createElement(
           "div",
           { className: "hero-topline" },
-          React.createElement("span", null, "DARI PURWOKERTO, BUAT SEMUA"),
-          React.createElement("span", null, "PURWOKERTO / LOCAL SOUNDS"),
+          React.createElement("span", null, "LOCAL SOUND"),
         ),
         React.createElement(
           "div",
@@ -1687,7 +1780,7 @@ function HomePage() {
                 name: "burst-star",
                 className: "spark-img",
               }),
-              " SELAMAT DATANG DI WINGKING",
+              " Hello, W Frinedss!!!!",
             ),
             React.createElement(
               "h1",
@@ -1714,7 +1807,7 @@ function HomePage() {
               React.createElement(
                 PillLink,
                 { href: "#keseruan" },
-                "Lihat keseruan",
+                "Studio Season",
               ),
               React.createElement(
                 "a",
@@ -1735,6 +1828,16 @@ function HomePage() {
               "KUMPUL SINI",
             ),
             React.createElement(BoomboxArt, null),
+            React.createElement(
+              "button",
+              {
+                className: "hero-gallery-link",
+                type: "button",
+                onClick: () => setGalleryOpen(!0),
+              },
+              "GALERI STUDIO",
+              React.createElement(dt, { size: 17 }),
+            ),
             React.createElement(AssetImage, {
               name: "burst-star",
               className: "hero-starlet",
@@ -1765,77 +1868,10 @@ function HomePage() {
         ),
       ),
       React.createElement(MotionMarquee, { play: oe }),
-      React.createElement(VideoSection, { clips: Q, onAdd: () => m(!0) }),
-      React.createElement(
-        "section",
-        { id: "rilisan", className: "releases-section section-pad" },
-        React.createElement(
-          "div",
-          { className: "container" },
-          React.createElement(
-            "div",
-            { className: "section-title reveal-on-scroll" },
-            React.createElement(
-              "div",
-              null,
-              React.createElement(SectionKicker, null, "LAGI HANGAT"),
-              React.createElement(
-                "h2",
-                null,
-                React.createElement(
-                  "span",
-                  { className: "underlined" },
-                  "RILISAN.",
-                ),
-              ),
-            ),
-            React.createElement(AssetImage, {
-              name: "boombox-pose-1",
-              className: "title-flower",
-            }),
-          ),
-          !ie &&
-            React.createElement(
-              "p",
-              { className: "loading-status" },
-              "Sedang nyari lagu baru...",
-            ),
-          React.createElement(
-            "div",
-            { className: "releases-grid reveal-on-scroll" },
-            Ae.slice(0, k ? 12 : 3).map((F, w) =>
-              React.createElement(ReleaseCard, {
-                key: F.id,
-                item: F,
-                index: w,
-                onClick: c,
-              }),
-            ),
-          ),
-          Ae.length > 3 &&
-            React.createElement(
-              "button",
-              {
-                type: "button",
-                className: "more-button",
-                onClick: () => B((F) => !F),
-              },
-              k ? "Lebih sedikit" : "Lihat semua rilisan",
-              " ",
-              React.createElement(dt, { size: 17 }),
-            ),
-          L.length === 0 &&
-            React.createElement(
-              "p",
-              { className: "demo-explainer" },
-              React.createElement(tg, { size: 16 }),
-              " ",
-              C.length
-                ? "Belum ada rilisan. Band bisa menambahkannya dari panel upload."
-                : "Belum ada rilisan yang disetujui admin. Tunggu rilisan pertamanya!",
-            ),
-        ),
-      ),
+      React.createElement(VideoSection, {
+        clips: Q,
+        onAdd: () => openUpload(),
+      }),
       React.createElement(
         "section",
         { id: "band", className: "bands-section section-pad" },
@@ -1862,7 +1898,11 @@ function HomePage() {
             ),
             React.createElement(
               "button",
-              { className: "little-add", type: "button", onClick: () => m(!0) },
+              {
+                className: "little-add",
+                type: "button",
+                onClick: () => openUpload(),
+              },
               React.createElement(KE, { size: 20 }),
               " TAMBAH BAND",
             ),
@@ -1905,11 +1945,91 @@ function HomePage() {
             ),
             React.createElement(
               "button",
-              { className: "pill-button", onClick: () => m(!0) },
+              { className: "pill-button", onClick: () => openUpload() },
               "Upload band ",
               React.createElement(dt, { size: 20 }),
             ),
           ),
+        ),
+      ),
+      React.createElement(
+        "section",
+        { id: "rilisan", className: "releases-section section-pad" },
+        React.createElement(
+          "div",
+          { className: "container" },
+          React.createElement(
+            "div",
+            { className: "section-title reveal-on-scroll" },
+            React.createElement(
+              "div",
+              null,
+              React.createElement(SectionKicker, null, "LAGI HANGAT"),
+              React.createElement(
+                "h2",
+                null,
+                React.createElement(
+                  "span",
+                  { className: "underlined" },
+                  "RILISAN.",
+                ),
+              ),
+            ),
+            React.createElement(AssetImage, {
+              name: "boombox-pose-1",
+              className: "title-flower",
+            }),
+            React.createElement(
+              "button",
+              {
+                className: "little-add",
+                type: "button",
+                onClick: () => openUpload("release"),
+              },
+              React.createElement(KE, { size: 20 }),
+              " TAMBAH RILISAN",
+            ),
+          ),
+          !ie &&
+            React.createElement(
+              "p",
+              { className: "loading-status" },
+              "Sedang nyari lagu baru...",
+            ),
+          React.createElement(
+            "div",
+            { className: "releases-grid reveal-on-scroll" },
+            Ae.slice(0, k ? 12 : 3).map((F, w) =>
+              React.createElement(ReleaseCard, {
+                key: F.id,
+                item: F,
+                index: w,
+                onClick: c,
+              }),
+            ),
+          ),
+          Ae.length > 3 &&
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "more-button",
+                onClick: () => B((F) => !F),
+              },
+              k ? "Lebih sedikit" : "Lihat semua rilisan",
+              " ",
+              React.createElement(dt, { size: 17 }),
+            ),
+          L.length === 0 &&
+            React.createElement(
+              "p",
+              { className: "demo-explainer" },
+              React.createElement(tg, { size: 16 }),
+              " ",
+              C.length
+                ? "Belum ada rilisan. Band bisa menambahkannya dari panel upload."
+                : "Belum ada rilisan yang disetujui admin. Tunggu rilisan pertamanya!",
+            ),
         ),
       ),
       React.createElement(
@@ -1966,11 +2086,11 @@ function HomePage() {
               "a",
               {
                 className: "contact-button",
-                href: safeHref(config.contactUrl) || "#kontak",
+                href: safeHref(config.whatsappUrl) || "#kontak",
                 target: "_blank",
                 rel: "noopener noreferrer",
               },
-              React.createElement($E, { size: 22 }),
+              React.createElement(WhatsAppIcon, null),
               React.createElement(
                 "span",
                 null,
@@ -2014,7 +2134,13 @@ function HomePage() {
         React.createElement(
           "div",
           null,
-          React.createElement("span", null, "BUAT ANAK BAND, SAMA ANAK BAND"),
+          React.createElement("span", null, "CREATED BY:"),
+          React.createElement(
+            "p",
+            null,
+            "Evan Faadillah, Dionisius Deandra, Fadhil Rekh, Danish Adelio",
+          ),
+          React.createElement("p", null, "SMK Telkom Purwokerto"),
           React.createElement(
             "p",
             null,
@@ -2039,6 +2165,7 @@ function HomePage() {
         onClose: () => m(!1),
         onSaved: ae,
         showToast: je,
+        initialTab: uploadTab,
       }),
     r &&
       React.createElement(BandDetailsModal, {
@@ -2051,6 +2178,10 @@ function HomePage() {
       React.createElement(ReleaseDetailsModal, {
         release: u,
         onClose: () => c(null),
+      }),
+    galleryOpen &&
+      React.createElement(StudioGalleryModal, {
+        onClose: () => setGalleryOpen(!1),
       }),
     React.createElement(ToastMessage, { message: K, onClose: () => P("") }),
   );

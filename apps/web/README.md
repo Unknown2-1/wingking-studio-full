@@ -6,7 +6,8 @@
 - React 19 + Vite 6 (frontend)
 - Supabase PostgreSQL + Auth + Storage + Edge Functions (backend)
 - CSS biasa + Lucide React icons
-- Homepage: band, rilisan, video, pricing, kontak.
+- Homepage: Studio Season/video, band & harga, rilisan, kontak.
+- Form homepage mendukung pengajuan band dan rilisan untuk direview admin.
 - Form `/upload.html` sekarang memiliki source HTML dan JavaScript sendiri di `upload.html` dan `src/upload.js`.
 
 ## Menjalankan
@@ -26,6 +27,7 @@ Tanpa konfigurasi Supabase, homepage memakai data contoh. Untuk menguji simpan/r
 - `src/upload.js` dan `upload.html`: upload band/video, di-edit dan di-build bersama homepage.
 - `src/config.js`: konfigurasi Vite.
 - `src/style.css`: CSS situs.
+- `VITE_WHATSAPP_URL` dan `VITE_LOCATION_URL` dapat dioverride dari `.env.local`; default mengarah ke WhatsApp dan Google Maps Wingking Hub Studio.
 - `../live-public/dist/assets/`: gambar, logo, dan snapshot JS lama (dipakai oleh Vite publicDir).
 - `../admin-unified/index.html`: source dashboard admin gabungan, beda aplikasi.
 - `../../supabase/`: kode backend dan migrasi skema.
