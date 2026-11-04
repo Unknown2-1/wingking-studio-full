@@ -5,6 +5,8 @@ on:
     branches: ["dev/unknown2-1"]
     paths:
       - "apps/web/src/App.jsx"
+      - "apps/web/src/upload.js"
+      - "apps/web/upload.html"
       - ".github/workflows/format-web.yml"
 
 permissions:
@@ -26,12 +28,12 @@ jobs:
       - name: Install frontend formatter
         run: npm --prefix apps/web install --no-audit --no-fund
       - name: Format reconstructed React code
-        run: npx --prefix apps/web prettier --write apps/web/src/App.jsx apps/web/src/style.css
+        run: cd apps/web && npx prettier --write src/App.jsx src/upload.js upload.html src/style.css
       - name: Commit readable source
         run: |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add apps/web/src/App.jsx apps/web/src/style.css
+          git add apps/web/src/App.jsx apps/web/src/upload.js apps/web/upload.html apps/web/src/style.css
           if ! git diff --cached --quiet; then
             git commit -m "style(web): format recovered React frontend for team editing"
             git push origin HEAD:dev/unknown2-1
