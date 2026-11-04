@@ -7,12 +7,15 @@ git clone https://github.com/Unknown2-1/wingking-studio-full.git
 cd wingking-studio-full
 ```
 
-Node.js 20+ and npm are recommended for the legacy Next.js app. The static Vercel snapshots run with the included dependency-free Node server.
+Node.js 22 and npm are recommended. The current public website is an editable React/Vite app in `apps/web/`; the older static snapshots remain available for comparison.
 
-## View the live snapshot locally
+## Run the latest editable frontend
 
 ```bash
-npm run dev:public   # localhost:3000 — public festival website
+cd apps/web
+npm install
+npm run dev           # localhost:3000 — editable React + Vite website
+cd ../..
 npm run dev:admin    # localhost:3001 — unified review + content management
 npm run dev:review   # alias for the same unified Admin Hub
 npm run dev:review:legacy  # localhost:3003 — former review snapshot
@@ -23,6 +26,8 @@ npm run check:assets
 Run each site command in a separate terminal. The unified Admin Hub has one login and combines the pending review queue with content management. Existing Supabase Auth JWT and `wk_moderators` membership are required for operations. **Do not use real client data during QA.**
 
 **CAUTION:** static bundles can talk to live Supabase. Do not test delete, publish or reject actions against production data.
+
+For exact files to edit see [WHERE_TO_EDIT](WHERE_TO_EDIT.md). The current public code is a formatted reconstruction from the shipped frontend, not the original JSX project.
 
 ## Editable original Next.js source
 
@@ -40,7 +45,8 @@ Legacy Next.js project, live React/Vite website and private review dashboard are
 
 Set each as a different Vercel project with its own Root Directory:
 
-- **Static public snapshot:** `apps/live-public/dist`, Framework Other, no build command.
+- **Editable public frontend (development candidate):** `apps/web`, Framework Vite, install with npm, build with `npm run build`, output `dist`. Configure staging environment variables before full QA.
+- **Historic public snapshot:** `apps/live-public/dist`, Framework Other, no build command.
 - **Unified Admin Hub (new):** `apps/admin-unified`, Framework Other, no build command; deployed to existing Wingking review-console production domain. Previous admin snapshots remain in the repository; validate authenticated flows with test data before further rollout. The Supabase Edge Functions have an exact CORS allowlist for that host.
 - **Historical review snapshot:** `apps/private-review/dist`, Framework Other, no build command.
 - **Historical Content Manager snapshot:** `apps/content-manager`, Framework Other, no build command.
