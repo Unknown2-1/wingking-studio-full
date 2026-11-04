@@ -38,5 +38,7 @@ jobs:
         run: |
           test -s dist/index.html
           test -s dist/upload.html
+          test -s dist/.vite/manifest.json
+          grep -q 'upload.html' dist/.vite/manifest.json
           test -d dist/assets
           grep -q '<div id="root"></div>' dist/index.html
