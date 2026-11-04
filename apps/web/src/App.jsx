@@ -639,15 +639,13 @@ function VideoSection({ clips: s, onAdd: a }) {
         "div",
         { className: "clip-rail" },
         r
-          ? s
-              .slice(0, 8)
-              .map((l, u) =>
-                React.createElement(VideoCard, {
-                  item: l,
-                  index: u,
-                  key: l.id,
-                }),
-              )
+          ? s.slice(0, 8).map((l, u) =>
+              React.createElement(VideoCard, {
+                item: l,
+                index: u,
+                key: l.id,
+              }),
+            )
           : Array.from({ length: 3 }, (l, u) =>
               React.createElement(VideoPlaceholder, { index: u, key: u }),
             ),
