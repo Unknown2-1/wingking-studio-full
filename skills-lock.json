@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "skills": {
+    "canvas-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/canvas-design/SKILL.md",
+      "computedHash": "3fa7ea60170023ad8268bf9fd734ea75dd404279a2ef8ddf5abaa1102ad8e5f4",
+      "installMode": "copy"
+    },
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "6ac8ba6089dcbc303744a507a4587113c5d845ca2f658b3ce2b0b5eab108fb0d",
+      "installMode": "copy"
+    },
+    "poster-design": {
+      "source": "ArnavPuri/designskills",
+      "sourceType": "github",
+      "skillPath": "skills/poster-design/SKILL.md",
+      "computedHash": "f3ae4577b586131e994a2c943bd7046b4883847aae93dbad1d685f5dfb7ed58f",
+      "installMode": "copy"
+    },
+    "visual-design": {
+      "source": "nimadorostkar/Claude-Skills-collection",
+      "sourceType": "github",
+      "skillPath": "skills/design/visual-design/SKILL.md",
+      "computedHash": "28326b7eda6d34824c14382111b84b7f57c5368ff91214fc7bcdef8b19bdfafd",
+      "installMode": "copy"
+    }
+  }
+}
