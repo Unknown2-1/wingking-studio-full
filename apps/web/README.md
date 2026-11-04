@@ -7,7 +7,7 @@
 - Supabase PostgreSQL + Auth + Storage + Edge Functions (backend)
 - CSS biasa + Lucide React icons
 - Homepage: band, rilisan, video, pricing, kontak.
-- Form `/upload.html` masih mengandalkan aset bundle upload lama dalam `../live-public/dist/`.
+- Form `/upload.html` sekarang memiliki source HTML dan JavaScript sendiri di `upload.html` dan `src/upload.js`.
 
 ## Menjalankan
 ```bash
@@ -23,6 +23,7 @@ Tanpa konfigurasi Supabase, homepage memakai data contoh. Untuk menguji simpan/r
 ## Lokasi file
 - `src/App.jsx`: komponen & logika website (hasil rekonstruksi React.createElement; perlu refactor untuk penamaan dan JSX lebih bersih).
 - `src/main.jsx`: entry React.
+- `src/upload.js` dan `upload.html`: upload band/video, di-edit dan di-build bersama homepage.
 - `src/config.js`: konfigurasi Vite.
 - `src/style.css`: CSS situs.
 - `../live-public/dist/assets/`: gambar, logo, dan snapshot JS lama (dipakai oleh Vite publicDir).
@@ -30,6 +31,6 @@ Tanpa konfigurasi Supabase, homepage memakai data contoh. Untuk menguji simpan/r
 - `../../supabase/`: kode backend dan migrasi skema.
 
 ## Batasan
-Sumber JSX asli versi terbaru belum dipulihkan. File `src/App.jsx` adalah konversi sumber semantik dari bundle terdeploy; masih memiliki nama variabel minified. Jangan hapus folder snapshot `live-public/dist` sampai aset dipindah ke `public/` secara lengkap.
+Sumber JSX asli versi terbaru belum dipulihkan; source ini adalah rekonstruksi yang sudah bisa di-build, bukan file original. File `src/App.jsx` adalah konversi sumber semantik dari bundle terdeploy; masih memiliki nama variabel minified. Jangan hapus folder snapshot `live-public/dist` sampai aset dipindah ke `public/` secara lengkap.
 
 Jangan gunakan API secret/service_role key di frontend. Database produksi tidak boleh dipakai untuk pengujian penghapusan atau approval.
