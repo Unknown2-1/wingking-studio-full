@@ -34,3 +34,7 @@ Tanpa konfigurasi Supabase, homepage memakai data contoh. Untuk menguji simpan/r
 Sumber JSX asli versi terbaru belum dipulihkan; source ini adalah rekonstruksi yang sudah bisa di-build, bukan file original. File `src/App.jsx` adalah konversi sumber semantik dari bundle terdeploy; masih memiliki nama variabel minified. Jangan hapus folder snapshot `live-public/dist` sampai aset dipindah ke `public/` secara lengkap.
 
 Jangan gunakan API secret/service_role key di frontend. Database produksi tidak boleh dipakai untuk pengujian penghapusan atau approval.
+
+## Verifikasi teknis
+
+Build source terbaru telah lulus GitHub Actions `Verify Wingking editable web source`. Jalankan `npm run build` sendiri sebelum mengirim revisi, dan gunakan file entry di `apps/web/` (bukan berkas kompilasi di `apps/live-public/dist/`).
