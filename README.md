@@ -6,7 +6,7 @@
 
 | Bagian | Teknologi | Folder |
 | --- | --- | --- |
-| Frontend publik | React 19, Vite 6, JavaScript/JSX, CSS | `apps/web/src/` |
+| Frontend publik | React 19, Vite 6, JavaScript/JSX, CSS | `apps/web/src/` dan `apps/web/upload.html` |
 | Dashboard admin | HTML/CSS/JS, Supabase Auth | `apps/admin-unified/` |
 | Backend API | Supabase Edge Functions (Deno/TypeScript) | `supabase/functions/` |
 | Database | PostgreSQL, Supabase Storage, RLS | `supabase/migrations/` |
@@ -23,7 +23,7 @@ npm install
 npm run dev
 ```
 
-Buka `http://localhost:3000`. Kamu bisa mengubah `apps/web/src/App.jsx` dan `apps/web/src/style.css`.
+Buka `http://localhost:3000`. Kamu bisa mengubah `apps/web/src/App.jsx`, `apps/web/src/style.css`, dan upload di `apps/web/src/upload.js` / `apps/web/upload.html`.
 
 Di terminal lain, kembali ke root repo dan jalankan `npm run dev:admin` untuk dashboard di `http://localhost:3001`. **Tidak perlu menggunakan akun produksi saat mencoba perubahan.**
 
