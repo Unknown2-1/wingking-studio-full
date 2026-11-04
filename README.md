@@ -1,19 +1,23 @@
-# WINGKING STUDIO — TEAM DEVELOPMENT
+# WINGKING STUDIO
 
-> **Mulai dari sini untuk edit website.** Website publik versi terbaru kini memiliki workspace React/Vite di `apps/web/`. Kode komponen dipulihkan secara fungsional dari bundle produksi; penamaan komponen masih perlu dirapikan. Dashboard admin gabungan memakai `apps/admin-unified/`, sementara backend dan database berada di `supabase/`.
+Website musik lokal: band, rilisan, video, price list, form upload, dan admin moderasi. **Repository ini untuk tim developer.**
 
-## Teknologi yang dipakai
+## Peta stack dan kode yang aktif
 
-| Bagian | Teknologi | Folder |
+| Bagian | Teknologi | Lokasi |
 | --- | --- | --- |
-| Frontend publik | React 19, Vite 6, JavaScript/JSX, CSS | `apps/web/src/` dan `apps/web/upload.html` |
-| Dashboard admin | HTML/CSS/JS, Supabase Auth | `apps/admin-unified/` |
-| Backend API | Supabase Edge Functions (Deno/TypeScript) | `supabase/functions/` |
-| Database | PostgreSQL, Supabase Storage, RLS | `supabase/migrations/` |
-| Website Next.js lama | Next.js + Prisma (arsip versi terdahulu) | `legacy-nextjs/` |
-| Backup deployment lama | Snapshot build JS/CSS dan aset gambar | `apps/live-public/dist/` |
+| Frontend website | React 19, Vite 6, CSS, Lucide React | [`apps/web/`](apps/web/) |
+| Frontend admin | HTML/CSS/JavaScript, satu login moderator | [`apps/admin-unified/`](apps/admin-unified/) |
+| Backend/API | Supabase Edge Functions (Deno + TypeScript) | [`supabase/functions/`](supabase/functions/) |
+| Database | Supabase PostgreSQL, RLS, Auth, Storage | [`supabase/migrations/`](supabase/migrations/) |
+| Versi Next.js terdahulu | Next.js, Prisma | [`legacy-nextjs/`](legacy-nextjs/) |
+| Backup build dan gambar | HTML, JS, CSS, WebP dari website live | [`apps/live-public/dist/`](apps/live-public/dist/) |
 
-## Jalankan di VS Code
+**Mulai edit frontend dari `apps/web/`, BUKAN `apps/live-public/dist/` atau `legacy-nextjs/`.**
+
+## Setup untuk yang pertama kali clone
+
+Persyaratan: Node.js 22 dan npm.
 
 ```bash
 git clone https://github.com/Unknown2-1/wingking-studio-full.git
@@ -23,81 +27,83 @@ npm install
 npm run dev
 ```
 
-Buka `http://localhost:3000`. Kamu bisa mengubah `apps/web/src/App.jsx`, `apps/web/src/style.css`, dan upload di `apps/web/src/upload.js` / `apps/web/upload.html`.
+Buka **http://localhost:3000**. Ubah kode website di `src/App.jsx`, `src/style.css`, `src/upload.js`, dan `upload.html`. Vite menyediakan live reload otomatis.
 
-Di terminal lain, kembali ke root repo dan jalankan `npm run dev:admin` untuk dashboard di `http://localhost:3001`. **Tidak perlu menggunakan akun produksi saat mencoba perubahan.**
-
-**Production assets:** Untuk menjaga kesamaan desain, Vite memakai gambar dan halaman upload yang tersimpan pada `apps/live-public/dist/`. Jangan hapus folder itu sebelum seluruh aset dipindahkan. `apps/web/dist/` akan dibuat otomatis ketika `npm run build` dan diabaikan Git.
-
-## Konfigurasi & keamanan
-
-Salin `apps/web/.env.example` menjadi `apps/web/.env.local`. Biarkan key kosong untuk mode demo. Untuk menguji upload dan database, gunakan **staging Supabase**. Jangan masukkan service-role keys atau password admin ke repository public.
-
-Lihat [panduan frontend](apps/web/README.md), [team setup](docs/TEAM_SETUP.md), [status yang belum selesai](docs/STATUS.md), dan [keamanan](docs/SECURITY.md).
-
----
-
-## Snapshot dan dokumentasi sebelumnya
-
-**Full team repository — editable unified Admin Hub, preserved original snapshots, public website and Supabase backend.**
-
-[Live website](https://wingking-studio.vercel.app/) · [Private review](https://wingking-private-review-console.vercel.app/) · [Content Manager preview](https://wingking-content-manager-preview.vercel.app/)
-
-## What's included
-
-| Directory | What's inside |
-|---|---|
-| `apps/admin-unified/index.html` | **Editable single-login Admin Hub** combining guest/public review queue with content management; deployed to the existing private review alias (runtime authenticated QA pending) |
-| `legacy-nextjs/` | Complete relevant original editable Next.js project source, booking logic, Prisma schema, old admin app, tests and historical releases |
-| `apps/live-public/dist/` | New live Vite/React website **production build**, upload interface, JS/CSS bundles, original WebP illustrations, logo |
-| `apps/live-public/source/` | Available Vite configuration and helpers (original newest JSX entrypoint could not be fully retrieved) |
-| `apps/private-review/dist/` | Latest standalone moderator dashboard **production build**, CSS, logo, admin activation |
-| `apps/private-review/source/` | Available original moderator project configuration (latest large JSX file not fully retrievable) |
-| `apps/content-manager/` | Standalone editable HTML/CSS/JS Content Manager preview |
-| `supabase/functions/` | 4 active Edge Functions: booking/core, anonymous guest submissions, public intake, content management |
-| `supabase/migrations/` | 13 non-sensitive SQL schema/migration files, RLS, storage and moderation rules |
-| `supabase/types/` | Generated TypeScript database type definitions |
-| `docs/` | Team onboarding, deployment, readiness and security guidance |
-
-## Start locally
-
-Requires Node.js 20+.
+Tes hasil build sebelum PR:
 
 ```bash
-git clone https://github.com/Unknown2-1/wingking-studio-full.git
-cd wingking-studio-full
-
-npm run dev:public:snapshot   # localhost:3000 (historical static deploy)
-npm run dev:admin    # http://localhost:3001 (review + content manager in one login)
-npm run dev:review   # same unified Admin Hub, http://localhost:3001
+npm run build
 ```
 
-Run each command in a separate terminal. These static snapshot viewers require no `npm install`.
-
-For the **editable original Next.js application**:
+Dashboard admin bisa dibuka di terminal lain dari root repository:
 
 ```bash
-cd legacy-nextjs
-npm ci
-# create .env locally from ../.env.example with your OWN staging credentials
-npx prisma generate
-npm run dev
+npm run dev:admin
 ```
 
-The original separate admin snapshots are retained for historical reference. `npm run dev:review:legacy` and `npm run dev:manager:legacy` run those old snapshots on ports 3003 and 3002. The unified Admin Hub is live at https://wingking-private-review-console.vercel.app/. The former https://wingking-content-manager-preview.vercel.app/ now redirects there. The original compiled admin snapshots are still in this repository for reference or rollback.
+Admin lokal berada di **http://localhost:3001**; operasi yang mengubah konten tetap memerlukan akun moderator berwenang dan backend yang dikonfigurasi.
 
-For full instructions, use [TEAM_SETUP](docs/TEAM_SETUP.md), [STATUS](docs/STATUS.md), and [SECURITY](docs/SECURITY.md).
+## Penjelasan folder
 
-## ⚠️ Important before editing
+```text
+wingking-studio-full/
+├── apps/
+│   ├── web/                  # FRONTEND PUBLIK: React + Vite
+│   │   ├── src/
+│   │   │   ├── App.jsx       # homepage, kartu band, rilisan, video, modal
+│   │   │   ├── main.jsx      # bootstrap React
+│   │   │   ├── style.css     # styling
+│   │   │   ├── upload.js     # proses upload
+│   │   │   └── config.js     # konfigurasi
+│   │   ├── upload.html       # halaman upload
+│   │   ├── index.html
+│   │   └── package.json
+│   ├── admin-unified/        # DASHBOARD ADMIN: review + kelola konten
+│   ├── live-public/dist/     # BACKUP aset/build produksi lama
+│   ├── content-manager/     # BACKUP admin lama
+│   └── private-review/      # BACKUP dashboard review lama
+├── supabase/
+│   ├── functions/            # BACKEND API
+│   ├── migrations/           # DATABASE schema/RLS
+│   └── types/
+├── legacy-nextjs/           # Source generasi sebelumnya (arsip)
+├── docs/
+└── package.json             # Script tim
+```
 
-- This repository is **PUBLIC**, as configured on GitHub. Do not commit secrets, admin passwords, customer records or private uploaded files.
-- Some production JS snapshots are wired to the **LIVE Supabase database**. Clicking approve, reject or delete when authenticated can affect real content. Use a staging Supabase project for QA.
-- The latest Vercel production builds are backed up **as deployable bundles**, not complete latest editable JSX sources. See `docs/STATUS.md`; the original editable Next.js source is fully preserved separately.
-- Never reapply existing SQL migrations to the production database. Migrations that provisioned a one-time administrator are deliberately not included.
-- Deployment to Vercel, branch protections, secrets and admin access must be configured by authorized team members.
+**Panduan lengkap: [file mana yang harus diedit](docs/WHERE_TO_EDIT.md).**
 
-## Working as a team
+## Konfigurasi database (wajib untuk integrasi sungguhan)
 
-Ask the repo owner to add GitHub collaborators via **Settings → Collaborators**. Work on branches and review pull requests before merging to `main`. `dev/unknown2-1` can be used for development work.
+```bash
+cd apps/web
+cp .env.example .env.local
+```
 
-Original project attribution: [Epan0310/wingking-studio](https://github.com/Epan0310/wingking-studio) (development branch `dev/unknown2-1`).
+Di Windows PowerShell: `Copy-Item .env.example .env.local`.
+
+Tanpa konfigurasi, homepage berjalan dalam **mode demo**. Untuk menguji fitur upload, moderation, atau operasi database, siapkan **proyek Supabase staging** dan isi `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`. Jangan menaruh secret/service_role key atau password admin di frontend atau repository publik.
+
+## Status dan batasan source
+
+- React homepage terbaru **telah direkonstruksi dari JavaScript yang dideploy**, bukan dipulihkan sebagai JSX original.
+- Source hasil rekonstruksi sudah diformat, diberi nama komponen yang jelas, dan **lulus GitHub Actions build**. Sisa nama variabel internal perlu refactor bertahap.
+- Source form upload `upload.html` + `src/upload.js` dapat diedit dan masuk ke build multi-page Vite.
+- File gambar masih memakai backup aset `apps/live-public/dist/` agar tampilan tidak berubah mendadak.
+- Backend dan SQL tersedia, tetapi **uji end-to-end dengan akun moderator, upload video iPhone, dan perubahan database produksi belum dinyatakan lulus**.
+
+Jangan menghapus folder versi lama sampai refactor selesai; versi tersebut disimpan untuk backup dan membandingkan tampilan.
+
+## Kolaborasi
+
+Bekerja dari `main`, buat branch fitur (misal `feat/header-mobile`), `npm run build`, lalu buat Pull Request. GitHub Actions otomatis memeriksa build frontend.
+
+Dokumentasi lain: [Team Setup](docs/TEAM_SETUP.md), [Status & provenance](docs/STATUS.md), [Security](docs/SECURITY.md).
+
+### Link
+
+Website: https://wingking-studio.vercel.app/
+
+Admin: https://wingking-private-review-console.vercel.app/
+
+Repo: https://github.com/Unknown2-1/wingking-studio-full
