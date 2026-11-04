@@ -1,0 +1,62 @@
+name: Install Wingking Design Skills
+
+on:
+  push:
+    branches: ["dev/unknown2-1"]
+    paths:
+      - ".github/workflows/install-design-skills.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout current development branch without persistent token
+        uses: actions/checkout@v4
+        with:
+          ref: dev/unknown2-1
+          persist-credentials: false
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install four upstream skills to the current project
+        env:
+          DISABLE_TELEMETRY: "1"
+        run: |
+          set -euo pipefail
+          npx -y skills@1.7.6 add anthropics/skills --skill canvas-design --agent universal --copy --yes
+          npx -y skills@1.7.6 add ArnavPuri/designskills --skill poster-design --agent universal --copy --yes
+          npx -y skills@1.7.6 add nimadorostkar/Claude-Skills-collection --skill visual-design --agent universal --copy --yes
+          npx -y skills@1.7.6 add Leonxlnx/taste-skill --skill design-taste-frontend --agent universal --copy --yes
+
+      - name: Verify every requested skill is available
+        run: |
+          set -euo pipefail
+          for skill in canvas-design poster-design visual-design design-taste-frontend; do
+            test -s ".agents/skills/$skill/SKILL.md"
+            echo "Verified: $skill"
+          done
+          test -s skills-lock.json
+
+      - name: Commit project-scoped vendor skills to development
+        env:
+          PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f .agents/skills/ skills-lock.json
+          if git diff --cached --quiet; then
+            echo "All four skills already up to date"
+            exit 0
+          fi
+          git commit -m "chore(design): install four project-level design skills"
+          auth="$(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" push origin HEAD:dev/unknown2-1
