@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { config } from "./config.js";
+import WingkingAssistant from "./WingkingAssistant.jsx";
 
 const Lc = ArrowRight,
   dt = ArrowUpRight,
@@ -2567,5 +2568,6 @@ export default function WingkingApp() {
     ErrorBoundary,
     null,
     React.createElement(HomePage, null),
+    React.createElement(WingkingAssistant, null),
   );
 }
