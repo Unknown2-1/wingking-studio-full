@@ -7,6 +7,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.76.1";
  */
 const origins = new Set([
   "https://wingking-studio.vercel.app",
+  "https://wingking-studio-cwld42mot-xenseen.vercel.app",
   "https://wingking-studio-xenseen.vercel.app",
   "https://wingking-v28-ios-stable-preview.vercel.app",
   "http://localhost:3000",
