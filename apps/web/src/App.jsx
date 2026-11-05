@@ -202,13 +202,17 @@ function BoomboxArt() {
     {
       className: "boombox-rig",
       role: "img",
-      "aria-label": "Maskot boombox Wingking",
+      "aria-label": "Maskot semangka Wingking",
     },
-    React.createElement(AssetImage, {
-      name: "boombox-pose-3",
+    React.createElement("img", {
+      src: "/assets/watermelon-hero-custom.avif",
       className: "boombox-hero-portrait",
-      alt: "",
+      alt: "Maskot semangka ceria bertuliskan INFO INFO",
+      width: 840,
+      height: 840,
       loading: "eager",
+      decoding: "async",
+      draggable: false,
     }),
   );
 }
