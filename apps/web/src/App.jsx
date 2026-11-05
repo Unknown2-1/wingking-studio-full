@@ -2132,13 +2132,6 @@ function HomePage() {
           React.createElement(
             "div",
             { className: "hero-art" },
-            React.createElement(
-              "span",
-              { className: "hero-art-label floating" },
-              "ANAK MUSIK",
-              React.createElement("br", null),
-              "KUMPUL SINI",
-            ),
             React.createElement(BoomboxArt, null),
             React.createElement(
               "button",
@@ -2149,21 +2142,6 @@ function HomePage() {
               },
               "GALERI STUDIO",
               React.createElement(dt, { size: 17 }),
-            ),
-            React.createElement(AssetImage, {
-              name: "burst-star",
-              className: "hero-starlet",
-            }),
-            React.createElement(AssetImage, {
-              name: "dancing-seeds",
-              className: "hero-seedlet",
-            }),
-            React.createElement(
-              "span",
-              { className: "hero-sticker" },
-              "PLAY",
-              React.createElement("br", null),
-              "LOUD!",
             ),
           ),
         ),

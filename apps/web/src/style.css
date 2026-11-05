@@ -4576,3 +4576,23 @@ html[data-motion="off"] .hero h1 {
   flex-shrink: 0;
   cursor: pointer;
 }
+
+/* Hero mascot cleanup — the uploaded watermelon art already contains its own
+   stars, speech sign and PLAY LOUD sticker. Do not render a second set.
+   Feather the square illustration's pink background into the surrounding hero. */
+.hero-art .boombox-rig {
+  filter: none;
+  overflow: visible;
+}
+.hero-art .boombox-hero-portrait {
+  -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 51%, #000 59%, transparent 84%);
+  mask-image: radial-gradient(ellipse 72% 72% at 50% 51%, #000 59%, transparent 84%);
+}
+/* Keep gallery call-to-action readable without covering the illustration's foot. */
+.hero-art .hero-gallery-link {
+  bottom: 0;
+  left: 3%;
+}
+@media (max-width: 580px) {
+  .hero-art .hero-gallery-link { bottom: -2%; left: 1%; }
+}
