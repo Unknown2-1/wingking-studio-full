@@ -110,6 +110,19 @@ function setVerifiedUser(user) {
   f.hidden = !verifiedUser;
   if (verifiedUser) verifiedEmail.textContent = verifiedUser.email || "";
 }
+// Show useful, non-sensitive Auth feedback rather than raw API errors.
+function emailOtpErrorMessage(error) {
+  const code = String(error?.code || "");
+  const raw = String(error?.message || "");
+  if (code === "over_email_send_rate_limit" || /email.*rate limit|rate limit.*email/i.test(raw))
+    return "Batas pengiriman email WINGKING sudah tercapai. Coba lagi nanti. Admin sedang perlu mengaktifkan layanan SMTP pengirim khusus.";
+  if (code === "over_request_rate_limit" || error?.status === 429 || /rate limit|too many requests/i.test(raw))
+    return "Terlalu banyak permintaan kode. Jangan tekan berulang-ulang; coba lagi setelah jeda.";
+  if (code === "email_address_not_authorized")
+    return "Email penerima belum diizinkan oleh layanan bawaan. Admin perlu mengaktifkan SMTP WINGKING.";
+  return raw || "Kode verifikasi belum bisa dikirim. Coba lagi nanti.";
+}
+
 async function requestOtp() {
   if (!authClient) throw Error("Login email belum dikonfigurasi.");
   const { error } = await authClient.auth.signInWithOtp({
@@ -157,7 +170,7 @@ emailForm.addEventListener("submit", async (event) => {
   try {
     await requestOtp();
   } catch (error) {
-    authStatus.textContent = error.message || "Kode OTP gagal dikirim.";
+    authStatus.textContent = emailOtpErrorMessage(error);
   } finally {
     sendOtpButton.disabled = false;
   }
@@ -190,7 +203,7 @@ resendOtpButton.addEventListener("click", async () => {
   try {
     await requestOtp();
   } catch (error) {
-    authStatus.textContent = error.message || "Kode OTP gagal dikirim.";
+    authStatus.textContent = emailOtpErrorMessage(error);
   } finally {
     resendOtpButton.disabled = false;
   }

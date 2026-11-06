@@ -39,6 +39,19 @@ const Lc = ArrowRight,
   tg = Sparkles,
   Mi = X;
 
+// Show useful, non-sensitive Auth feedback rather than raw API errors.
+function emailOtpErrorMessage(error) {
+  const code = String(error?.code || "");
+  const raw = String(error?.message || "");
+  if (code === "over_email_send_rate_limit" || /email.*rate limit|rate limit.*email/i.test(raw))
+    return "Batas pengiriman email WINGKING sudah tercapai. Coba lagi nanti. Admin sedang perlu mengaktifkan layanan SMTP pengirim khusus.";
+  if (code === "over_request_rate_limit" || error?.status === 429 || /rate limit|too many requests/i.test(raw))
+    return "Terlalu banyak permintaan kode. Jangan tekan berulang-ulang; coba lagi setelah jeda.";
+  if (code === "email_address_not_authorized")
+    return "Email penerima belum diizinkan oleh layanan bawaan. Admin perlu mengaktifkan SMTP WINGKING.";
+  return raw || "Kode verifikasi belum bisa dikirim. Coba lagi nanti.";
+}
+
 const hasBackend = !!config.supabaseKey;
 function isValidHttpUrl(s) {
   try {
@@ -806,7 +819,7 @@ function StudioGalleryModal({ onClose }) {
       setCodeSent(true);
       setNotice("Kode verifikasi dikirim. Cek inbox atau folder spam.");
     } catch (err) {
-      setNotice(err?.message || "Kode OTP belum bisa dikirim.");
+      setNotice(emailOtpErrorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -1460,7 +1473,7 @@ function UploadBandModal({
       setOtpSent(true);
       r("Kode OTP dikirim. Cek inbox atau folder spam emailmu.");
     } catch (error) {
-      r(error.message || "Kode OTP gagal dikirim");
+      r(emailOtpErrorMessage(error));
     } finally {
       setAuthBusy(false);
     }
@@ -1614,7 +1627,7 @@ function UploadBandModal({
                             if (error) throw error;
                             r("Kode OTP baru sudah dikirim.");
                           } catch (error) {
-                            r(error.message || "Kode OTP gagal dikirim");
+                            r(emailOtpErrorMessage(error));
                           } finally {
                             setAuthBusy(!1);
                           }
