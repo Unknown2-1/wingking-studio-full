@@ -2390,16 +2390,6 @@ function HomePage() {
                 ),
               ),
             ),
-            React.createElement(
-              "button",
-              {
-                className: "little-add",
-                type: "button",
-                onClick: () => openUpload(),
-              },
-              React.createElement(KE, { size: 20 }),
-              " TAMBAH BAND",
-            ),
           ),
           React.createElement(
             "div",

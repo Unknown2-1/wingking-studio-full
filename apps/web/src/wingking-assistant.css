@@ -1,25 +1,27 @@
 /* ASK WINGKING – scoped visual system. Matches current festival/music playground site. */
 .wk-ai-root {
-  position: fixed; bottom: 24px; right: 26px; z-index: 120;
+  position: fixed; bottom: 16px; right: 17px; z-index: 120;
   font-family: "DM Sans", "Outfit", system-ui, sans-serif; color: #233829;
 }
 .wk-ai-root * { box-sizing: border-box; }
 .wk-ai-root button, .wk-ai-root input { font: inherit; }
+/* Tiny friendly help pill: compact even at desktop widths, still 44px tap target. */
 .wk-ai-trigger {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: 54px; padding: 12px 17px; border: 2px solid #173f30;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 44px; padding: 8px 12px; border: 1.5px solid #173f30;
   border-radius: 999px; color: #fff9e8; background: #213f31;
-  box-shadow: 4px 5px 0 #ff637b; letter-spacing: .03em;
-  font-weight: 900; font-size: 12px; cursor: pointer;
+  box-shadow: 2px 3px 0 #ff7fa2; letter-spacing: .025em;
+  font-weight: 850; font-size: 10px; line-height: 1; cursor: pointer;
   transition: transform .18s ease, box-shadow .18s ease;
 }
-.wk-ai-trigger:hover { transform: translateY(-3px); box-shadow: 4px 8px 0 #ff637b; }
+.wk-ai-trigger svg { width: 15px; height: 15px; flex-shrink: 0; }
+.wk-ai-trigger:hover { transform: translateY(-2px); box-shadow: 2px 5px 0 #ff7fa2; }
 .wk-ai-trigger:focus-visible, .wk-ai-root button:focus-visible, .wk-ai-root a:focus-visible,
 .wk-ai-root input:focus-visible { outline: 3px solid #ffcf54; outline-offset: 3px; }
-.wk-ai-trigger-dot { width: 8px; height: 8px; background: #c6e878; border-radius: 50%; }
+.wk-ai-trigger-dot { width: 6px; height: 6px; background: #c6e878; border-radius: 50%; }
 .wk-ai-panel {
   display: flex; flex-direction: column; overflow: hidden;
-  position: absolute; bottom: 71px; right: 0; width: min(392px, calc(100vw - 30px));
+  position: absolute; bottom: 58px; right: 0; width: min(392px, calc(100vw - 30px));
   height: min(560px, calc(100dvh - 110px));
   border: 2px solid #213f31; border-radius: 22px;
   background: #f9f5e8; box-shadow: 8px 9px 0 #243528;
@@ -110,9 +112,9 @@
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
 @media (max-width: 560px) {
-  .wk-ai-root { bottom: 16px; right: 15px; }
-  .wk-ai-trigger { min-height: 50px; font-size: 11px; padding: 11px 14px; }
-  .wk-ai-panel { bottom: 67px; right: 0; width: calc(100vw - 30px); height: min(590px, calc(100dvh - 99px)); box-shadow: 4px 5px 0 #243528; }
+  .wk-ai-root { bottom: 13px; right: 14px; }
+  .wk-ai-trigger { min-height: 44px; font-size: 10px; padding: 8px 11px; }
+  .wk-ai-panel { bottom: 58px; right: 0; width: calc(100vw - 28px); height: min(590px, calc(100dvh - 90px)); box-shadow: 4px 5px 0 #243528; }
   .wk-ai-chat-scroll { padding: 14px 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
