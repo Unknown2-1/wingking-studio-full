@@ -17,6 +17,8 @@ try{
  const act=text(b.action,15),key=text(b.requestKey,160),ip=(req.headers.get('cf-connecting-ip')||req.headers.get('x-real-ip')||req.headers.get('x-forwarded-for')?.split(',')[0]||'unknown').trim(),ipHash=await sha('wingking-v1:'+ip+new Date().toISOString().slice(0,10));
  if(act==='status'){const receipt=text(b.receipt,160);if(receipt.length<25)return res({error:'Kode tidak sah'},400);const {data,error}=await sb.from('wk_public_submissions').select('band_name,title,kind,review_status,review_note,submitted_at').eq('receipt_hash',await sha(receipt)).maybeSingle();if(error)throw error;return data?res({data}):res({error:'Kode tidak ditemukan'},404)}
  if(!['prepare','submit'].includes(act))return res({error:'Aksi tidak tersedia'},400);
+ // Legacy upload path retired: only band Press Kits, admin-managed video/release/gallery.
+ return res({error:'Form lama sudah ditutup. Daftarkan band melalui Press Kit WINGKING.'},410);
  const token=(req.headers.get('authorization')||'').replace(/^Bearer\s+/i,'');
  if(!token||token.length>5000)return res({error:'Verifikasi email terlebih dahulu'},401);
  const {data:{user},error:authError}=await sb.auth.getUser(token);

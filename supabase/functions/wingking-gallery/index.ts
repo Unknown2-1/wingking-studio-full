@@ -101,6 +101,8 @@ async function publish(row:Record<string,any>,adminId:string){
 }
 async function handle(req:Request,b:Record<string,any>){
  const action=clean(b.action,40);
+ // Public gallery submissions are disabled: admin-only media management.
+ if(action==="prepare"||action==="submit")fail("Upload foto hanya tersedia melalui Admin Hub WINGKING.",403);
  if(action==="prepare"||action==="admin-direct-prepare"){
   const admin=action==="admin-direct-prepare",user=await actor(req,admin);
   const values=validateFile(b);

@@ -30,6 +30,8 @@ async function moderator(req){
 }
 async function main(req,b){
  const action=String(b.action||"");
+ // Legacy guest submissions are closed. Admin review of existing records is preserved.
+ if(action==="prepare"||action==="finish")err("Form lama tidak tersedia. Gunakan Press Kit Band WINGKING.",410);
  let submitterId="";
  if(action==="prepare"||action==="finish"){
    const jwt=(req.headers.get("authorization")||"").replace(/^Bearer\s+/i,"");

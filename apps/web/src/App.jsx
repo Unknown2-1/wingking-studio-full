@@ -497,7 +497,7 @@ function BandCard({ band: s, index: a, onClick: r }) {
     React.createElement(
       "div",
       { className: "band-bottom" },
-      React.createElement("span", null, "CERITA + HARGA"),
+      React.createElement("span", null, s.presskit_id ? "DOWNLOAD PRESS KIT" : "CERITA + HARGA"),
       React.createElement(Lc, { size: 17 }),
     ),
   );
@@ -628,6 +628,30 @@ function VideoPlaceholder({ index: s }) {
     ),
   );
 }
+
+function ExternalVideoCard({item,index}){
+  const url=validatedUrl(item.external_url);
+  return <a className="clip-card wk-external-video" href={url||"#"} target="_blank" rel="noopener noreferrer"
+    aria-label={"Tonton video di "+item.platform} style={{background:"#203c30"}}>
+    <div className="wk-external-video-art">
+      <AssetImage name="watermelon-music" alt="Maskot semangka bermusik" />
+      <span className="wk-external-video-play"><HE size={30}/></span>
+    </div>
+    <div className="wk-external-video-caption"><small>STUDIO SESSIONS / {item.platform}</small>
+      <strong>LANGSUNG NONTON!</strong><span>BUKA DI {String(item.platform||"PLATFORM").toUpperCase()} <dt size={17}/></span>
+    </div>
+  </a>;
+}
+function ExternalReleaseCard({item}){
+  const url=validatedUrl(item.external_url);
+  return <a className="wk-external-release" href={url||"#"} target="_blank" rel="noopener noreferrer"
+    aria-label={"Dengarkan rilisan "+item.band_name+" di "+item.platform}>
+    <AssetImage name="watermelon-music" alt="Maskot semangka bernyanyi" />
+    <div><small>RILISAN / {item.platform}</small><strong>{item.band_name||"Band Wingking"}</strong>
+      <span>DENGARKAN SEKARANG <dt size={16}/></span></div>
+  </a>;
+}
+
 function VideoSection({ clips: s, onAdd: a }) {
   const r = s.length > 0;
   return React.createElement(
@@ -667,11 +691,9 @@ function VideoSection({ clips: s, onAdd: a }) {
         { className: "clip-rail" },
         r
           ? s.slice(0, 8).map((l, u) =>
-              React.createElement(VideoCard, {
-                item: l,
-                index: u,
-                key: l.id,
-              }),
+              l.external_url
+                ? React.createElement(ExternalVideoCard,{item:l,index:u,key:l.id})
+                : React.createElement(VideoCard,{item:l,index:u,key:l.id}),
             )
           : Array.from({ length: 3 }, (l, u) =>
               React.createElement(VideoPlaceholder, { index: u, key: u }),
@@ -717,9 +739,7 @@ function StudioGalleryModal({ onClose }) {
   const [photos, setPhotos] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [galleryError, setGalleryError] = React.useState("");
-  const [showUpload, setShowUpload] = React.useState(() =>
-    new URLSearchParams(window.location.search).get("gallery") === "upload"
-  );
+  const [showUpload, setShowUpload] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [code, setCode] = React.useState("");
   const [codeSent, setCodeSent] = React.useState(false);
@@ -899,15 +919,12 @@ function StudioGalleryModal({ onClose }) {
             width="166" height="166" loading="lazy" />
         </div>
         <div className="studio-gallery-actions">
-          <button type="button" className="gallery-upload-button"
-            onClick={() => { setShowUpload((value) => !value); setNotice(""); }}>
-            {showUpload ? "TUTUP FORM" : "+ UPLOAD FOTO"}
-          </button>
+
           <button type="button" className="gallery-reload-button"
             onClick={refreshGallery} disabled={loading}>Muat ulang foto</button>
         </div>
 
-        {showUpload && (
+        {false && (
           <div className="gallery-upload-shell">
             <h3>KIRIM FOTO KE GALERI</h3>
             <p>Foto kamu akan diperiksa admin sebelum tampil di website.</p>
@@ -993,6 +1010,185 @@ function StudioGalleryModal({ onClose }) {
       </section>
     </div>
   );
+}
+
+
+/* Simple Press Kit: only email, band name and one PDF/Word file. */
+function BandPressKitUploadModal({onClose,onSaved,showToast}){
+  const [email,setEmail]=React.useState("");
+  const [code,setCode]=React.useState("");
+  const [otpSent,setOtpSent]=React.useState(false);
+  const [verified,setVerified]=React.useState(false);
+  const [name,setName]=React.useState("");
+  const [file,setFile]=React.useState(null);
+  const [busy,setBusy]=React.useState(false);
+  const [notice,setNotice]=React.useState("");
+  const [complete,setComplete]=React.useState(false);
+  const ENDPOINT=config.supabaseUrl.replace(/\/+$/,"")+"/functions/v1/wingking-presskit";
+  React.useEffect(()=>{
+    if(!supabase)return;
+    let alive=true;
+    const update=(session)=>{
+      if(!alive)return;
+      const user=session?.user;
+      setVerified(Boolean(user?.email&&user?.email_confirmed_at));
+      if(user?.email)setEmail(user.email);
+    };
+    supabase.auth.getSession().then(({data})=>update(data.session)).catch(()=>{});
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>update(session));
+    return ()=>{alive=false;subscription?.unsubscribe()};
+  },[]);
+  const api=async(action,payload={})=>{
+    if(!supabase)throw Error("Layanan pendaftaran belum tersedia.");
+    const {data:{session}}=await supabase.auth.getSession();
+    if(!session?.access_token||!session?.user?.email_confirmed_at)
+      throw Error("Verifikasi email dulu sebelum upload Press Kit.");
+    const response=await fetch(ENDPOINT,{
+      method:"POST",headers:{"content-type":"application/json",apikey:config.supabaseKey,
+       authorization:"Bearer "+session.access_token},
+      body:JSON.stringify({action,...payload})
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok||!result.ok)throw Error(result.error||"Permintaan tidak berhasil.");
+    return result;
+  };
+  const sendOtp=async(e)=>{
+    e.preventDefault();if(busy)return;setBusy(true);setNotice("");
+    try{
+      const address=email.trim().toLowerCase();
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))throw Error("Isi alamat email yang benar.");
+      const {error}=await supabase.auth.signInWithOtp({
+        email:address,options:{shouldCreateUser:true,emailRedirectTo:"https://wingking-studio.vercel.app/?band=upload"}
+      });
+      if(error)throw error;
+      setOtpSent(true);setNotice("Kode dikirim. Cek inbox/spam; jangan minta berulang-ulang.");
+    }catch(error){setNotice(emailOtpErrorMessage(error))}
+    finally{setBusy(false)}
+  };
+  const verifyOtp=async(e)=>{
+    e.preventDefault();if(busy)return;setBusy(true);setNotice("");
+    try{
+      if(!/^\d{6}$/.test(code.trim()))throw Error("Kode OTP harus 6 angka.");
+      const {data,error}=await supabase.auth.verifyOtp({email:email.trim(),token:code.trim(),type:"email"});
+      if(error)throw error;
+      if(!data?.user?.email_confirmed_at)throw Error("Email belum terverifikasi.");
+      setVerified(true);setNotice("Email terverifikasi. Silakan kirim Press Kit.");
+    }catch(error){setNotice(error.message||"Kode tidak sesuai.")}
+    finally{setBusy(false)}
+  };
+  const submit=async(e)=>{
+    e.preventDefault();if(busy)return;setBusy(true);setNotice("");
+    try{
+      if(name.trim().length<2||name.trim().length>80)throw Error("Nama band minimal 2 dan maksimal 80 karakter.");
+      if(!file)throw Error("Pilih Press Kit PDF atau Word.");
+      const ext=file.name.split(".").pop()?.toLowerCase();
+      const mimes={pdf:"application/pdf",doc:"application/msword",
+        docx:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"};
+      if(!mimes[ext])throw Error("Format harus PDF, DOC atau DOCX.");
+      if(!file.size||file.size>10*1024*1024)throw Error("Ukuran maksimum 10 MB.");
+      const converted=file.type===mimes[ext]?file:new File([file],file.name,{type:mimes[ext],lastModified:file.lastModified});
+      const ticket=await api("prepare",{band_name:name.trim(),filename:converted.name,mime:converted.type,size:converted.size});
+      const {error}=await supabase.storage.from(ticket.bucket)
+        .uploadToSignedUrl(ticket.path,ticket.token,converted,{contentType:converted.type,upsert:false});
+      if(error)throw Error("Upload gagal: "+error.message);
+      await api("finish",{id:ticket.id});
+      setComplete(true);
+      setNotice("Berhasil! Press Kit masuk antrean review admin dan belum tampil untuk publik.");
+      showToast?.("Press Kit terkirim. Menunggu persetujuan admin.");
+      onSaved?.();
+    }catch(error){setNotice(error.message||"Pengajuan gagal dikirim.")}
+    finally{setBusy(false)}
+  };
+  const signOut=async()=>{
+    if(busy||!supabase)return;
+    await supabase.auth.signOut();
+    setVerified(false);setOtpSent(false);setEmail("");setCode("");
+  };
+  return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
+    <section className="presskit-modal" role="dialog" aria-modal="true" aria-labelledby="presskit-title">
+      <button type="button" className="close-btn" onClick={onClose} aria-label="Tutup pendaftaran"><Mi/></button>
+      <div className="presskit-head">
+        <div><SectionKicker>BAND & HARGA / WINGKING</SectionKicker>
+          <h2 id="presskit-title">DAFTARKAN<br/>BANDMU!</h2>
+          <p>Cukup email, nama band dan Press Kit. Harga dan profil band ada di berkasnya.</p>
+        </div>
+        <AssetImage name="watermelon-upload" alt="Semangka membawa berkas" className="presskit-mascot"/>
+      </div>
+      {complete?<div className="presskit-done">
+        <AssetImage name="watermelon-success" alt="Pengajuan berhasil" className="presskit-done-image"/>
+        <h3>BERHASIL DIKIRIM!</h3>
+        <p>Admin akan memeriksa Press Kit. Band kamu baru tampil setelah disetujui.</p>
+        <button type="button" className="presskit-primary" onClick={onClose}>SELESAI</button>
+      </div>:<div className="presskit-body">
+        {!verified?(!otpSent?<form onSubmit={sendOtp} className="presskit-form">
+          <label htmlFor="presskit-email">01 — EMAIL BAND *</label>
+          <input id="presskit-email" type="email" autoComplete="email" required
+            placeholder="bandkamu@gmail.com" value={email} onChange={e=>setEmail(e.target.value)}/>
+          <button className="presskit-primary" type="submit" disabled={busy}>{busy?"MENGIRIM...":"KIRIM KODE EMAIL"}</button>
+          <p className="presskit-help">Setelah verifikasi, kamu bisa lanjut mengisi nama band dan mengunggah Press Kit.</p>
+        </form>:<form onSubmit={verifyOtp} className="presskit-form">
+          <label htmlFor="presskit-code">VERIFIKASI EMAIL *</label>
+          <p>Kode enam digit dikirim ke {email}</p>
+          <input id="presskit-code" type="text" inputMode="numeric" autoComplete="one-time-code"
+            required maxLength={6} placeholder="000000" value={code}
+            onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))}/>
+          <button className="presskit-primary" type="submit" disabled={busy}>{busy?"MEMERIKSA...":"VERIFIKASI KODE"}</button>
+          <button type="button" className="presskit-secondary" onClick={()=>{setOtpSent(false);setCode("")}}>Ganti email / kirim kode baru</button>
+        </form>):<form onSubmit={submit} className="presskit-form">
+          <div className="presskit-verified"><VE size={17}/> Email terverifikasi: {email}
+            <button type="button" onClick={signOut}>Ganti</button></div>
+          <label htmlFor="presskit-name">02 — NAMA BAND *</label>
+          <input id="presskit-name" type="text" minLength={2} maxLength={80} required
+            placeholder="Nama band kamu" value={name} onChange={e=>setName(e.target.value)}/>
+          <label htmlFor="presskit-file">03 — UPLOAD PRESS KIT *</label>
+          <label className="presskit-filedrop" htmlFor="presskit-file">
+            <Wy size={28}/>
+            <strong>{file?file.name:"PILIH BERKAS PDF / WORD"}</strong>
+            <span>PDF, DOC, DOCX • maksimal 10 MB</span>
+          </label>
+          <input id="presskit-file" type="file" required
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            onChange={e=>setFile(e.target.files?.[0]||null)} />
+          <button className="presskit-primary" type="submit" disabled={busy}>{busy?"SEDANG MENGIRIM...":"KIRIM BANDKU"} <dt size={18}/></button>
+          <p className="presskit-help">Berkas disimpan privat sampai admin menyetujui. Pastikan hanya berisi kontak yang boleh dipublikasikan.</p>
+        </form>)}
+        {notice&&<p className="presskit-notice" role="status">{notice}</p>}
+      </div>}
+    </section>
+  </div>;
+}
+function PressKitDetailsModal({band,onClose}){
+  const [busy,setBusy]=React.useState(false),[error,setError]=React.useState("");
+  const download=async()=>{
+    if(busy)return;setBusy(true);setError("");
+    try{
+      const response=await fetch(config.supabaseUrl+"/functions/v1/wingking-presskit",{
+        method:"POST",headers:{"content-type":"application/json",apikey:config.supabaseKey},
+        body:JSON.stringify({action:"public-download",id:band.presskit_id})
+      });
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||!data.ok)throw Error(data.error||"Download belum tersedia.");
+      const u=new URL(data.url);
+      if(u.protocol!=="https:"||u.hostname!==new URL(config.supabaseUrl).hostname)
+        throw Error("Alamat unduhan tidak aman.");
+      window.location.assign(u.href);
+    }catch(e){setError(e.message||"Gagal menyiapkan unduhan.")}
+    finally{setBusy(false)}
+  };
+  return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
+    <section className="presskit-modal presskit-details" role="dialog" aria-modal="true" aria-label={"Press Kit "+band.name}>
+      <button className="close-btn" onClick={onClose} aria-label="Tutup"><Mi/></button>
+      <AssetImage name="watermelon-welcome" alt="Maskot Wingking" className="presskit-details-art"/>
+      <SectionKicker>BAND & HARGA</SectionKicker>
+      <h2>{band.name}</h2>
+      <p>Profil, informasi penampilan, dan harga (jika tersedia) ada di dokumen Press Kit band ini.</p>
+      <button className="presskit-primary" type="button" onClick={download} disabled={busy}>
+        <Wy size={19}/> {busy?"MENYIAPKAN...":"DOWNLOAD PRESS KIT"}
+      </button>
+      {error&&<p role="alert" className="presskit-notice">{error}</p>}
+      <p className="presskit-help">File diunggah oleh band dan sudah diperiksa admin WINGKING. Unduh hanya jika kamu mempercayai sumbernya.</p>
+    </section>
+  </div>;
 }
 
 function BandDetailsModal({ band: s, releases: a, onClose: r }) {
@@ -2022,13 +2218,14 @@ function HomePage() {
     }),
     [r, l] = React.useState(null),
     [u, c] = React.useState(null),
-    [h, m] = React.useState(!1),
+    [h, m] = React.useState(() => new URLSearchParams(window.location.search).get("band") === "upload"),
     [galleryOpen, setGalleryOpen] = React.useState(() =>
-      new URLSearchParams(window.location.search).get("gallery") === "upload"
+      false
     ),
     [y, d] = React.useState(!1),
     [b, R] = React.useState(!1),
     [k, B] = React.useState(!1),
+    [releaseSearch,setReleaseSearch] = React.useState(""),
     [K, P] = React.useState(""),
     [H, W] = React.useState(null),
     [uploadTab, setUploadTab] = React.useState("band"),
@@ -2047,7 +2244,7 @@ function HomePage() {
         return;
       }
       try {
-        const [O, q, _] = await Promise.all([
+        const [O, q, _, kit, media] = await Promise.all([
           supabase
             .from("wk_bands")
             .select(
@@ -2075,12 +2272,21 @@ function HomePage() {
             .eq("review_status", "approved")
             .order("created_at", { ascending: !1 })
             .limit(24),
+          supabase
+            .from("wk_presskits")
+            .select("id,band_name,created_at")
+            .order("created_at", { ascending: false })
+            .limit(100),
+          supabase
+            .from("wk_media_links")
+            .select("id,kind,band_name,link_url,platform,created_at")
+            .order("created_at",{ascending:false}).limit(100),
         ]);
-        if (O.error || q.error || _.error)
+        if (O.error || q.error || _.error || kit.error || media.error)
           throw new Error(
             ((F = O.error) == null ? void 0 : F.message) ||
               ((w = q.error) == null ? void 0 : w.message) ||
-              ((E = _.error) == null ? void 0 : E.message),
+              ((E = _.error) == null ? void 0 : E.message) || kit.error?.message || media.error?.message,
           );
         const { data: A, error: V } = await supabase
           .from("wk_public_submissions")
@@ -2108,8 +2314,18 @@ function HomePage() {
             spotify_url: Y.music_url,
             photo_url: Y.photo_url,
           })),
+          ...(kit.data || []).map((Y) => ({
+            id:"kit-"+Y.id,presskit_id:Y.id,name:Y.band_name,genre:"Press Kit",
+            city:"WINGKING STUDIO",tagline:"Profil dan harga lengkap di Press Kit",
+            accent:"#F1B9C5",rate_cards:[],photo_url:"",
+          })),
         ]),
           D([
+            ...(media.data || []).filter(Y=>Y.kind==="release").map(Y=>({
+              id:"media-"+Y.id,external_url:Y.link_url,platform:Y.platform,
+              title:Y.band_name,band_name:Y.band_name,kind:"Single",caption:"",
+              cover_url:"",listen_url:Y.link_url
+            })),
             ...(q.data || []),
             ...X.filter((Y) => Y.kind === "release").map((Y) => ({
               id: Y.id,
@@ -2122,6 +2338,10 @@ function HomePage() {
             })),
           ]),
           Z([
+            ...(media.data || []).filter(Y=>Y.kind==="video").map(Y=>({
+              id:"media-"+Y.id,external_url:Y.link_url,platform:Y.platform,
+              title:"Studio Sessions",caption:"",video_url:"",
+            })),
             ...(_.data || []),
             ...X.filter((Y) => Y.kind === "video" && Y.video_url).map((Y) => ({
               id: Y.id,
@@ -2514,16 +2734,15 @@ function HomePage() {
               name: "watermelon-music",
               className: "title-flower",
             }),
-            React.createElement(
-              "button",
-              {
-                className: "little-add",
-                type: "button",
-                onClick: () => openUpload("release"),
-              },
-              React.createElement(KE, { size: 20 }),
-              " TAMBAH RILISAN",
-            ),
+
+          ),
+          React.createElement("div",{className:"wk-release-search"},
+            React.createElement("input",{
+              type:"search",value:releaseSearch,
+              onChange:e=>setReleaseSearch(e.target.value),
+              placeholder:"Cari nama band atau rilisan...", "aria-label":"Cari rilisan musik"
+            }),
+            React.createElement(HE,{size:19})
           ),
           !ie &&
             React.createElement(
@@ -2534,16 +2753,14 @@ function HomePage() {
           React.createElement(
             "div",
             { className: "releases-grid reveal-on-scroll" },
-            Ae.slice(0, k ? 12 : 3).map((F, w) =>
-              React.createElement(ReleaseCard, {
-                key: F.id,
-                item: F,
-                index: w,
-                onClick: c,
-              }),
-            ),
+            Ae.filter(F=>(F.band_name||F.title||"").toLowerCase().includes(releaseSearch.trim().toLowerCase()))
+              .slice(0, releaseSearch.trim()?24:k?12:3).map((F,w)=>
+                F.external_url
+                ? React.createElement(ExternalReleaseCard,{key:F.id,item:F})
+                : React.createElement(ReleaseCard,{key:F.id,item:F,index:w,onClick:c})
+              ),
           ),
-          Ae.length > 3 &&
+          !releaseSearch.trim() && Ae.length > 3 &&
             React.createElement(
               "button",
               {
@@ -2696,18 +2913,15 @@ function HomePage() {
       ),
     ),
     h &&
-      React.createElement(UploadBandModal, {
+      React.createElement(BandPressKitUploadModal, {
         onClose: () => m(!1),
         onSaved: ae,
         showToast: je,
-        initialTab: uploadTab,
       }),
     r &&
-      React.createElement(BandDetailsModal, {
-        band: r,
-        releases: L,
-        onClose: () => l(null),
-      }),
+      (r.presskit_id
+        ? React.createElement(PressKitDetailsModal, {band:r,onClose:()=>l(null)})
+        : React.createElement(BandDetailsModal, {band:r,releases:L,onClose:()=>l(null)})),
     " ",
     u &&
       React.createElement(ReleaseDetailsModal, {
