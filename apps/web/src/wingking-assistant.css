@@ -120,3 +120,7 @@
 @media (prefers-reduced-motion: reduce) {
   .wk-ai-root *, .wk-ai-root *::before, .wk-ai-root *::after { animation: none !important; transition: none !important; }
 }
+
+/* Watermelon assistant identity (keeps compact trigger unchanged) */
+.wk-ai-logo img {width: 51px; height: 51px; object-fit: contain; transform: scale(1.12);}
+.wk-ai-logo {overflow: visible;}

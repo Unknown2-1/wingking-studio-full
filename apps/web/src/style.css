@@ -4644,3 +4644,54 @@ html[data-motion="off"] .hero h1 {
  .gallery-upload-form button {max-width:100%;width:100%;}
  .studio-gallery-actions button {font-size:12px;}
 }
+
+
+/* 2026 WATERMELON ASSET PACK • isolated visual tune-up, original festival system preserved */
+.band-heading-watermelon {
+  width: clamp(115px, 14vw, 174px);
+  height: auto; max-height: 176px; object-fit: contain;
+  flex: 0 0 auto; transform: rotate(6deg);
+  filter: drop-shadow(5px 6px 0 rgba(24,55,36,.12));
+}
+.title-flower { animation: watermelonGroove 5.5s ease-in-out infinite !important; object-fit: contain; }
+@keyframes watermelonGroove {
+  0%,100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-9px) rotate(6deg); }
+}
+.gallery-mascot-header {
+  width: 100%; display: flex; align-items: center;
+  justify-content: space-between; gap: 15px;
+}
+.gallery-mascot-header > div { min-width: 0; }
+.gallery-mascot-picture {
+  display: block; width: clamp(94px, 16vw, 166px); height: auto;
+  max-height: 166px; flex-shrink: 0; object-fit: contain;
+  filter: drop-shadow(4px 5px 0 rgba(28,61,36,.08));
+  transform: rotate(4deg);
+}
+.gallery-mascot-header h2 { margin-right: 0; }
+.gallery-success-mascot {
+  display: block; width: 90px; height: 90px; object-fit: contain;
+  margin: 0 0 10px;
+}
+.panel-welcome { display: flow-root; }
+.panel-welcome-mascot {
+  float: right; width: 112px; max-width: 27%;
+  height: auto; object-fit: contain;
+  margin: 4px 0 8px 12px;
+  transform: rotate(5deg);
+}
+@media (max-width: 680px) {
+  .band-heading-watermelon { width: 91px; max-height: 99px; }
+  .gallery-mascot-picture { width: 92px; max-height: 92px; }
+  .gallery-mascot-header { align-items: flex-start; gap: 10px; }
+  .panel-welcome-mascot { width: 84px; max-width: 24%; }
+  .panel-welcome h2 { font-size: clamp(39px, 9vw, 62px); letter-spacing: -.055em; }
+}
+@media (max-width: 420px) {
+  .band-heading-watermelon { display: none; }
+  .gallery-mascot-picture { width: 77px; max-height: 88px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-flower { animation: none !important; }
+}

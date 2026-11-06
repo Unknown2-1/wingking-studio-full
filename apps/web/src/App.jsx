@@ -196,7 +196,7 @@ function AssetImage({
     style: u,
   });
 }
-function BoomboxArt() {
+function WatermelonHeroArt() {
   return React.createElement(
     "div",
     {
@@ -313,12 +313,12 @@ function MotionMarquee({ play: s = !0 }) {
             }),
             " SUARA BARU ",
             React.createElement(AssetImage, {
-              name: "boombox-pose-1",
+              name: "watermelon-sparkle",
               className: "marquee-sticker",
             }),
             " BIKIN RAME ",
             React.createElement(AssetImage, {
-              name: "boombox-pose-2",
+              name: "watermelon-music",
               className: "marquee-sticker",
             }),
             " ",
@@ -334,10 +334,10 @@ function ReleaseArtwork({
   variant: r = 0,
 }) {
   const l = [
-    "melting-vinyl",
-    "watermelon-cassette",
-    "soundwave-spiral",
-    "boombox-pose-2",
+    "watermelon-music",
+    "watermelon-sparkle",
+    "watermelon-welcome",
+    "watermelon-music",
   ][r % 4];
   return React.createElement(
     "div",
@@ -359,9 +359,9 @@ function ReleaseArtwork({
           React.createElement(
             "span",
             { className: "art-stamp" },
-            "WINGKING RADIO",
+            "WINGKING STUDIO",
             React.createElement("br", null),
-            "VOL. 001",
+            "LOCAL BEATS",
           ),
         ),
   );
@@ -444,7 +444,7 @@ function BandCard({ band: s, index: a, onClick: r }) {
             loading: "lazy",
           })
         : React.createElement(AssetImage, {
-            name: ["boombox-pose-2", "boombox-pose-3", "boombox-pose-4"][a % 3],
+            name: ["watermelon-welcome", "watermelon-sparkle", "watermelon-upload"][a % 3],
             className: "band-art-image",
             alt: "Ilustrasi karakter Wingking",
           }),
@@ -640,7 +640,7 @@ function VideoSection({ clips: s, onAdd: a }) {
           React.createElement("p", null, "AUDIO POOLS"),
         ),
         React.createElement(AssetImage, {
-          name: "boombox-pose-4",
+          name: "watermelon-music",
           className: "clip-heading-mascot",
           alt: "Maskot Wingking",
         }),
@@ -858,9 +858,17 @@ function StudioGalleryModal({ onClose }) {
         aria-labelledby="studio-gallery-title">
         <button type="button" className="close-btn" onClick={onClose}
           aria-label="Tutup galeri"><Mi /></button>
-        <SectionKicker>WINGKING HUB STUDIO</SectionKicker>
-        <h2 id="studio-gallery-title">GALERI STUDIO</h2>
-        <p>Intip suasana di studio musik Wingking.</p>
+        <div className="gallery-mascot-header">
+          <div>
+            <SectionKicker>WINGKING HUB STUDIO</SectionKicker>
+            <h2 id="studio-gallery-title">GALERI STUDIO</h2>
+            <p>Intip suasana di studio musik Wingking.</p>
+          </div>
+          <img src="/assets/watermelon-gallery.webp"
+            className="gallery-mascot-picture"
+            alt="Maskot semangka memperlihatkan foto galeri"
+            width="166" height="166" loading="lazy" />
+        </div>
         <div className="studio-gallery-actions">
           <button type="button" className="gallery-upload-button"
             onClick={() => { setShowUpload((value) => !value); setNotice(""); }}>
@@ -903,6 +911,8 @@ function StudioGalleryModal({ onClose }) {
               )
             ) : sent ? (
               <div className="gallery-success" role="status">
+                <img className="gallery-success-mascot" src="/assets/watermelon-success.webp"
+                  alt="Maskot semangka mengacungkan jempol" width="90" height="90" />
                 <strong>FOTO BERHASIL DIKIRIM!</strong>
                 <p>Admin akan meninjau foto kamu. Hanya yang disetujui yang tampil di sini.</p>
                 <button type="button" onClick={() => {
@@ -987,7 +997,7 @@ function BandDetailsModal({ band: s, releases: a, onClose: r }) {
         s.photo_url && validatedUrl(s.photo_url)
           ? React.createElement("img", { src: s.photo_url, alt: "Foto band" })
           : React.createElement(AssetImage, {
-              name: "boombox-pose-2",
+              name: "watermelon-welcome",
               className: "detail-band-asset",
               alt: "Ilustrasi band",
             }),
@@ -1502,6 +1512,11 @@ function UploadBandModal({
         React.createElement(
           "div",
           { className: "panel-welcome" },
+            React.createElement(AssetImage, {
+              name: "watermelon-upload",
+              className: "panel-welcome-mascot",
+              alt: "Semangka siap mengirim karya",
+            }),
             React.createElement(
               "h2",
               null,
@@ -2336,7 +2351,7 @@ function HomePage() {
           React.createElement(
             "div",
             { className: "hero-art" },
-            React.createElement(BoomboxArt, null),
+            React.createElement(WatermelonHeroArt, null),
             React.createElement(
               "button",
               {
@@ -2390,6 +2405,11 @@ function HomePage() {
                 ),
               ),
             ),
+            React.createElement(AssetImage, {
+              name: "watermelon-welcome",
+              className: "band-heading-watermelon",
+              alt: "Maskot semangka mengajak band bergabung",
+            }),
           ),
           React.createElement(
             "div",
@@ -2460,7 +2480,7 @@ function HomePage() {
               ),
             ),
             React.createElement(AssetImage, {
-              name: "boombox-pose-1",
+              name: "watermelon-music",
               className: "title-flower",
             }),
             React.createElement(
@@ -2596,8 +2616,8 @@ function HomePage() {
               "aria-hidden": "true",
             },
             React.createElement(AssetImage, {
-              name: "boombox-pose-1",
-              alt: "Maskot boombox Wingking",
+              name: "watermelon-contact",
+              alt: "Maskot semangka menghubungi tim Wingking",
             }),
             React.createElement(
               "span",

@@ -99,7 +99,7 @@ export default function WingkingAssistant() {
       {open && (
         <aside className="wk-ai-panel" role="dialog" aria-label="Chat dengan asisten Wingking">
           <header className="wk-ai-header">
-            <div className="wk-ai-logo" aria-hidden="true"><Music2 size={24} strokeWidth={2.7} /></div>
+            <div className="wk-ai-logo" aria-hidden="true"><img src="/assets/watermelon-ai.webp" width="52" height="52" alt="" /></div>
             <div className="wk-ai-heading">
               <span className="wk-ai-kicker">WINGKING STUDIO / HELP DESK</span>
               <strong>ASK WINGKING<span className="wk-ai-header-dot">.</span></strong>
