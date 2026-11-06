@@ -696,62 +696,266 @@ function ToastMessage({ message: s, onClose: a }) {
       : null
   );
 }
-function StudioGalleryModal({ onClose: s }) {
-  const a = Array.from({ length: 12 }, (r, l) =>
-    String(l + 1).padStart(2, "0"),
-  );
-  return React.createElement(
-    "div",
-    {
-      className: "overlay",
-      onMouseDown: (a) => a.target === a.currentTarget && s(),
-    },
-    React.createElement(
-      "section",
-      {
-        className: "studio-gallery-modal",
-        role: "dialog",
-        "aria-modal": "true",
-        "aria-labelledby": "studio-gallery-title",
+function StudioGalleryModal({ onClose }) {
+  const [photos, setPhotos] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [galleryError, setGalleryError] = React.useState("");
+  const [showUpload, setShowUpload] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [code, setCode] = React.useState("");
+  const [codeSent, setCodeSent] = React.useState(false);
+  const [verified, setVerified] = React.useState(false);
+  const [title, setTitle] = React.useState("");
+  const [caption, setCaption] = React.useState("");
+  const [file, setFile] = React.useState(null);
+  const [busy, setBusy] = React.useState(false);
+  const [notice, setNotice] = React.useState("");
+  const [sent, setSent] = React.useState(false);
+  const endpoint = config.supabaseUrl
+    ? config.supabaseUrl.replace(/\/+$/, "") + "/functions/v1/wingking-gallery"
+    : "";
+
+  const refreshGallery = React.useCallback(async () => {
+    if (!supabase) {
+      setGalleryError("Galeri sedang tidak terhubung. Coba lagi nanti.");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("wk_gallery_photos")
+        .select("id,title,caption,image_url,display_order,created_at")
+        .order("display_order", { ascending: true })
+        .order("created_at", { ascending: false })
+        .limit(90);
+      if (error) throw error;
+      setPhotos((data || []).filter((p) => /^https:\/\//i.test(p.image_url || "")));
+      setGalleryError("");
+    } catch {
+      setGalleryError("Foto galeri belum bisa dimuat. Coba muat ulang.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    refreshGallery();
+    let alive = true;
+    if (supabase) {
+      supabase.auth.getSession().then(({ data }) => {
+        if (!alive) return;
+        const user = data?.session?.user;
+        setVerified(Boolean(user?.email && user?.email_confirmed_at));
+        if (user?.email) setEmail(user.email);
+      }).catch(() => {});
+    }
+    return () => { alive = false; };
+  }, [refreshGallery]);
+
+  const galleryRequest = async (action, payload = {}) => {
+    if (!supabase || !endpoint) throw new Error("Koneksi galeri belum tersedia.");
+    const { data } = await supabase.auth.getSession();
+    const session = data?.session;
+    if (!session?.access_token || !session.user?.email_confirmed_at)
+      throw new Error("Verifikasi email kamu sebelum mengirim foto.");
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "apikey": config.supabaseKey,
+        "authorization": "Bearer " + session.access_token,
       },
-      React.createElement(
-        "button",
-        { className: "close-btn", onClick: s, "aria-label": "Tutup galeri" },
-        React.createElement(Mi, null),
-      ),
-      React.createElement(SectionKicker, null, "WINGKING HUB STUDIO"),
-      React.createElement(
-        "h2",
-        { id: "studio-gallery-title" },
-        "GALERI STUDIO",
-      ),
-      React.createElement("p", null, "Intip suasana di studio musik Wingking."),
-      React.createElement(
-        "div",
-        { className: "studio-gallery-grid" },
-        a.map((r) =>
-          React.createElement(
-            "a",
-            {
-              className: "studio-gallery-item",
-              href: "/assets/studio-gallery/studio-" + r + ".jpg",
-              target: "_blank",
-              rel: "noopener noreferrer",
-              key: r,
-              "aria-label": "Buka foto studio " + Number(r),
-            },
-            React.createElement("img", {
-              src: "/assets/studio-gallery/studio-" + r + ".jpg",
-              alt: "Suasana Wingking Hub Studio " + Number(r),
-              loading: "lazy",
-              decoding: "async",
-            }),
-          ),
-        ),
-      ),
-    ),
+      body: JSON.stringify({ action, ...payload }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.ok)
+      throw new Error(result.error || "Layanan galeri sedang bermasalah.");
+    return result;
+  };
+
+  const sendOtp = async (event) => {
+    event.preventDefault();
+    if (!supabase || busy) return;
+    setBusy(true);
+    setNotice("");
+    try {
+      const address = email.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
+        throw new Error("Isi email yang benar dulu, ya.");
+      const { error } = await supabase.auth.signInWithOtp({
+        email: address, options: { shouldCreateUser: true },
+      });
+      if (error) throw error;
+      setCodeSent(true);
+      setNotice("Kode verifikasi dikirim. Cek inbox atau folder spam.");
+    } catch (err) {
+      setNotice(err?.message || "Kode OTP belum bisa dikirim.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const verifyCode = async (event) => {
+    event.preventDefault();
+    if (!supabase || busy) return;
+    setBusy(true);
+    setNotice("");
+    try {
+      if (!/^\d{6}$/.test(code.trim()))
+        throw new Error("Masukkan 6 angka kode OTP.");
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim(), token: code.trim(), type: "email",
+      });
+      if (error) throw error;
+      if (!data?.user?.email_confirmed_at)
+        throw new Error("Email belum terverifikasi.");
+      setVerified(true);
+      setNotice("Email berhasil diverifikasi. Sekarang kamu bisa upload foto.");
+    } catch (err) {
+      setNotice(err?.message || "Kode verifikasi tidak sesuai.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitPhoto = async (event) => {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setNotice("");
+    try {
+      if (!file || !["image/jpeg","image/png","image/webp"].includes(file.type))
+        throw new Error("Pilih foto JPG, PNG atau WebP.");
+      if (!file.size || file.size > 5 * 1024 * 1024)
+        throw new Error("Ukuran foto maksimal 5 MB.");
+      if (title.trim().length < 2 || title.trim().length > 100)
+        throw new Error("Judul minimal 2 dan maksimal 100 karakter.");
+      const ticket = await galleryRequest("prepare", {
+        title: title.trim(), caption: caption.trim(), mime: file.type, size: file.size,
+      });
+      const { error: uploadError } = await supabase.storage
+        .from(ticket.bucket).uploadToSignedUrl(ticket.path, ticket.token, file, {
+          contentType: file.type, upsert: false,
+        });
+      if (uploadError) throw uploadError;
+      await galleryRequest("submit", { id: ticket.id });
+      setSent(true);
+      setFile(null);
+      setNotice("Foto berhasil dikirim! Menunggu persetujuan admin Wingking sebelum ditampilkan.");
+    } catch (err) {
+      setNotice(err?.message || "Foto gagal diunggah. Silakan coba lagi.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="overlay" onMouseDown={(event) => {
+      if (event.target === event.currentTarget) onClose();
+    }}>
+      <section className="studio-gallery-modal" role="dialog" aria-modal="true"
+        aria-labelledby="studio-gallery-title">
+        <button type="button" className="close-btn" onClick={onClose}
+          aria-label="Tutup galeri"><Mi /></button>
+        <SectionKicker>WINGKING HUB STUDIO</SectionKicker>
+        <h2 id="studio-gallery-title">GALERI STUDIO</h2>
+        <p>Intip suasana di studio musik Wingking.</p>
+        <div className="studio-gallery-actions">
+          <button type="button" className="gallery-upload-button"
+            onClick={() => { setShowUpload((value) => !value); setNotice(""); }}>
+            {showUpload ? "TUTUP FORM" : "+ UPLOAD FOTO"}
+          </button>
+          <button type="button" className="gallery-reload-button"
+            onClick={refreshGallery} disabled={loading}>Muat ulang foto</button>
+        </div>
+
+        {showUpload && (
+          <div className="gallery-upload-shell">
+            <h3>KIRIM FOTO KE GALERI</h3>
+            <p>Foto kamu akan diperiksa admin sebelum tampil di website.</p>
+            {!verified ? (
+              !codeSent ? (
+                <form onSubmit={sendOtp} className="gallery-upload-form">
+                  <label htmlFor="gallery-email">Verifikasi email</label>
+                  <input id="gallery-email" type="email" required
+                    placeholder="nama@email.com" autoComplete="email"
+                    value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <button type="submit" disabled={busy}>
+                    {busy ? "MENGIRIM..." : "KIRIM KODE OTP"}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={verifyCode} className="gallery-upload-form">
+                  <label htmlFor="gallery-code">Kode OTP 6 digit</label>
+                  <input id="gallery-code" type="text" inputMode="numeric"
+                    autoComplete="one-time-code" maxLength={6} required
+                    placeholder="123456" value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} />
+                  <button type="submit" disabled={busy}>
+                    {busy ? "MEMERIKSA..." : "VERIFIKASI EMAIL"}
+                  </button>
+                  <button type="button" className="gallery-text-button" disabled={busy}
+                    onClick={() => { setCodeSent(false); setCode(""); }}>
+                    Ganti email / kirim kode lagi
+                  </button>
+                </form>
+              )
+            ) : sent ? (
+              <div className="gallery-success" role="status">
+                <strong>FOTO BERHASIL DIKIRIM!</strong>
+                <p>Admin akan meninjau foto kamu. Hanya yang disetujui yang tampil di sini.</p>
+                <button type="button" onClick={() => {
+                  setSent(false); setTitle(""); setCaption(""); setNotice("");
+                }}>Kirim foto lain</button>
+              </div>
+            ) : (
+              <form className="gallery-upload-form" onSubmit={submitPhoto}>
+                <p className="gallery-verified-email">Email terverifikasi: {email}</p>
+                <label htmlFor="gallery-title-input">Judul foto *</label>
+                <input id="gallery-title-input" type="text" required minLength={2}
+                  maxLength={100} placeholder="Contoh: Suasana latihan di Wingking"
+                  value={title} onChange={(e) => setTitle(e.target.value)} />
+                <label htmlFor="gallery-caption-input">Deskripsi singkat (opsional)</label>
+                <textarea id="gallery-caption-input" maxLength={500} rows={2}
+                  placeholder="Ceritakan tentang foto ini..."
+                  value={caption} onChange={(e) => setCaption(e.target.value)} />
+                <label htmlFor="gallery-photo-input">Pilih foto (JPG, PNG, WebP — maks. 5 MB) *</label>
+                <input id="gallery-photo-input" type="file"
+                  accept="image/jpeg,image/png,image/webp" required
+                  onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                <button type="submit" disabled={busy}>
+                  {busy ? "SEDANG UPLOAD..." : "KIRIM UNTUK REVIEW ADMIN"}
+                </button>
+              </form>
+            )}
+            {notice && <p role="status" className="gallery-notice">{notice}</p>}
+          </div>
+        )}
+        {loading ? (
+          <p className="gallery-empty">Memuat foto studio...</p>
+        ) : galleryError ? (
+          <p className="gallery-empty" role="alert">{galleryError}</p>
+        ) : photos.length === 0 ? (
+          <p className="gallery-empty">Belum ada foto yang disetujui admin.</p>
+        ) : (
+          <div className="studio-gallery-grid">
+            {photos.map((photo) => (
+              <a className="studio-gallery-item" key={photo.id}
+                href={photo.image_url} target="_blank" rel="noopener noreferrer"
+                title={photo.title} aria-label={"Buka foto " + photo.title}>
+                <img src={photo.image_url} alt={photo.title} loading="lazy"
+                  decoding="async" />
+                <span className="gallery-photo-caption">{photo.title}</span>
+              </a>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
   );
 }
+
 function BandDetailsModal({ band: s, releases: a, onClose: r }) {
   const l = a.filter((c) => c.band_id === s.id),
     u = Array.isArray(s.rate_cards) ? s.rate_cards : [];

@@ -4596,3 +4596,51 @@ html[data-motion="off"] .hero h1 {
 @media (max-width: 580px) {
   .hero-art .hero-gallery-link { bottom: -2%; left: 1%; }
 }
+
+
+/* GALERI STUDIO / editable Supabase gallery + moderated upload */
+.studio-gallery-actions {
+ display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:-6px 0 24px;
+}
+.gallery-upload-button,.gallery-reload-button,.gallery-upload-form button,.gallery-success button {
+ padding:12px 20px; border:2px solid #243528; border-radius:999px;
+ background:#ffcf54; color:#243528; font-weight:900; box-shadow:3px 4px 0 #243528;
+}
+.gallery-reload-button {background:#fffdf3;box-shadow:none;font-size:13px;}
+.gallery-upload-button:hover,.gallery-upload-form button:hover,.gallery-success button:hover {transform:translateY(-2px);}
+.gallery-upload-shell {
+ width:100%; margin:0 0 24px; padding:clamp(16px,3vw,28px);
+ border:2px solid #243528; border-radius:16px; background:#dfeeb9;
+ box-shadow:5px 6px 0 #243528;
+}
+.gallery-upload-shell h3 {margin:0 0 7px;font:900 clamp(23px,4vw,36px)/1 Outfit,sans-serif;}
+.gallery-upload-shell > p {margin:0 0 20px!important;color:#243528;}
+.gallery-upload-form {display:flex;flex-direction:column;gap:10px;align-items:stretch;max-width:680px;}
+.gallery-upload-form label {font-weight:900;font-size:13px;}
+.gallery-upload-form input,.gallery-upload-form textarea {
+ width:100%; padding:13px 15px; min-width:0; border:2px solid #243528;
+ border-radius:10px; background:#fffef7; color:#243528; font-size:15px;
+}
+.gallery-upload-form textarea {resize:vertical;}
+.gallery-upload-form input[type=file] {cursor:pointer;max-width:100%;}
+.gallery-upload-form button {align-self:flex-start;border-radius:12px;}
+.gallery-upload-form button:disabled,.gallery-reload-button:disabled {opacity:.55;cursor:wait;}
+.gallery-upload-form .gallery-text-button {background:none;box-shadow:none;border:0;padding:7px 0;text-decoration:underline;font-size:12px;}
+.gallery-upload-shell .gallery-notice {margin:14px 0 0!important;font-size:13px;font-weight:800;color:#243528;}
+.gallery-upload-shell .gallery-verified-email {margin:0 0 7px!important;font-size:12px;overflow-wrap:anywhere;}
+.gallery-success {padding:14px 0;}
+.gallery-success strong {font:900 22px Outfit,sans-serif;}
+.gallery-success p {color:#243528;}
+.gallery-empty {width:100%;padding:35px 15px;text-align:center;}
+.studio-gallery-item {position:relative;}
+.gallery-photo-caption {
+ position:absolute;left:0;right:0;bottom:0;padding:28px 10px 10px;
+ background:linear-gradient(transparent,rgba(14,40,27,.85));color:#fffdf4;
+ font-size:12px;font-weight:800;pointer-events:none;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis;
+}
+@media (max-width:640px) {
+ .gallery-upload-shell {padding:16px;}
+ .gallery-upload-form button {max-width:100%;width:100%;}
+ .studio-gallery-actions button {font-size:12px;}
+}
