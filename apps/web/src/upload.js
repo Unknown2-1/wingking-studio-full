@@ -114,9 +114,16 @@ function setVerifiedUser(user) {
 function emailOtpErrorMessage(error) {
   const code = String(error?.code || "");
   const raw = String(error?.message || "");
-  if (code === "over_email_send_rate_limit" || /email.*rate limit|rate limit.*email/i.test(raw))
+  if (
+    code === "over_email_send_rate_limit" ||
+    /email.*rate limit|rate limit.*email/i.test(raw)
+  )
     return "Batas pengiriman email WINGKING sudah tercapai. Coba lagi nanti. Admin sedang perlu mengaktifkan layanan SMTP pengirim khusus.";
-  if (code === "over_request_rate_limit" || error?.status === 429 || /rate limit|too many requests/i.test(raw))
+  if (
+    code === "over_request_rate_limit" ||
+    error?.status === 429 ||
+    /rate limit|too many requests/i.test(raw)
+  )
     return "Terlalu banyak permintaan kode. Jangan tekan berulang-ulang; coba lagi setelah jeda.";
   if (code === "email_address_not_authorized")
     return "Email penerima belum diizinkan oleh layanan bawaan. Admin perlu mengaktifkan SMTP WINGKING.";
@@ -127,7 +134,10 @@ async function requestOtp() {
   if (!authClient) throw Error("Login email belum dikonfigurasi.");
   const { error } = await authClient.auth.signInWithOtp({
     email: authEmail.value.trim(),
-    options: { shouldCreateUser: true, emailRedirectTo: "https://wingking-studio.vercel.app/upload.html" },
+    options: {
+      shouldCreateUser: true,
+      emailRedirectTo: "https://wingking-studio.vercel.app/upload.html",
+    },
   });
   if (error) throw error;
   otpInstruction.textContent =

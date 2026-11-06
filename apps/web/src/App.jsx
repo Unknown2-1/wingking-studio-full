@@ -24,7 +24,8 @@ import WingkingAssistant from "./WingkingAssistant.jsx";
 
 // Always redirect email login links to the live public site, not localhost.
 const EMAIL_UPLOAD_REDIRECT = "https://wingking-studio.vercel.app/upload.html";
-const EMAIL_GALLERY_REDIRECT = "https://wingking-studio.vercel.app/?gallery=upload";
+const EMAIL_GALLERY_REDIRECT =
+  "https://wingking-studio.vercel.app/?gallery=upload";
 
 const Lc = ArrowRight,
   dt = ArrowUpRight,
@@ -43,9 +44,16 @@ const Lc = ArrowRight,
 function emailOtpErrorMessage(error) {
   const code = String(error?.code || "");
   const raw = String(error?.message || "");
-  if (code === "over_email_send_rate_limit" || /email.*rate limit|rate limit.*email/i.test(raw))
+  if (
+    code === "over_email_send_rate_limit" ||
+    /email.*rate limit|rate limit.*email/i.test(raw)
+  )
     return "Batas pengiriman email WINGKING sudah tercapai. Coba lagi nanti. Admin sedang perlu mengaktifkan layanan SMTP pengirim khusus.";
-  if (code === "over_request_rate_limit" || error?.status === 429 || /rate limit|too many requests/i.test(raw))
+  if (
+    code === "over_request_rate_limit" ||
+    error?.status === 429 ||
+    /rate limit|too many requests/i.test(raw)
+  )
     return "Terlalu banyak permintaan kode. Jangan tekan berulang-ulang; coba lagi setelah jeda.";
   if (code === "email_address_not_authorized")
     return "Email penerima belum diizinkan oleh layanan bawaan. Admin perlu mengaktifkan SMTP WINGKING.";
@@ -461,7 +469,11 @@ function BandCard({ band: s, index: a, onClick: r }) {
             loading: "lazy",
           })
         : React.createElement(AssetImage, {
-            name: ["watermelon-welcome", "watermelon-sparkle", "watermelon-upload"][a % 3],
+            name: [
+              "watermelon-welcome",
+              "watermelon-sparkle",
+              "watermelon-upload",
+            ][a % 3],
             className: "band-art-image",
             alt: "Ilustrasi karakter Wingking",
           }),
@@ -497,7 +509,11 @@ function BandCard({ band: s, index: a, onClick: r }) {
     React.createElement(
       "div",
       { className: "band-bottom" },
-      React.createElement("span", null, s.presskit_id ? "DOWNLOAD PRESS KIT" : "CERITA + HARGA"),
+      React.createElement(
+        "span",
+        null,
+        s.presskit_id ? "DOWNLOAD PRESS KIT" : "CERITA + HARGA",
+      ),
       React.createElement(Lc, { size: 17 }),
     ),
   );
@@ -629,27 +645,56 @@ function VideoPlaceholder({ index: s }) {
   );
 }
 
-function ExternalVideoCard({item,index}){
-  const url=validatedUrl(item.external_url);
-  return <a className="clip-card wk-external-video" href={url||"#"} target="_blank" rel="noopener noreferrer"
-    aria-label={"Tonton video di "+item.platform} style={{background:"#203c30"}}>
-    <div className="wk-external-video-art">
-      <AssetImage name="watermelon-music" alt="Maskot semangka bermusik" />
-      <span className="wk-external-video-play"><HE size={30}/></span>
-    </div>
-    <div className="wk-external-video-caption"><small>STUDIO SESSIONS / {item.platform}</small>
-      <strong>LANGSUNG NONTON!</strong><span>BUKA DI {String(item.platform||"PLATFORM").toUpperCase()} <ArrowUpRight size={17}/></span>
-    </div>
-  </a>;
+function ExternalVideoCard({ item, index }) {
+  const url = validatedUrl(item.external_url);
+  return (
+    <a
+      className="clip-card wk-external-video"
+      href={url || "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={"Tonton video di " + item.platform}
+      style={{ background: "#203c30" }}
+    >
+      <div className="wk-external-video-art">
+        <AssetImage name="watermelon-music" alt="Maskot semangka bermusik" />
+        <span className="wk-external-video-play">
+          <HE size={30} />
+        </span>
+      </div>
+      <div className="wk-external-video-caption">
+        <small>STUDIO SESSIONS / {item.platform}</small>
+        <strong>LANGSUNG NONTON!</strong>
+        <span>
+          BUKA DI {String(item.platform || "PLATFORM").toUpperCase()}{" "}
+          <ArrowUpRight size={17} />
+        </span>
+      </div>
+    </a>
+  );
 }
-function ExternalReleaseCard({item}){
-  const url=validatedUrl(item.external_url);
-  return <a className="wk-external-release" href={url||"#"} target="_blank" rel="noopener noreferrer"
-    aria-label={"Dengarkan rilisan "+item.band_name+" di "+item.platform}>
-    <AssetImage name="watermelon-music" alt="Maskot semangka bernyanyi" />
-    <div><small>RILISAN / {item.platform}</small><strong>{item.band_name||"Band Wingking"}</strong>
-      <span>DENGARKAN SEKARANG <ArrowUpRight size={16}/></span></div>
-  </a>;
+function ExternalReleaseCard({ item }) {
+  const url = validatedUrl(item.external_url);
+  return (
+    <a
+      className="wk-external-release"
+      href={url || "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={
+        "Dengarkan rilisan " + item.band_name + " di " + item.platform
+      }
+    >
+      <AssetImage name="watermelon-music" alt="Maskot semangka bernyanyi" />
+      <div>
+        <small>RILISAN / {item.platform}</small>
+        <strong>{item.band_name || "Band Wingking"}</strong>
+        <span>
+          DENGARKAN SEKARANG <ArrowUpRight size={16} />
+        </span>
+      </div>
+    </a>
+  );
 }
 
 function VideoSection({ clips: s, onAdd: a }) {
@@ -690,11 +735,21 @@ function VideoSection({ clips: s, onAdd: a }) {
         "div",
         { className: "clip-rail" },
         r
-          ? s.slice(0, 8).map((l, u) =>
-              l.external_url
-                ? React.createElement(ExternalVideoCard,{item:l,index:u,key:l.id})
-                : React.createElement(VideoCard,{item:l,index:u,key:l.id}),
-            )
+          ? s
+              .slice(0, 8)
+              .map((l, u) =>
+                l.external_url
+                  ? React.createElement(ExternalVideoCard, {
+                      item: l,
+                      index: u,
+                      key: l.id,
+                    })
+                  : React.createElement(VideoCard, {
+                      item: l,
+                      index: u,
+                      key: l.id,
+                    }),
+              )
           : Array.from({ length: 3 }, (l, u) =>
               React.createElement(VideoPlaceholder, { index: u, key: u }),
             ),
@@ -769,7 +824,9 @@ function StudioGalleryModal({ onClose }) {
         .order("created_at", { ascending: false })
         .limit(90);
       if (error) throw error;
-      setPhotos((data || []).filter((p) => /^https:\/\//i.test(p.image_url || "")));
+      setPhotos(
+        (data || []).filter((p) => /^https:\/\//i.test(p.image_url || "")),
+      );
       setGalleryError("");
     } catch {
       setGalleryError("Foto galeri belum bisa dimuat. Coba muat ulang.");
@@ -788,9 +845,12 @@ function StudioGalleryModal({ onClose }) {
         setVerified(Boolean(user?.email && user?.email_confirmed_at));
         if (user?.email) setEmail(user.email);
       };
-      supabase.auth.getSession().then(({ data }) => {
-        updateUser(data?.session?.user);
-      }).catch(() => {});
+      supabase.auth
+        .getSession()
+        .then(({ data }) => {
+          updateUser(data?.session?.user);
+        })
+        .catch(() => {});
       const listener = supabase.auth.onAuthStateChange((_event, session) => {
         updateUser(session?.user);
       });
@@ -803,7 +863,8 @@ function StudioGalleryModal({ onClose }) {
   }, [refreshGallery]);
 
   const galleryRequest = async (action, payload = {}) => {
-    if (!supabase || !endpoint) throw new Error("Koneksi galeri belum tersedia.");
+    if (!supabase || !endpoint)
+      throw new Error("Koneksi galeri belum tersedia.");
     const { data } = await supabase.auth.getSession();
     const session = data?.session;
     if (!session?.access_token || !session.user?.email_confirmed_at)
@@ -812,8 +873,8 @@ function StudioGalleryModal({ onClose }) {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "apikey": config.supabaseKey,
-        "authorization": "Bearer " + session.access_token,
+        apikey: config.supabaseKey,
+        authorization: "Bearer " + session.access_token,
       },
       body: JSON.stringify({ action, ...payload }),
     });
@@ -833,7 +894,11 @@ function StudioGalleryModal({ onClose }) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
         throw new Error("Isi email yang benar dulu, ya.");
       const { error } = await supabase.auth.signInWithOtp({
-        email: address, options: { shouldCreateUser: true, emailRedirectTo: EMAIL_GALLERY_REDIRECT },
+        email: address,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: EMAIL_GALLERY_REDIRECT,
+        },
       });
       if (error) throw error;
       setCodeSent(true);
@@ -854,7 +919,9 @@ function StudioGalleryModal({ onClose }) {
       if (!/^\d{6}$/.test(code.trim()))
         throw new Error("Masukkan 6 angka kode OTP.");
       const { data, error } = await supabase.auth.verifyOtp({
-        email: email.trim(), token: code.trim(), type: "email",
+        email: email.trim(),
+        token: code.trim(),
+        type: "email",
       });
       if (error) throw error;
       if (!data?.user?.email_confirmed_at)
@@ -874,24 +941,34 @@ function StudioGalleryModal({ onClose }) {
     setBusy(true);
     setNotice("");
     try {
-      if (!file || !["image/jpeg","image/png","image/webp"].includes(file.type))
+      if (
+        !file ||
+        !["image/jpeg", "image/png", "image/webp"].includes(file.type)
+      )
         throw new Error("Pilih foto JPG, PNG atau WebP.");
       if (!file.size || file.size > 5 * 1024 * 1024)
         throw new Error("Ukuran foto maksimal 5 MB.");
       if (title.trim().length < 2 || title.trim().length > 100)
         throw new Error("Judul minimal 2 dan maksimal 100 karakter.");
       const ticket = await galleryRequest("prepare", {
-        title: title.trim(), caption: caption.trim(), mime: file.type, size: file.size,
+        title: title.trim(),
+        caption: caption.trim(),
+        mime: file.type,
+        size: file.size,
       });
       const { error: uploadError } = await supabase.storage
-        .from(ticket.bucket).uploadToSignedUrl(ticket.path, ticket.token, file, {
-          contentType: file.type, upsert: false,
+        .from(ticket.bucket)
+        .uploadToSignedUrl(ticket.path, ticket.token, file, {
+          contentType: file.type,
+          upsert: false,
         });
       if (uploadError) throw uploadError;
       await galleryRequest("submit", { id: ticket.id });
       setSent(true);
       setFile(null);
-      setNotice("Foto berhasil dikirim! Menunggu persetujuan admin Wingking sebelum ditampilkan.");
+      setNotice(
+        "Foto berhasil dikirim! Menunggu persetujuan admin Wingking sebelum ditampilkan.",
+      );
     } catch (err) {
       setNotice(err?.message || "Foto gagal diunggah. Silakan coba lagi.");
     } finally {
@@ -900,28 +977,50 @@ function StudioGalleryModal({ onClose }) {
   };
 
   return (
-    <div className="overlay" onMouseDown={(event) => {
-      if (event.target === event.currentTarget) onClose();
-    }}>
-      <section className="studio-gallery-modal" role="dialog" aria-modal="true"
-        aria-labelledby="studio-gallery-title">
-        <button type="button" className="close-btn" onClick={onClose}
-          aria-label="Tutup galeri"><Mi /></button>
+    <div
+      className="overlay"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="studio-gallery-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="studio-gallery-title"
+      >
+        <button
+          type="button"
+          className="close-btn"
+          onClick={onClose}
+          aria-label="Tutup galeri"
+        >
+          <Mi />
+        </button>
         <div className="gallery-mascot-header">
           <div>
             <SectionKicker>WINGKING HUB STUDIO</SectionKicker>
             <h2 id="studio-gallery-title">GALERI STUDIO</h2>
             <p>Intip suasana di studio musik Wingking.</p>
           </div>
-          <img src="/assets/watermelon-gallery.webp"
+          <img
+            src="/assets/watermelon-gallery.webp"
             className="gallery-mascot-picture"
             alt="Maskot semangka memperlihatkan foto galeri"
-            width="166" height="166" loading="lazy" />
+            width="166"
+            height="166"
+            loading="lazy"
+          />
         </div>
         <div className="studio-gallery-actions">
-
-          <button type="button" className="gallery-reload-button"
-            onClick={refreshGallery} disabled={loading}>Muat ulang foto</button>
+          <button
+            type="button"
+            className="gallery-reload-button"
+            onClick={refreshGallery}
+            disabled={loading}
+          >
+            Muat ulang foto
+          </button>
         </div>
 
         {false && (
@@ -932,9 +1031,15 @@ function StudioGalleryModal({ onClose }) {
               !codeSent ? (
                 <form onSubmit={sendOtp} className="gallery-upload-form">
                   <label htmlFor="gallery-email">Verifikasi email</label>
-                  <input id="gallery-email" type="email" required
-                    placeholder="nama@email.com" autoComplete="email"
-                    value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <input
+                    id="gallery-email"
+                    type="email"
+                    required
+                    placeholder="nama@email.com"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                   <button type="submit" disabled={busy}>
                     {busy ? "MENGIRIM..." : "KIRIM KODE OTP"}
                   </button>
@@ -942,66 +1047,136 @@ function StudioGalleryModal({ onClose }) {
               ) : (
                 <form onSubmit={verifyCode} className="gallery-upload-form">
                   <label htmlFor="gallery-code">Kode OTP 6 digit</label>
-                  <input id="gallery-code" type="text" inputMode="numeric"
-                    autoComplete="one-time-code" maxLength={6} required
-                    placeholder="123456" value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} />
+                  <input
+                    id="gallery-code"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    required
+                    placeholder="123456"
+                    value={code}
+                    onChange={(e) =>
+                      setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
+                  />
                   <button type="submit" disabled={busy}>
                     {busy ? "MEMERIKSA..." : "VERIFIKASI EMAIL"}
                   </button>
-                  <button type="button" className="gallery-text-button" disabled={busy}
-                    onClick={() => { setCodeSent(false); setCode(""); }}>
+                  <button
+                    type="button"
+                    className="gallery-text-button"
+                    disabled={busy}
+                    onClick={() => {
+                      setCodeSent(false);
+                      setCode("");
+                    }}
+                  >
                     Ganti email / kirim kode lagi
                   </button>
                 </form>
               )
             ) : sent ? (
               <div className="gallery-success" role="status">
-                <img className="gallery-success-mascot" src="/assets/watermelon-success.webp"
-                  alt="Maskot semangka mengacungkan jempol" width="90" height="90" />
+                <img
+                  className="gallery-success-mascot"
+                  src="/assets/watermelon-success.webp"
+                  alt="Maskot semangka mengacungkan jempol"
+                  width="90"
+                  height="90"
+                />
                 <strong>FOTO BERHASIL DIKIRIM!</strong>
-                <p>Admin akan meninjau foto kamu. Hanya yang disetujui yang tampil di sini.</p>
-                <button type="button" onClick={() => {
-                  setSent(false); setTitle(""); setCaption(""); setNotice("");
-                }}>Kirim foto lain</button>
+                <p>
+                  Admin akan meninjau foto kamu. Hanya yang disetujui yang
+                  tampil di sini.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSent(false);
+                    setTitle("");
+                    setCaption("");
+                    setNotice("");
+                  }}
+                >
+                  Kirim foto lain
+                </button>
               </div>
             ) : (
               <form className="gallery-upload-form" onSubmit={submitPhoto}>
-                <p className="gallery-verified-email">Email terverifikasi: {email}</p>
+                <p className="gallery-verified-email">
+                  Email terverifikasi: {email}
+                </p>
                 <label htmlFor="gallery-title-input">Judul foto *</label>
-                <input id="gallery-title-input" type="text" required minLength={2}
-                  maxLength={100} placeholder="Contoh: Suasana latihan di Wingking"
-                  value={title} onChange={(e) => setTitle(e.target.value)} />
-                <label htmlFor="gallery-caption-input">Deskripsi singkat (opsional)</label>
-                <textarea id="gallery-caption-input" maxLength={500} rows={2}
+                <input
+                  id="gallery-title-input"
+                  type="text"
+                  required
+                  minLength={2}
+                  maxLength={100}
+                  placeholder="Contoh: Suasana latihan di Wingking"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <label htmlFor="gallery-caption-input">
+                  Deskripsi singkat (opsional)
+                </label>
+                <textarea
+                  id="gallery-caption-input"
+                  maxLength={500}
+                  rows={2}
                   placeholder="Ceritakan tentang foto ini..."
-                  value={caption} onChange={(e) => setCaption(e.target.value)} />
-                <label htmlFor="gallery-photo-input">Pilih foto (JPG, PNG, WebP — maks. 5 MB) *</label>
-                <input id="gallery-photo-input" type="file"
-                  accept="image/jpeg,image/png,image/webp" required
-                  onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                />
+                <label htmlFor="gallery-photo-input">
+                  Pilih foto (JPG, PNG, WebP — maks. 5 MB) *
+                </label>
+                <input
+                  id="gallery-photo-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  required
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
                 <button type="submit" disabled={busy}>
                   {busy ? "SEDANG UPLOAD..." : "KIRIM UNTUK REVIEW ADMIN"}
                 </button>
               </form>
             )}
-            {notice && <p role="status" className="gallery-notice">{notice}</p>}
+            {notice && (
+              <p role="status" className="gallery-notice">
+                {notice}
+              </p>
+            )}
           </div>
         )}
         {loading ? (
           <p className="gallery-empty">Memuat foto studio...</p>
         ) : galleryError ? (
-          <p className="gallery-empty" role="alert">{galleryError}</p>
+          <p className="gallery-empty" role="alert">
+            {galleryError}
+          </p>
         ) : photos.length === 0 ? (
           <p className="gallery-empty">Belum ada foto yang disetujui admin.</p>
         ) : (
           <div className="studio-gallery-grid">
             {photos.map((photo) => (
-              <a className="studio-gallery-item" key={photo.id}
-                href={photo.image_url} target="_blank" rel="noopener noreferrer"
-                title={photo.title} aria-label={"Buka foto " + photo.title}>
-                <img src={photo.image_url} alt={photo.title} loading="lazy"
-                  decoding="async" />
+              <a
+                className="studio-gallery-item"
+                key={photo.id}
+                href={photo.image_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={photo.title}
+                aria-label={"Buka foto " + photo.title}
+              >
+                <img
+                  src={photo.image_url}
+                  alt={photo.title}
+                  loading="lazy"
+                  decoding="async"
+                />
                 <span className="gallery-photo-caption">{photo.title}</span>
               </a>
             ))}
@@ -1012,183 +1187,435 @@ function StudioGalleryModal({ onClose }) {
   );
 }
 
-
 /* Simple Press Kit: only email, band name and one PDF/Word file. */
-function BandPressKitUploadModal({onClose,onSaved,showToast}){
-  const [email,setEmail]=React.useState("");
-  const [code,setCode]=React.useState("");
-  const [otpSent,setOtpSent]=React.useState(false);
-  const [verified,setVerified]=React.useState(false);
-  const [name,setName]=React.useState("");
-  const [file,setFile]=React.useState(null);
-  const [busy,setBusy]=React.useState(false);
-  const [notice,setNotice]=React.useState("");
-  const [complete,setComplete]=React.useState(false);
-  const ENDPOINT=config.supabaseUrl.replace(/\/+$/,"")+"/functions/v1/wingking-presskit";
-  React.useEffect(()=>{
-    if(!supabase)return;
-    let alive=true;
-    const update=(session)=>{
-      if(!alive)return;
-      const user=session?.user;
-      setVerified(Boolean(user?.email&&user?.email_confirmed_at));
-      if(user?.email)setEmail(user.email);
+function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
+  const [email, setEmail] = React.useState("");
+  const [code, setCode] = React.useState("");
+  const [otpSent, setOtpSent] = React.useState(false);
+  const [verified, setVerified] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [file, setFile] = React.useState(null);
+  const [busy, setBusy] = React.useState(false);
+  const [notice, setNotice] = React.useState("");
+  const [complete, setComplete] = React.useState(false);
+  const ENDPOINT =
+    config.supabaseUrl.replace(/\/+$/, "") + "/functions/v1/wingking-presskit";
+  React.useEffect(() => {
+    if (!supabase) return;
+    let alive = true;
+    const update = (session) => {
+      if (!alive) return;
+      const user = session?.user;
+      setVerified(Boolean(user?.email && user?.email_confirmed_at));
+      if (user?.email) setEmail(user.email);
     };
-    supabase.auth.getSession().then(({data})=>update(data.session)).catch(()=>{});
-    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>update(session));
-    return ()=>{alive=false;subscription?.unsubscribe()};
-  },[]);
-  const api=async(action,payload={})=>{
-    if(!supabase)throw Error("Layanan pendaftaran belum tersedia.");
-    const {data:{session}}=await supabase.auth.getSession();
-    if(!session?.access_token||!session?.user?.email_confirmed_at)
+    supabase.auth
+      .getSession()
+      .then(({ data }) => update(data.session))
+      .catch(() => {});
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => update(session));
+    return () => {
+      alive = false;
+      subscription?.unsubscribe();
+    };
+  }, []);
+  const api = async (action, payload = {}) => {
+    if (!supabase) throw Error("Layanan pendaftaran belum tersedia.");
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session?.access_token || !session?.user?.email_confirmed_at)
       throw Error("Verifikasi email dulu sebelum upload Press Kit.");
-    const response=await fetch(ENDPOINT,{
-      method:"POST",headers:{"content-type":"application/json",apikey:config.supabaseKey,
-       authorization:"Bearer "+session.access_token},
-      body:JSON.stringify({action,...payload})
+    const response = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        apikey: config.supabaseKey,
+        authorization: "Bearer " + session.access_token,
+      },
+      body: JSON.stringify({ action, ...payload }),
     });
-    const result=await response.json().catch(()=>({}));
-    if(!response.ok||!result.ok)throw Error(result.error||"Permintaan tidak berhasil.");
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.ok)
+      throw Error(result.error || "Permintaan tidak berhasil.");
     return result;
   };
-  const sendOtp=async(e)=>{
-    e.preventDefault();if(busy)return;setBusy(true);setNotice("");
-    try{
-      const address=email.trim().toLowerCase();
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))throw Error("Isi alamat email yang benar.");
-      const {error}=await supabase.auth.signInWithOtp({
-        email:address,options:{shouldCreateUser:true,emailRedirectTo:"https://wingking-studio.vercel.app/?band=upload"}
+  const sendOtp = async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setNotice("");
+    try {
+      const address = email.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
+        throw Error("Isi alamat email yang benar.");
+      const { error } = await supabase.auth.signInWithOtp({
+        email: address,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: "https://wingking-studio.vercel.app/?band=upload",
+        },
       });
-      if(error)throw error;
-      setOtpSent(true);setNotice("Kode dikirim. Cek inbox/spam; jangan minta berulang-ulang.");
-    }catch(error){setNotice(emailOtpErrorMessage(error))}
-    finally{setBusy(false)}
+      if (error) throw error;
+      setOtpSent(true);
+      setNotice("Kode dikirim. Cek inbox/spam; jangan minta berulang-ulang.");
+    } catch (error) {
+      setNotice(emailOtpErrorMessage(error));
+    } finally {
+      setBusy(false);
+    }
   };
-  const verifyOtp=async(e)=>{
-    e.preventDefault();if(busy)return;setBusy(true);setNotice("");
-    try{
-      if(!/^\d{6}$/.test(code.trim()))throw Error("Kode OTP harus 6 angka.");
-      const {data,error}=await supabase.auth.verifyOtp({email:email.trim(),token:code.trim(),type:"email"});
-      if(error)throw error;
-      if(!data?.user?.email_confirmed_at)throw Error("Email belum terverifikasi.");
-      setVerified(true);setNotice("Email terverifikasi. Silakan kirim Press Kit.");
-    }catch(error){setNotice(error.message||"Kode tidak sesuai.")}
-    finally{setBusy(false)}
+  const verifyOtp = async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setNotice("");
+    try {
+      if (!/^\d{6}$/.test(code.trim())) throw Error("Kode OTP harus 6 angka.");
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: code.trim(),
+        type: "email",
+      });
+      if (error) throw error;
+      if (!data?.user?.email_confirmed_at)
+        throw Error("Email belum terverifikasi.");
+      setVerified(true);
+      setNotice("Email terverifikasi. Silakan kirim Press Kit.");
+    } catch (error) {
+      setNotice(error.message || "Kode tidak sesuai.");
+    } finally {
+      setBusy(false);
+    }
   };
-  const submit=async(e)=>{
-    e.preventDefault();if(busy)return;setBusy(true);setNotice("");
-    try{
-      if(name.trim().length<2||name.trim().length>80)throw Error("Nama band minimal 2 dan maksimal 80 karakter.");
-      if(!file)throw Error("Pilih Press Kit PDF atau Word.");
-      const ext=file.name.split(".").pop()?.toLowerCase();
-      const mimes={pdf:"application/pdf",doc:"application/msword",
-        docx:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"};
-      if(!mimes[ext])throw Error("Format harus PDF, DOC atau DOCX.");
-      if(!file.size||file.size>10*1024*1024)throw Error("Ukuran maksimum 10 MB.");
-      const converted=file.type===mimes[ext]?file:new File([file],file.name,{type:mimes[ext],lastModified:file.lastModified});
-      const ticket=await api("prepare",{band_name:name.trim(),filename:converted.name,mime:converted.type,size:converted.size});
-      const {error}=await supabase.storage.from(ticket.bucket)
-        .uploadToSignedUrl(ticket.path,ticket.token,converted,{contentType:converted.type,upsert:false});
-      if(error)throw Error("Upload gagal: "+error.message);
-      await api("finish",{id:ticket.id});
+  const submit = async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setNotice("");
+    try {
+      if (name.trim().length < 2 || name.trim().length > 80)
+        throw Error("Nama band minimal 2 dan maksimal 80 karakter.");
+      if (!file) throw Error("Pilih Press Kit PDF atau Word.");
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      const mimes = {
+        pdf: "application/pdf",
+        doc: "application/msword",
+        docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      };
+      if (!mimes[ext]) throw Error("Format harus PDF, DOC atau DOCX.");
+      if (!file.size || file.size > 10 * 1024 * 1024)
+        throw Error("Ukuran maksimum 10 MB.");
+      const converted =
+        file.type === mimes[ext]
+          ? file
+          : new File([file], file.name, {
+              type: mimes[ext],
+              lastModified: file.lastModified,
+            });
+      const ticket = await api("prepare", {
+        band_name: name.trim(),
+        filename: converted.name,
+        mime: converted.type,
+        size: converted.size,
+      });
+      const { error } = await supabase.storage
+        .from(ticket.bucket)
+        .uploadToSignedUrl(ticket.path, ticket.token, converted, {
+          contentType: converted.type,
+          upsert: false,
+        });
+      if (error) throw Error("Upload gagal: " + error.message);
+      await api("finish", { id: ticket.id });
       setComplete(true);
-      setNotice("Berhasil! Press Kit masuk antrean review admin dan belum tampil untuk publik.");
+      setNotice(
+        "Berhasil! Press Kit masuk antrean review admin dan belum tampil untuk publik.",
+      );
       showToast?.("Press Kit terkirim. Menunggu persetujuan admin.");
       onSaved?.();
-    }catch(error){setNotice(error.message||"Pengajuan gagal dikirim.")}
-    finally{setBusy(false)}
+    } catch (error) {
+      setNotice(error.message || "Pengajuan gagal dikirim.");
+    } finally {
+      setBusy(false);
+    }
   };
-  const signOut=async()=>{
-    if(busy||!supabase)return;
+  const signOut = async () => {
+    if (busy || !supabase) return;
     await supabase.auth.signOut();
-    setVerified(false);setOtpSent(false);setEmail("");setCode("");
+    setVerified(false);
+    setOtpSent(false);
+    setEmail("");
+    setCode("");
   };
-  return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
-    <section className="presskit-modal" role="dialog" aria-modal="true" aria-labelledby="presskit-title">
-      <button type="button" className="close-btn" onClick={onClose} aria-label="Tutup pendaftaran"><Mi/></button>
-      <div className="presskit-head">
-        <div><SectionKicker>BAND & HARGA / WINGKING</SectionKicker>
-          <h2 id="presskit-title">DAFTARKAN<br/>BANDMU!</h2>
-          <p>Cukup email, nama band dan Press Kit. Harga dan profil band ada di berkasnya.</p>
+  return (
+    <div
+      className="overlay"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="presskit-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="presskit-title"
+      >
+        <button
+          type="button"
+          className="close-btn"
+          onClick={onClose}
+          aria-label="Tutup pendaftaran"
+        >
+          <Mi />
+        </button>
+        <div className="presskit-head">
+          <div>
+            <SectionKicker>BAND & HARGA / WINGKING</SectionKicker>
+            <h2 id="presskit-title">
+              DAFTARKAN
+              <br />
+              BANDMU!
+            </h2>
+            <p>
+              Cukup email, nama band dan Press Kit. Harga dan profil band ada di
+              berkasnya.
+            </p>
+          </div>
+          <AssetImage
+            name="watermelon-upload"
+            alt="Semangka membawa berkas"
+            className="presskit-mascot"
+          />
         </div>
-        <AssetImage name="watermelon-upload" alt="Semangka membawa berkas" className="presskit-mascot"/>
-      </div>
-      {complete?<div className="presskit-done">
-        <AssetImage name="watermelon-success" alt="Pengajuan berhasil" className="presskit-done-image"/>
-        <h3>BERHASIL DIKIRIM!</h3>
-        <p>Admin akan memeriksa Press Kit. Band kamu baru tampil setelah disetujui.</p>
-        <button type="button" className="presskit-primary" onClick={onClose}>SELESAI</button>
-      </div>:<div className="presskit-body">
-        {!verified?(!otpSent?<form onSubmit={sendOtp} className="presskit-form">
-          <label htmlFor="presskit-email">01 — EMAIL BAND *</label>
-          <input id="presskit-email" type="email" autoComplete="email" required
-            placeholder="bandkamu@gmail.com" value={email} onChange={e=>setEmail(e.target.value)}/>
-          <button className="presskit-primary" type="submit" disabled={busy}>{busy?"MENGIRIM...":"KIRIM KODE EMAIL"}</button>
-          <p className="presskit-help">Setelah verifikasi, kamu bisa lanjut mengisi nama band dan mengunggah Press Kit.</p>
-        </form>:<form onSubmit={verifyOtp} className="presskit-form">
-          <label htmlFor="presskit-code">VERIFIKASI EMAIL *</label>
-          <p>Kode enam digit dikirim ke {email}</p>
-          <input id="presskit-code" type="text" inputMode="numeric" autoComplete="one-time-code"
-            required maxLength={6} placeholder="000000" value={code}
-            onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))}/>
-          <button className="presskit-primary" type="submit" disabled={busy}>{busy?"MEMERIKSA...":"VERIFIKASI KODE"}</button>
-          <button type="button" className="presskit-secondary" onClick={()=>{setOtpSent(false);setCode("")}}>Ganti email / kirim kode baru</button>
-        </form>):<form onSubmit={submit} className="presskit-form">
-          <div className="presskit-verified"><VE size={17}/> Email terverifikasi: {email}
-            <button type="button" onClick={signOut}>Ganti</button></div>
-          <label htmlFor="presskit-name">02 — NAMA BAND *</label>
-          <input id="presskit-name" type="text" minLength={2} maxLength={80} required
-            placeholder="Nama band kamu" value={name} onChange={e=>setName(e.target.value)}/>
-          <label htmlFor="presskit-file">03 — UPLOAD PRESS KIT *</label>
-          <label className="presskit-filedrop" htmlFor="presskit-file">
-            <Wy size={28}/>
-            <strong>{file?file.name:"PILIH BERKAS PDF / WORD"}</strong>
-            <span>PDF, DOC, DOCX • maksimal 10 MB</span>
-          </label>
-          <input id="presskit-file" type="file" required
-            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            onChange={e=>setFile(e.target.files?.[0]||null)} />
-          <button className="presskit-primary" type="submit" disabled={busy}>{busy?"SEDANG MENGIRIM...":"KIRIM BANDKU"} <ArrowUpRight size={18}/></button>
-          <p className="presskit-help">Berkas disimpan privat sampai admin menyetujui. Pastikan hanya berisi kontak yang boleh dipublikasikan.</p>
-        </form>}
-        {notice&&<p className="presskit-notice" role="status">{notice}</p>}
-      </div>}
-    </section>
-  </div>;
+        {complete ? (
+          <div className="presskit-done">
+            <AssetImage
+              name="watermelon-success"
+              alt="Pengajuan berhasil"
+              className="presskit-done-image"
+            />
+            <h3>BERHASIL DIKIRIM!</h3>
+            <p>
+              Admin akan memeriksa Press Kit. Band kamu baru tampil setelah
+              disetujui.
+            </p>
+            <button
+              type="button"
+              className="presskit-primary"
+              onClick={onClose}
+            >
+              SELESAI
+            </button>
+          </div>
+        ) : (
+          <div className="presskit-body">
+            {!verified ? (
+              !otpSent ? (
+                <form onSubmit={sendOtp} className="presskit-form">
+                  <label htmlFor="presskit-email">01 — EMAIL BAND *</label>
+                  <input
+                    id="presskit-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder="bandkamu@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <button
+                    className="presskit-primary"
+                    type="submit"
+                    disabled={busy}
+                  >
+                    {busy ? "MENGIRIM..." : "KIRIM KODE EMAIL"}
+                  </button>
+                  <p className="presskit-help">
+                    Setelah verifikasi, kamu bisa lanjut mengisi nama band dan
+                    mengunggah Press Kit.
+                  </p>
+                </form>
+              ) : (
+                <form onSubmit={verifyOtp} className="presskit-form">
+                  <label htmlFor="presskit-code">VERIFIKASI EMAIL *</label>
+                  <p>Kode enam digit dikirim ke {email}</p>
+                  <input
+                    id="presskit-code"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    required
+                    maxLength={6}
+                    placeholder="000000"
+                    value={code}
+                    onChange={(e) =>
+                      setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
+                  />
+                  <button
+                    className="presskit-primary"
+                    type="submit"
+                    disabled={busy}
+                  >
+                    {busy ? "MEMERIKSA..." : "VERIFIKASI KODE"}
+                  </button>
+                  <button
+                    type="button"
+                    className="presskit-secondary"
+                    onClick={() => {
+                      setOtpSent(false);
+                      setCode("");
+                    }}
+                  >
+                    Ganti email / kirim kode baru
+                  </button>
+                </form>
+              )
+            ) : (
+              <form onSubmit={submit} className="presskit-form">
+                <div className="presskit-verified">
+                  <VE size={17} /> Email terverifikasi: {email}
+                  <button type="button" onClick={signOut}>
+                    Ganti
+                  </button>
+                </div>
+                <label htmlFor="presskit-name">02 — NAMA BAND *</label>
+                <input
+                  id="presskit-name"
+                  type="text"
+                  minLength={2}
+                  maxLength={80}
+                  required
+                  placeholder="Nama band kamu"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <label htmlFor="presskit-file">03 — UPLOAD PRESS KIT *</label>
+                <label className="presskit-filedrop" htmlFor="presskit-file">
+                  <Wy size={28} />
+                  <strong>
+                    {file ? file.name : "PILIH BERKAS PDF / WORD"}
+                  </strong>
+                  <span>PDF, DOC, DOCX • maksimal 10 MB</span>
+                </label>
+                <input
+                  id="presskit-file"
+                  type="file"
+                  required
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
+                <button
+                  className="presskit-primary"
+                  type="submit"
+                  disabled={busy}
+                >
+                  {busy ? "SEDANG MENGIRIM..." : "KIRIM BANDKU"}{" "}
+                  <ArrowUpRight size={18} />
+                </button>
+                <p className="presskit-help">
+                  Berkas disimpan privat sampai admin menyetujui. Pastikan hanya
+                  berisi kontak yang boleh dipublikasikan.
+                </p>
+              </form>
+            )}
+            {notice && (
+              <p className="presskit-notice" role="status">
+                {notice}
+              </p>
+            )}
+          </div>
+        )}
+      </section>
+    </div>
+  );
 }
-function PressKitDetailsModal({band,onClose}){
-  const [busy,setBusy]=React.useState(false),[error,setError]=React.useState("");
-  const download=async()=>{
-    if(busy)return;setBusy(true);setError("");
-    try{
-      const response=await fetch(config.supabaseUrl+"/functions/v1/wingking-presskit",{
-        method:"POST",headers:{"content-type":"application/json",apikey:config.supabaseKey},
-        body:JSON.stringify({action:"public-download",id:band.presskit_id})
-      });
-      const data=await response.json().catch(()=>({}));
-      if(!response.ok||!data.ok)throw Error(data.error||"Download belum tersedia.");
-      const u=new URL(data.url);
-      if(u.protocol!=="https:"||u.hostname!==new URL(config.supabaseUrl).hostname)
+function PressKitDetailsModal({ band, onClose }) {
+  const [busy, setBusy] = React.useState(false),
+    [error, setError] = React.useState("");
+  const download = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch(
+        config.supabaseUrl + "/functions/v1/wingking-presskit",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            apikey: config.supabaseKey,
+          },
+          body: JSON.stringify({
+            action: "public-download",
+            id: band.presskit_id,
+          }),
+        },
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok)
+        throw Error(data.error || "Download belum tersedia.");
+      const u = new URL(data.url);
+      if (
+        u.protocol !== "https:" ||
+        u.hostname !== new URL(config.supabaseUrl).hostname
+      )
         throw Error("Alamat unduhan tidak aman.");
       window.location.assign(u.href);
-    }catch(e){setError(e.message||"Gagal menyiapkan unduhan.")}
-    finally{setBusy(false)}
+    } catch (e) {
+      setError(e.message || "Gagal menyiapkan unduhan.");
+    } finally {
+      setBusy(false);
+    }
   };
-  return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
-    <section className="presskit-modal presskit-details" role="dialog" aria-modal="true" aria-label={"Press Kit "+band.name}>
-      <button className="close-btn" onClick={onClose} aria-label="Tutup"><Mi/></button>
-      <AssetImage name="watermelon-welcome" alt="Maskot Wingking" className="presskit-details-art"/>
-      <SectionKicker>BAND & HARGA</SectionKicker>
-      <h2>{band.name}</h2>
-      <p>Profil, informasi penampilan, dan harga (jika tersedia) ada di dokumen Press Kit band ini.</p>
-      <button className="presskit-primary" type="button" onClick={download} disabled={busy}>
-        <Wy size={19}/> {busy?"MENYIAPKAN...":"DOWNLOAD PRESS KIT"}
-      </button>
-      {error&&<p role="alert" className="presskit-notice">{error}</p>}
-      <p className="presskit-help">File diunggah oleh band dan sudah diperiksa admin WINGKING. Unduh hanya jika kamu mempercayai sumbernya.</p>
-    </section>
-  </div>;
+  return (
+    <div
+      className="overlay"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="presskit-modal presskit-details"
+        role="dialog"
+        aria-modal="true"
+        aria-label={"Press Kit " + band.name}
+      >
+        <button className="close-btn" onClick={onClose} aria-label="Tutup">
+          <Mi />
+        </button>
+        <AssetImage
+          name="watermelon-welcome"
+          alt="Maskot Wingking"
+          className="presskit-details-art"
+        />
+        <SectionKicker>BAND & HARGA</SectionKicker>
+        <h2>{band.name}</h2>
+        <p>
+          Profil, informasi penampilan, dan harga (jika tersedia) ada di dokumen
+          Press Kit band ini.
+        </p>
+        <button
+          className="presskit-primary"
+          type="button"
+          onClick={download}
+          disabled={busy}
+        >
+          <Wy size={19} /> {busy ? "MENYIAPKAN..." : "DOWNLOAD PRESS KIT"}
+        </button>
+        {error && (
+          <p role="alert" className="presskit-notice">
+            {error}
+          </p>
+        )}
+        <p className="presskit-help">
+          File diunggah oleh band dan sudah diperiksa admin WINGKING. Unduh
+          hanya jika kamu mempercayai sumbernya.
+        </p>
+      </section>
+    </div>
+  );
 }
 
 function BandDetailsModal({ band: s, releases: a, onClose: r }) {
@@ -1663,7 +2090,10 @@ function UploadBandModal({
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: authEmail.trim(),
-        options: { shouldCreateUser: true, emailRedirectTo: EMAIL_UPLOAD_REDIRECT },
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: EMAIL_UPLOAD_REDIRECT,
+        },
       });
       if (error) throw error;
       setOtpSent(true);
@@ -1737,26 +2167,26 @@ function UploadBandModal({
         React.createElement(
           "div",
           { className: "panel-welcome" },
-            React.createElement(AssetImage, {
-              name: "watermelon-upload",
-              className: "panel-welcome-mascot",
-              alt: "Semangka siap mengirim karya",
-            }),
-            React.createElement(
-              "h2",
-              null,
-              l === "band"
-                ? "Kenalkan bandmu."
-                : l === "release"
-                  ? "Kirim rilisanmu."
-                  : "Kirim karyamu.",
-            ),
-            React.createElement(
-              "p",
-              null,
-              l === "band"
-                ? "Isi profil, cerita, harga booking, dan tautan bandmu. Tim Wingking akan meninjau sebelum ditayangkan."
-                : "Verifikasi email diperlukan. Tim Wingking akan meninjau sebelum konten ditayangkan.",
+          React.createElement(AssetImage, {
+            name: "watermelon-upload",
+            className: "panel-welcome-mascot",
+            alt: "Semangka siap mengirim karya",
+          }),
+          React.createElement(
+            "h2",
+            null,
+            l === "band"
+              ? "Kenalkan bandmu."
+              : l === "release"
+                ? "Kirim rilisanmu."
+                : "Kirim karyamu.",
+          ),
+          React.createElement(
+            "p",
+            null,
+            l === "band"
+              ? "Isi profil, cerita, harga booking, dan tautan bandmu. Tim Wingking akan meninjau sebelum ditayangkan."
+              : "Verifikasi email diperlukan. Tim Wingking akan meninjau sebelum konten ditayangkan.",
           ),
         ),
         !authReady
@@ -1769,7 +2199,10 @@ function UploadBandModal({
             ? otpSent
               ? React.createElement(
                   "form",
-                  { className: "editor-form auth-form", onSubmit: verifyEmailOtp },
+                  {
+                    className: "editor-form auth-form",
+                    onSubmit: verifyEmailOtp,
+                  },
                   React.createElement("h3", null, "Masukkan kode OTP"),
                   React.createElement(
                     "p",
@@ -1791,7 +2224,9 @@ function UploadBandModal({
                       required: !0,
                       value: otpCode,
                       onChange: (ae) =>
-                        setOtpCode(ae.target.value.replace(/\D/g, "").slice(0, 6)),
+                        setOtpCode(
+                          ae.target.value.replace(/\D/g, "").slice(0, 6),
+                        ),
                       placeholder: "123456",
                     }),
                   ),
@@ -1816,10 +2251,15 @@ function UploadBandModal({
                         onClick: async () => {
                           setAuthBusy(!0);
                           try {
-                            const { error } = await supabase.auth.signInWithOtp({
-                              email: authEmail.trim(),
-                              options: { shouldCreateUser: !0, emailRedirectTo: EMAIL_UPLOAD_REDIRECT },
-                            });
+                            const { error } = await supabase.auth.signInWithOtp(
+                              {
+                                email: authEmail.trim(),
+                                options: {
+                                  shouldCreateUser: !0,
+                                  emailRedirectTo: EMAIL_UPLOAD_REDIRECT,
+                                },
+                              },
+                            );
                             if (error) throw error;
                             r("Kode OTP baru sudah dikirim.");
                           } catch (error) {
@@ -1847,7 +2287,10 @@ function UploadBandModal({
                 )
               : React.createElement(
                   "form",
-                  { className: "editor-form auth-form", onSubmit: sendEmailOtp },
+                  {
+                    className: "editor-form auth-form",
+                    onSubmit: sendEmailOtp,
+                  },
                   React.createElement("h3", null, "Verifikasi email dulu"),
                   React.createElement(
                     "p",
@@ -1889,286 +2332,288 @@ function UploadBandModal({
                   ),
                 )
             : P
-          ? React.createElement(
-              "div",
-              { className: "success-box" },
-              React.createElement(VE, { size: 32 }),
-              React.createElement("h3", null, "Berhasil dikirim!"),
-              React.createElement(
-                "p",
-                null,
-                "Status: MENUNGGU REVIEW. Simpan kode untuk cek status:",
-              ),
-              React.createElement("code", { className: "wk-receipt" }, P),
-              React.createElement(
-                "button",
-                {
-                  className: "pill-button form-submit",
-                  onClick: () => {
-                    (H(""), y(null), b(null));
-                  },
-                },
-                "Kirim lagi",
-              ),
-            )
-          : React.createElement(
-              "form",
-              { className: "editor-form", onSubmit: ee },
-              React.createElement(
-                "div",
-                { className: "panel-tabs" },
-                React.createElement(
-                  "button",
-                  {
-                    type: "button",
-                    className: l === "band" ? "active" : "",
-                    onClick: () => {
-                      (u("band"), b(null));
-                    },
-                  },
-                  "Band",
-                ),
-                React.createElement(
-                  "button",
-                  {
-                    type: "button",
-                    className: l === "video" ? "active" : "",
-                    onClick: () => {
-                      (u("video"), y(null));
-                    },
-                  },
-                  "Video",
-                ),
-                React.createElement(
-                  "button",
-                  {
-                    type: "button",
-                    className: l === "release" ? "active" : "",
-                    onClick: () => {
-                      (u("release"), b(null));
-                    },
-                  },
-                  "Rilisan",
-                ),
-              ),
-              React.createElement(
-                "div",
-                { className: "auth-session" },
-                React.createElement(
-                  "span",
-                  null,
-                  "Email terverifikasi: ",
-                  React.createElement("strong", null, authUser.email),
-                ),
-                React.createElement(
-                  "button",
-                  {
-                    className: "text-button",
-                    type: "button",
-                    onClick: signOutSubmitter,
-                  },
-                  "Keluar",
-                ),
-              ),
-              React.createElement(
-                Ln,
-                { label: "NAMA BAND *" },
-                React.createElement("input", {
-                  required: !0,
-                  minLength: 2,
-                  maxLength: 80,
-                  value: c.band_name,
-                  onChange: (ae) => D("band_name", ae.target.value),
-                  placeholder: "Contoh: Sore Sebelah",
-                }),
-              ),
-              l !== "band" &&
-                React.createElement(
-                  Ln,
-                  { label: "JUDUL *" },
-                  React.createElement("input", {
-                    required: !0,
-                    minLength: 2,
-                    maxLength: 100,
-                    value: c.title,
-                    onChange: (ae) => D("title", ae.target.value),
-                    placeholder:
-                      l === "video" ? "Judul video" : "Judul lagu/album",
-                  }),
-                ),
-              l === "band" &&
-                React.createElement(
+              ? React.createElement(
                   "div",
-                  { className: "form-pair" },
+                  { className: "success-box" },
+                  React.createElement(VE, { size: 32 }),
+                  React.createElement("h3", null, "Berhasil dikirim!"),
                   React.createElement(
-                    Ln,
-                    { label: "GENRE" },
-                    React.createElement("input", {
-                      maxLength: 60,
-                      value: c.genre,
-                      onChange: (ae) => D("genre", ae.target.value),
-                      placeholder: "Contoh: Indie pop",
-                    }),
+                    "p",
+                    null,
+                    "Status: MENUNGGU REVIEW. Simpan kode untuk cek status:",
                   ),
+                  React.createElement("code", { className: "wk-receipt" }, P),
                   React.createElement(
-                    Ln,
-                    { label: "KOTA" },
-                    React.createElement("input", {
-                      maxLength: 70,
-                      value: c.city,
-                      onChange: (ae) => D("city", ae.target.value),
-                      placeholder: "Contoh: Purwokerto",
-                    }),
+                    "button",
+                    {
+                      className: "pill-button form-submit",
+                      onClick: () => {
+                        (H(""), y(null), b(null));
+                      },
+                    },
+                    "Kirim lagi",
                   ),
-                ),
-                React.createElement(
-                  Ln,
-                  {
-                    label:
-                      l === "band"
-                        ? "CERITA BAND *"
-                        : "CERITA / DESKRIPSI",
-                  },
-                  React.createElement("textarea", {
-                    required: l === "band",
-                    minLength: l === "band" ? 10 : void 0,
-                    rows: 3,
-                    maxLength: 1200,
-                    value: c.description,
-                    onChange: (ae) => D("description", ae.target.value),
-                    placeholder:
-                      l === "band"
-                        ? "Ceritakan perjalanan band, karakter musik, dan hal yang ingin dikenal orang..."
-                        : "Ceritakan singkat...",
-                  }),
-                ),
-                l === "band" &&
+                )
+              : React.createElement(
+                  "form",
+                  { className: "editor-form", onSubmit: ee },
                   React.createElement(
-                    Ln,
-                    { label: "HARGA BOOKING (OPSIONAL)" },
-                    React.createElement("textarea", {
-                      rows: 2,
-                      maxLength: 600,
-                      value: c.price_text,
-                      onChange: (ae) => D("price_text", ae.target.value),
-                      placeholder: `Full band | 2500000
-Akustik | 1500000`,
-                      "aria-describedby": "band-price-hint",
-                    }),
+                    "div",
+                    { className: "panel-tabs" },
                     React.createElement(
-                      "small",
-                      { id: "band-price-hint" },
-                      "Satu layanan per baris dengan format Nama layanan | harga angka. Maksimal 7 layanan.",
+                      "button",
+                      {
+                        type: "button",
+                        className: l === "band" ? "active" : "",
+                        onClick: () => {
+                          (u("band"), b(null));
+                        },
+                      },
+                      "Band",
+                    ),
+                    React.createElement(
+                      "button",
+                      {
+                        type: "button",
+                        className: l === "video" ? "active" : "",
+                        onClick: () => {
+                          (u("video"), y(null));
+                        },
+                      },
+                      "Video",
+                    ),
+                    React.createElement(
+                      "button",
+                      {
+                        type: "button",
+                        className: l === "release" ? "active" : "",
+                        onClick: () => {
+                          (u("release"), b(null));
+                        },
+                      },
+                      "Rilisan",
                     ),
                   ),
-                React.createElement(
-                  "div",
-                { className: "form-pair" },
-                React.createElement(
-                  Ln,
-                  { label: "INSTAGRAM (OPSIONAL)" },
-                  React.createElement("input", {
-                    type: "url",
-                    value: c.instagram_url,
-                    onChange: (ae) => D("instagram_url", ae.target.value),
-                    placeholder: "https://instagram.com/...",
-                    pattern: "https://.+",
-                    title: "Gunakan tautan HTTPS, misalnya https://instagram.com/namaband",
-                  }),
-                ),
-                React.createElement(
-                  Ln,
-                  {
-                    label:
-                      l === "band"
-                        ? "LINK MUSIK / YOUTUBE (OPSIONAL)"
-                        : "LINK MUSIK",
-                  },
-                  React.createElement("input", {
-                    type: "url",
-                    value: c.music_url,
-                    onChange: (ae) => D("music_url", ae.target.value),
-                    placeholder:
-                      l === "band"
-                        ? "YouTube, Spotify, SoundCloud, atau situs band"
-                        : "https://open.spotify.com/...",
-                    pattern: "https://.+",
-                    title: "Gunakan tautan HTTPS, misalnya https://youtube.com/@namaband",
-                  }),
-                ),
-              ),
-              l === "video"
-                ? React.createElement(
+                  React.createElement(
                     "div",
-                    { className: "video-upload-field" },
+                    { className: "auth-session" },
                     React.createElement(
-                      "label",
-                      { className: "upload-button" },
-                      React.createElement(Wy, { size: 18 }),
-                      " Pilih MP4/MOV/WebM",
+                      "span",
+                      null,
+                      "Email terverifikasi: ",
+                      React.createElement("strong", null, authUser.email),
+                    ),
+                    React.createElement(
+                      "button",
+                      {
+                        className: "text-button",
+                        type: "button",
+                        onClick: signOutSubmitter,
+                      },
+                      "Keluar",
+                    ),
+                  ),
+                  React.createElement(
+                    Ln,
+                    { label: "NAMA BAND *" },
+                    React.createElement("input", {
+                      required: !0,
+                      minLength: 2,
+                      maxLength: 80,
+                      value: c.band_name,
+                      onChange: (ae) => D("band_name", ae.target.value),
+                      placeholder: "Contoh: Sore Sebelah",
+                    }),
+                  ),
+                  l !== "band" &&
+                    React.createElement(
+                      Ln,
+                      { label: "JUDUL *" },
                       React.createElement("input", {
-                        type: "file",
                         required: !0,
-                        accept:
-                          "video/mp4,video/webm,video/quicktime,.mp4,.m4v,.mov,.webm",
-                        onChange: (ae) => {
-                          var oe;
-                          return b(
-                            ((oe = ae.target.files) == null ? void 0 : oe[0]) ||
-                              null,
-                          );
-                        },
+                        minLength: 2,
+                        maxLength: 100,
+                        value: c.title,
+                        onChange: (ae) => D("title", ae.target.value),
+                        placeholder:
+                          l === "video" ? "Judul video" : "Judul lagu/album",
+                      }),
+                    ),
+                  l === "band" &&
+                    React.createElement(
+                      "div",
+                      { className: "form-pair" },
+                      React.createElement(
+                        Ln,
+                        { label: "GENRE" },
+                        React.createElement("input", {
+                          maxLength: 60,
+                          value: c.genre,
+                          onChange: (ae) => D("genre", ae.target.value),
+                          placeholder: "Contoh: Indie pop",
+                        }),
+                      ),
+                      React.createElement(
+                        Ln,
+                        { label: "KOTA" },
+                        React.createElement("input", {
+                          maxLength: 70,
+                          value: c.city,
+                          onChange: (ae) => D("city", ae.target.value),
+                          placeholder: "Contoh: Purwokerto",
+                        }),
+                      ),
+                    ),
+                  React.createElement(
+                    Ln,
+                    {
+                      label:
+                        l === "band" ? "CERITA BAND *" : "CERITA / DESKRIPSI",
+                    },
+                    React.createElement("textarea", {
+                      required: l === "band",
+                      minLength: l === "band" ? 10 : void 0,
+                      rows: 3,
+                      maxLength: 1200,
+                      value: c.description,
+                      onChange: (ae) => D("description", ae.target.value),
+                      placeholder:
+                        l === "band"
+                          ? "Ceritakan perjalanan band, karakter musik, dan hal yang ingin dikenal orang..."
+                          : "Ceritakan singkat...",
+                    }),
+                  ),
+                  l === "band" &&
+                    React.createElement(
+                      Ln,
+                      { label: "HARGA BOOKING (OPSIONAL)" },
+                      React.createElement("textarea", {
+                        rows: 2,
+                        maxLength: 600,
+                        value: c.price_text,
+                        onChange: (ae) => D("price_text", ae.target.value),
+                        placeholder: `Full band | 2500000
+Akustik | 1500000`,
+                        "aria-describedby": "band-price-hint",
+                      }),
+                      React.createElement(
+                        "small",
+                        { id: "band-price-hint" },
+                        "Satu layanan per baris dengan format Nama layanan | harga angka. Maksimal 7 layanan.",
+                      ),
+                    ),
+                  React.createElement(
+                    "div",
+                    { className: "form-pair" },
+                    React.createElement(
+                      Ln,
+                      { label: "INSTAGRAM (OPSIONAL)" },
+                      React.createElement("input", {
+                        type: "url",
+                        value: c.instagram_url,
+                        onChange: (ae) => D("instagram_url", ae.target.value),
+                        placeholder: "https://instagram.com/...",
+                        pattern: "https://.+",
+                        title:
+                          "Gunakan tautan HTTPS, misalnya https://instagram.com/namaband",
                       }),
                     ),
                     React.createElement(
-                      "small",
-                      null,
-                      d
-                        ? d.name
-                        : "MP4/MOV/WebM · maks 35 MB · portrait 9:16 disarankan",
+                      Ln,
+                      {
+                        label:
+                          l === "band"
+                            ? "LINK MUSIK / YOUTUBE (OPSIONAL)"
+                            : "LINK MUSIK",
+                      },
+                      React.createElement("input", {
+                        type: "url",
+                        value: c.music_url,
+                        onChange: (ae) => D("music_url", ae.target.value),
+                        placeholder:
+                          l === "band"
+                            ? "YouTube, Spotify, SoundCloud, atau situs band"
+                            : "https://open.spotify.com/...",
+                        pattern: "https://.+",
+                        title:
+                          "Gunakan tautan HTTPS, misalnya https://youtube.com/@namaband",
+                      }),
                     ),
-                  )
-                : React.createElement(UploadFileField, {
-                    name:
-                      l === "band"
-                        ? "Pilih foto band / logo (opsional)"
-                        : "Pilih foto / cover (opsional)",
-                    current:
-                      (m == null ? void 0 : m.name) || "JPG/PNG/WebP maks 5 MB",
-                    onChange: y,
-                  }),
-              React.createElement(
-                "div",
-                { className: "wk-trap", "aria-hidden": "true" },
-                React.createElement(
-                  "label",
-                  null,
-                  "Website",
-                  React.createElement("input", {
-                    tabIndex: -1,
-                    autoComplete: "off",
-                    value: c.website,
-                    onChange: (ae) => D("website", ae.target.value),
-                  }),
+                  ),
+                  l === "video"
+                    ? React.createElement(
+                        "div",
+                        { className: "video-upload-field" },
+                        React.createElement(
+                          "label",
+                          { className: "upload-button" },
+                          React.createElement(Wy, { size: 18 }),
+                          " Pilih MP4/MOV/WebM",
+                          React.createElement("input", {
+                            type: "file",
+                            required: !0,
+                            accept:
+                              "video/mp4,video/webm,video/quicktime,.mp4,.m4v,.mov,.webm",
+                            onChange: (ae) => {
+                              var oe;
+                              return b(
+                                ((oe = ae.target.files) == null
+                                  ? void 0
+                                  : oe[0]) || null,
+                              );
+                            },
+                          }),
+                        ),
+                        React.createElement(
+                          "small",
+                          null,
+                          d
+                            ? d.name
+                            : "MP4/MOV/WebM · maks 35 MB · portrait 9:16 disarankan",
+                        ),
+                      )
+                    : React.createElement(UploadFileField, {
+                        name:
+                          l === "band"
+                            ? "Pilih foto band / logo (opsional)"
+                            : "Pilih foto / cover (opsional)",
+                        current:
+                          (m == null ? void 0 : m.name) ||
+                          "JPG/PNG/WebP maks 5 MB",
+                        onChange: y,
+                      }),
+                  React.createElement(
+                    "div",
+                    { className: "wk-trap", "aria-hidden": "true" },
+                    React.createElement(
+                      "label",
+                      null,
+                      "Website",
+                      React.createElement("input", {
+                        tabIndex: -1,
+                        autoComplete: "off",
+                        value: c.website,
+                        onChange: (ae) => D("website", ae.target.value),
+                      }),
+                    ),
+                  ),
+                  React.createElement(
+                    "button",
+                    {
+                      className: "pill-button form-submit",
+                      type: "submit",
+                      disabled: R,
+                    },
+                    R ? B || "Mengirim..." : "Kirim untuk review",
+                    " ",
+                    React.createElement(dt, { size: 18 }),
+                  ),
+                  React.createElement(
+                    "p",
+                    { className: "tiny-hint" },
+                    "Email sudah terverifikasi. Konten baru tayang setelah admin menyetujui.",
+                  ),
                 ),
-              ),
-              React.createElement(
-                "button",
-                {
-                  className: "pill-button form-submit",
-                  type: "submit",
-                  disabled: R,
-                },
-                R ? B || "Mengirim..." : "Kirim untuk review",
-                " ",
-                React.createElement(dt, { size: 18 }),
-              ),
-              React.createElement(
-                "p",
-                { className: "tiny-hint" },
-                "Email sudah terverifikasi. Konten baru tayang setelah admin menyetujui.",
-              ),
-            ),
         React.createElement(
           "div",
           { className: "wk-review-check" },
@@ -2218,14 +2663,15 @@ function HomePage() {
     }),
     [r, l] = React.useState(null),
     [u, c] = React.useState(null),
-    [h, m] = React.useState(() => new URLSearchParams(window.location.search).get("band") === "upload"),
-    [galleryOpen, setGalleryOpen] = React.useState(() =>
-      false
+    [h, m] = React.useState(
+      () =>
+        new URLSearchParams(window.location.search).get("band") === "upload",
     ),
+    [galleryOpen, setGalleryOpen] = React.useState(() => false),
     [y, d] = React.useState(!1),
     [b, R] = React.useState(!1),
     [k, B] = React.useState(!1),
-    [releaseSearch,setReleaseSearch] = React.useState(""),
+    [releaseSearch, setReleaseSearch] = React.useState(""),
     [K, P] = React.useState(""),
     [H, W] = React.useState(null),
     [uploadTab, setUploadTab] = React.useState("band"),
@@ -2280,13 +2726,16 @@ function HomePage() {
           supabase
             .from("wk_media_links")
             .select("id,kind,band_name,link_url,platform,created_at")
-            .order("created_at",{ascending:false}).limit(100),
+            .order("created_at", { ascending: false })
+            .limit(100),
         ]);
         if (O.error || q.error || _.error || kit.error || media.error)
           throw new Error(
             ((F = O.error) == null ? void 0 : F.message) ||
               ((w = q.error) == null ? void 0 : w.message) ||
-              ((E = _.error) == null ? void 0 : E.message) || kit.error?.message || media.error?.message,
+              ((E = _.error) == null ? void 0 : E.message) ||
+              kit.error?.message ||
+              media.error?.message,
           );
         const { data: A, error: V } = await supabase
           .from("wk_public_submissions")
@@ -2315,17 +2764,31 @@ function HomePage() {
             photo_url: Y.photo_url,
           })),
           ...(kit.data || []).map((Y) => ({
-            id:"kit-"+Y.id,presskit_id:Y.id,name:Y.band_name,genre:"Press Kit",
-            city:"WINGKING STUDIO",tagline:"Profil dan harga lengkap di Press Kit",
-            accent:"#F1B9C5",rate_cards:[],photo_url:"",
+            id: "kit-" + Y.id,
+            presskit_id: Y.id,
+            name: Y.band_name,
+            genre: "Press Kit",
+            city: "WINGKING STUDIO",
+            tagline: "Profil dan harga lengkap di Press Kit",
+            accent: "#F1B9C5",
+            rate_cards: [],
+            photo_url: "",
           })),
         ]),
           D([
-            ...(media.data || []).filter(Y=>Y.kind==="release").map(Y=>({
-              id:"media-"+Y.id,external_url:Y.link_url,platform:Y.platform,
-              title:Y.band_name,band_name:Y.band_name,kind:"Single",caption:"",
-              cover_url:"",listen_url:Y.link_url
-            })),
+            ...(media.data || [])
+              .filter((Y) => Y.kind === "release")
+              .map((Y) => ({
+                id: "media-" + Y.id,
+                external_url: Y.link_url,
+                platform: Y.platform,
+                title: Y.band_name,
+                band_name: Y.band_name,
+                kind: "Single",
+                caption: "",
+                cover_url: "",
+                listen_url: Y.link_url,
+              })),
             ...(q.data || []),
             ...X.filter((Y) => Y.kind === "release").map((Y) => ({
               id: Y.id,
@@ -2338,10 +2801,16 @@ function HomePage() {
             })),
           ]),
           Z([
-            ...(media.data || []).filter(Y=>Y.kind==="video").map(Y=>({
-              id:"media-"+Y.id,external_url:Y.link_url,platform:Y.platform,
-              title:"Studio Sessions",caption:"",video_url:"",
-            })),
+            ...(media.data || [])
+              .filter((Y) => Y.kind === "video")
+              .map((Y) => ({
+                id: "media-" + Y.id,
+                external_url: Y.link_url,
+                platform: Y.platform,
+                title: "Studio Sessions",
+                caption: "",
+                video_url: "",
+              })),
             ...(_.data || []),
             ...X.filter((Y) => Y.kind === "video" && Y.video_url).map((Y) => ({
               id: Y.id,
@@ -2734,15 +3203,18 @@ function HomePage() {
               name: "watermelon-music",
               className: "title-flower",
             }),
-
           ),
-          React.createElement("div",{className:"wk-release-search"},
-            React.createElement("input",{
-              type:"search",value:releaseSearch,
-              onChange:e=>setReleaseSearch(e.target.value),
-              placeholder:"Cari nama band atau rilisan...", "aria-label":"Cari rilisan musik"
+          React.createElement(
+            "div",
+            { className: "wk-release-search" },
+            React.createElement("input", {
+              type: "search",
+              value: releaseSearch,
+              onChange: (e) => setReleaseSearch(e.target.value),
+              placeholder: "Cari nama band atau rilisan...",
+              "aria-label": "Cari rilisan musik",
             }),
-            React.createElement(HE,{size:19})
+            React.createElement(HE, { size: 19 }),
           ),
           !ie &&
             React.createElement(
@@ -2753,14 +3225,28 @@ function HomePage() {
           React.createElement(
             "div",
             { className: "releases-grid reveal-on-scroll" },
-            Ae.filter(F=>(F.band_name||F.title||"").toLowerCase().includes(releaseSearch.trim().toLowerCase()))
-              .slice(0, releaseSearch.trim()?24:k?12:3).map((F,w)=>
+            Ae.filter((F) =>
+              (F.band_name || F.title || "")
+                .toLowerCase()
+                .includes(releaseSearch.trim().toLowerCase()),
+            )
+              .slice(0, releaseSearch.trim() ? 24 : k ? 12 : 3)
+              .map((F, w) =>
                 F.external_url
-                ? React.createElement(ExternalReleaseCard,{key:F.id,item:F})
-                : React.createElement(ReleaseCard,{key:F.id,item:F,index:w,onClick:c})
+                  ? React.createElement(ExternalReleaseCard, {
+                      key: F.id,
+                      item: F,
+                    })
+                  : React.createElement(ReleaseCard, {
+                      key: F.id,
+                      item: F,
+                      index: w,
+                      onClick: c,
+                    }),
               ),
           ),
-          !releaseSearch.trim() && Ae.length > 3 &&
+          !releaseSearch.trim() &&
+            Ae.length > 3 &&
             React.createElement(
               "button",
               {
@@ -2920,8 +3406,15 @@ function HomePage() {
       }),
     r &&
       (r.presskit_id
-        ? React.createElement(PressKitDetailsModal, {band:r,onClose:()=>l(null)})
-        : React.createElement(BandDetailsModal, {band:r,releases:L,onClose:()=>l(null)})),
+        ? React.createElement(PressKitDetailsModal, {
+            band: r,
+            onClose: () => l(null),
+          })
+        : React.createElement(BandDetailsModal, {
+            band: r,
+            releases: L,
+            onClose: () => l(null),
+          })),
     " ",
     u &&
       React.createElement(ReleaseDetailsModal, {
