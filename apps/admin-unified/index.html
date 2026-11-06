@@ -274,6 +274,28 @@ h1, h2, h3, p { margin-top: 0px; }
 .pw-inline {display:flex;gap:7px;align-items:stretch}
 .pw-inline input {min-width:0;flex:1}
 .pw-inline .btn {flex:none;padding:10px 12px}
+
+/* Media links admin controls */
+.media-manager{padding:18px 0 25px}
+.media-manager .section-head{align-items:center;flex-wrap:wrap;gap:14px}
+.media-manager .cards{margin-top:16px}
+
+/* Press Kit admin controls */
+.presskit-admin-card .item-media {min-height:155px;}
+#presskit-section .filters{justify-content:space-between;align-items:center}
+@media(max-width:720px){#presskit-section .filters select{width:100%}}
+
+/* Galeri Studio admin controls */
+.gallery-review-area {margin-top:28px;}
+.gallery-review-area h3 {font:900 22px Outfit,Inter,sans-serif;letter-spacing:-.03em;margin:0 0 15px;}
+.gallery-admin-card .item-media img {width:100%;height:100%;object-fit:cover;}
+#gallery-section .section-head {align-items:center;gap:16px;flex-wrap:wrap;}
+#gallery-section .filters {align-items:center;justify-content:space-between;}
+#gallery-section .countnote {font-weight:900;}
+@media (max-width:720px) {
+ #gallery-section .section-head .btn {font-size:12px;}
+ #gallery-section .filters select {width:100%;}
+}
 </style>
 
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -306,7 +328,9 @@ h1, h2, h3, p { margin-top: 0px; }
    <button data-nav="review" class="active">Review Pengajuan <span class="num" data-count="review">0</span></button>
    <button data-nav="all">Semua Konten <span class="num" data-count="all">0</span></button>
    <button data-nav="video">Kelola Video <span class="num" data-count="video">0</span></button>
+   <button data-nav="gallery">Galeri Studio <span class="num" data-count="gallery">0</span></button>
    <button data-nav="band">Profil Band <span class="num" data-count="band">0</span></button>
+   <button data-nav="presskit">Press Kit Band <span class="num" data-count="presskit">0</span></button>
    <button data-nav="release">Rilisan Musik <span class="num" data-count="release">0</span></button>
    <button data-nav="upload">Upload Langsung <span class="num" data-count="upload">0</span></button>
    <button data-nav="archive">Arsip <span class="num" data-count="archive">0</span></button>
@@ -324,9 +348,44 @@ h1, h2, h3, p { margin-top: 0px; }
    <div class="filters"><select id="review-status" aria-label="Filter pengajuan"><option value="pending">Menunggu keputusan</option><option value="all">Semua pengajuan</option><option value="approved">Disetujui</option><option value="rejected">Ditolak</option></select><button class="btn" id="review-refresh" type="button">Muat ulang antrean</button></div>
    <div id="review-alert" class="note" hidden></div>
    <div id="review-cards" class="cards"></div>
+   <div id="gallery-review-area" class="gallery-review-area" hidden>
+     <h3>FOTO GALERI STUDIO — BUTUH PERSETUJUAN</h3>
+     <div id="gallery-review-cards" class="cards"></div>
+   </div>
+   <div id="presskit-review-area" class="gallery-review-area" hidden>
+     <h3>PRESS KIT BAND — MENUNGGU PERSETUJUAN</h3>
+     <div id="presskit-review-cards" class="cards"></div>
+   </div>
+  </section>
+  <section id="presskit-section" hidden aria-label="Kelola Press Kit Band">
+   <div class="section-head"><div><h2>PRESS KIT BAND.</h2><p class="muted" style="font-size:13px">Pengunjung hanya mengisi email, nama band dan berkas PDF/Word. Admin memeriksa sebelum berkas boleh diunduh publik.</p></div>
+    <button type="button" class="btn" id="presskit-refresh">Muat ulang Press Kit</button>
+   </div>
+   <div class="filters"><select id="presskit-filter" aria-label="Filter Press Kit">
+    <option value="all">Semua</option><option value="pending">Menunggu review</option><option value="published">Tayang</option><option value="rejected">Ditolak</option><option value="archived">Arsip</option><option value="trash">Tempat Sampah</option></select>
+    <span class="countnote" id="presskit-count">Memuat Press Kit...</span>
+   </div>
+   <div class="note" id="presskit-alert" hidden></div>
+   <div id="presskit-cards" class="cards"></div>
+   <p class="hint">Dokumen Press Kit disimpan privat. Hanya band yang disetujui admin yang muncul di website; pengunjung mendapat link unduhan sementara.</p>
+  </section>
+  <section id="gallery-section" hidden aria-label="Kelola Galeri Studio">
+   <div class="section-head"><div><h2>GALERI STUDIO.</h2><p class="muted" style="font-size:13px">Upload, setujui, edit, arsipkan, atau hapus foto studio. Hanya foto yang disetujui yang tampil di website.</p></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn btn-lime" id="gallery-admin-upload">+ UPLOAD FOTO</button><button class="btn" type="button" id="gallery-refresh">Muat ulang foto</button></div></div>
+   <div class="filters"><select id="gallery-filter" aria-label="Filter status foto"><option value="all">Semua foto</option><option value="pending">Menunggu review</option><option value="published">Tayang</option><option value="rejected">Ditolak</option><option value="archived">Arsip</option><option value="trash">Tempat Sampah</option></select>
+   <span class="countnote" id="gallery-count">Memuat foto...</span></div>
+   <div class="note" id="gallery-alert" hidden></div>
+   <div id="gallery-cards" class="cards"></div>
+   <div class="hint">Foto pengunjung disimpan privat dan baru dipublikasikan setelah disetujui admin. Upload langsung oleh admin ditayangkan segera.</div>
   </section>
   <section id="content-section" hidden>
   <div class="section-head"><div><h2 id="section-title">Semua Konten</h2><div class="muted" id="section-sub">Konten Wingking Studio</div></div><div class="countnote" id="countnote"></div></div>
+  <section id="media-manager" class="media-manager" hidden>
+    <div class="section-head"><div><h3 id="media-manager-title">LINK KONTEN ADMIN</h3><p class="muted">Video cukup link. Rilisan cukup nama band dan link.</p></div>
+      <button id="media-add" class="btn btn-lime" type="button">+ TAMBAH LINK</button></div>
+    <div id="media-manager-alert" class="note" hidden></div>
+    <div class="cards" id="media-manager-cards"></div>
+   </section>
   <div class="filters" id="filters"><div class="searchbar"><input id="search" type="search" placeholder="Cari judul, band, genre, caption..." aria-label="Cari konten"></div><select id="statusfilter" aria-label="Filter status"><option value="all">Semua status</option><option value="pending">Menunggu review</option><option value="published">Tayang</option><option value="rejected">Ditolak</option><option value="archived">Arsip</option></select></div>
   <div class="cards" id="cards"></div>
   <div class="activity-list" id="activity"></div>
@@ -341,8 +400,11 @@ const SB="https://kiuhzrowbypovoydymam.supabase.co";
 const PUB="sb_publishable_USjBvA86ZzhKG9DMLX0SEg_AehbVr5M";
 const END=SB+"/functions/v1/wingking-content-manager";
 const REVIEW_ENDPOINT=SB+"/functions/v1/wingking-guest-submissions";
+const GALLERY_ENDPOINT=SB+"/functions/v1/wingking-gallery";
+const PRESSKIT_ENDPOINT=SB+"/functions/v1/wingking-presskit";
+const MEDIA_ENDPOINT=SB+"/functions/v1/wingking-media-links";
 const SESSION="wingking-manager-session-v1";
-const state={auth:null,items:[],activity:[],reviewRows:[],reviewError:"",reviewFilter:"pending",view:"review",search:"",status:"all",busy:false};
+const state={auth:null,items:[],activity:[],reviewRows:[],reviewError:"",reviewFilter:"pending",galleryRows:[],galleryError:"",galleryFilter:"all",presskitRows:[],presskitError:"",presskitFilter:"all",mediaRows:[],mediaError:"",view:"review",search:"",status:"all",busy:false};
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function safeURL(v){try{let u=new URL(String(v||""));return u.protocol==="https:"?u.href:""}catch{return ""}}
@@ -352,7 +414,7 @@ function labelOf(x){return x.source==="public"?(x.title||x.band_name||"Konten"):
 function bandOf(x){return x.band_name||x.name||((x.source==="release"||x.source==="clip")?"Konten profil band":"")}
 function statusOf(x){if(x.deleted_at)return "trash";if(x.archived_at)return "archived";if(x.source==="guest")return x.is_visible?"published":"pending";if(x.review_status==="rejected")return "rejected";if(x.review_status==="pending")return "pending";return x.is_published?"published":"archived"}
 const statusLabels={trash:"Sampah",archived:"Arsip",pending:"Menunggu",published:"Tayang",rejected:"Ditolak"};
-const sourceLabels={public:"Upload langsung",guest:"Upload tanpa akun",band:"Profil band",release:"Rilisan",clip:"Video"};
+const sourceLabels={public:"Upload langsung",guest:"Upload tanpa akun",band:"Profil band",release:"Rilisan",clip:"Video",gallery:"Foto Galeri",presskit:"Press Kit Band"};
 const fieldDefs={
  public:[["band_name","Nama band"],["title","Judul konten"],["genre","Genre"],["city","Kota"],["description","Deskripsi / caption","long"],["instagram_url","Link Instagram"],["music_url","Link musik"],["price_text","Daftar harga","long"]],
  guest:[["name","Nama band"],["genre","Genre"],["city","Kota"],["tagline","Perkenalan","long"],["story","Cerita band","long"],["instagram_url","Link Instagram"],["spotify_url","Link Spotify"],["release_title","Judul rilisan"],["release_caption","Caption rilisan","long"],["release_listen_url","Link lagu"],["clip_title","Judul video"],["clip_caption","Caption video","long"],["clip_instagram_url","Link Instagram video"]],
@@ -392,6 +454,331 @@ async function guestApi(body){
  if(!r.ok||!j.ok)throw Error(j.error||"Layanan review menolak permintaan (HTTP "+r.status+")");
  return j;
 }
+
+async function galleryApi(body) {
+ const token=await getToken();
+ const response=await fetch(GALLERY_ENDPOINT,{
+  method:"POST",headers:{"authorization":"Bearer "+token,"apikey":PUB,"content-type":"application/json"},
+  body:JSON.stringify(body),cache:"no-store"
+ });
+ const data=await response.json().catch(()=>({error:"Respons galeri tidak valid"}));
+ if(!response.ok||!data.ok)throw Error(data.error||"Layanan Galeri Studio belum tersedia");
+ return data;
+}
+function galleryStatus(row){
+ if(row.deleted_at)return "trash";
+ if(row.archived_at)return "archived";
+ if(row.review_status==="pending")return "pending";
+ if(row.review_status==="rejected")return "rejected";
+ return row.review_status==="approved"&&row.is_published?"published":"pending";
+}
+function galleryCard(row) {
+ const id=esc(row.id),title=esc(row.title),status=galleryStatus(row);
+ const image=safeURL(row.preview||row.image_url);
+ const media=image?'<img src="'+esc(image)+'" loading="lazy" alt="'+title+'">':'<div class="placeholder">FOTO</div>';
+ let controls='';
+ const action=(op,label,klass="btn")=>'<button class="'+klass+'" data-gallery-op="'+op+'" data-id="'+id+'">'+label+'</button>';
+ controls+=action("preview","Preview")+action("edit","Edit");
+ if(status==="pending"||status==="rejected"){
+  controls+=action("approve","Setujui & Tayangkan","btn btn-lime");
+  controls+=action("reject","Tolak","btn btn-red");
+ }
+ if(status==="archived"){
+  controls+=action("restore","Tampilkan lagi","btn btn-lime")+action("trash","Ke Sampah","btn btn-red");
+ }else if(status==="trash"){
+  controls=action("restore_trash","Pulihkan","btn btn-lime")+action("purge","Hapus permanen","btn btn-red");
+ }else{
+  controls+=action("archive","Arsip");
+  controls+=action("trash","Ke Sampah","btn btn-red");
+ }
+ return '<article class="item gallery-admin-card"><div class="item-media">'+media+'<span class="media-type">FOTO GALERI</span></div>'+
+  '<div class="item-body"><div class="pills"><span class="pill '+esc(status)+'">'+esc(statusLabels[status]||status)+'</span><span class="pill">'+esc(row.is_admin_upload?"UPLOAD ADMIN":row.legacy_key?"FOTO LAMA":"UPLOAD PENGUNJUNG")+'</span></div>'+
+  '<h3>'+title+'</h3><div class="sub">'+esc(row.caption||"Dokumentasi Wingking Studio")+'</div>'+
+  '<time>'+date(row.submitted_at||row.created_at)+'</time></div><div class="item-actions">'+controls+'</div></article>';
+}
+function renderGalleryReview(){
+ const rows=state.galleryRows.filter(x=>!x.deleted_at&&!x.archived_at&&x.review_status==="pending");
+ const visible=state.reviewFilter==="pending"||state.reviewFilter==="all";
+ $("gallery-review-area").hidden=!rows.length||!visible;
+ $("gallery-review-cards").innerHTML=visible?rows.map(galleryCard).join(""):"";
+}
+function renderGallery(){
+ const filter=state.galleryFilter;
+ let rows=state.galleryRows.filter(x=>filter==="all"||galleryStatus(x)===filter);
+ rows=rows.sort((a,b)=>(a.display_order||1000)-(b.display_order||1000)||Date.parse(b.created_at||0)-Date.parse(a.created_at||0));
+ $("gallery-count").textContent=rows.length+" foto";
+ $("gallery-alert").hidden=!state.galleryError;
+ $("gallery-alert").textContent=state.galleryError;
+ $("gallery-cards").innerHTML=rows.length?rows.map(galleryCard).join(""):
+  '<div class="empty"><strong>Belum ada foto di kategori ini.</strong><p>Foto pengunjung masuk antrean dulu sebelum disetujui admin.</p></div>';
+}
+function galleryUploadModal(){
+ modal(modalHead("Upload Foto Galeri")+
+  '<div class="note">Upload dari admin dapat langsung ditayangkan. Upload pengunjung tetap membutuhkan persetujuan.</div>'+
+  '<form id="gallery-admin-upload-form" style="margin-top:18px">'+
+  '<label class="field"><span>Judul foto *</span><input name="title" required minlength="2" maxlength="100" placeholder="Contoh: Suasana latihan di studio"></label>'+
+  '<label class="field" style="margin-top:12px"><span>Deskripsi singkat</span><textarea name="caption" rows="3" maxlength="500" placeholder="Cerita di balik foto..."></textarea></label>'+
+  '<label class="field" style="margin-top:12px"><span>Foto JPG, PNG, WebP (maks. 5 MB) *</span><input name="file" type="file" accept="image/jpeg,image/png,image/webp" required></label>'+
+  '<div class="modal-actions"><button class="btn" type="button" data-modal-close>Batal</button><button class="btn btn-dark" type="submit">UPLOAD & TAYANGKAN</button></div></form>');
+}
+function galleryEditModal(row){
+ modal(modalHead("Edit Foto Galeri")+
+ '<form id="gallery-edit-form" data-id="'+esc(row.id)+'" style="margin-top:14px">'+
+ '<label class="field"><span>Judul foto</span><input name="title" value="'+esc(row.title)+'" minlength="2" maxlength="100" required></label>'+
+ '<label class="field" style="margin-top:14px"><span>Deskripsi</span><textarea name="caption" rows="3" maxlength="500">'+esc(row.caption||"")+'</textarea></label>'+
+ '<div class="modal-actions"><button class="btn" type="button" data-modal-close>Batal</button><button class="btn btn-dark" type="submit">SIMPAN</button></div></form>');
+}
+async function galleryMutate(body,message){
+ if(state.busy)return;state.busy=true;
+ try{await galleryApi(body);closeModal();toast(message);await load();}
+ catch(e){toast(e.message||"Perubahan galeri gagal",true)}
+ finally{state.busy=false}
+}
+async function galleryOperation(button){
+ if(state.busy)return;
+ const id=button.dataset.id,op=button.dataset.galleryOp;
+ const row=state.galleryRows.find(x=>x.id===id);
+ if(!row){toast("Foto tidak ditemukan. Muat ulang.",true);return}
+ if(op==="preview"){
+  const url=safeURL(row.preview||row.image_url);
+  modal(modalHead("Preview: "+row.title)+(url?'<img src="'+esc(url)+'" alt="'+esc(row.title)+'" style="width:100%;max-height:55vh;object-fit:contain;border-radius:10px">':'<p>Preview belum tersedia.</p>')+
+  '<p class="muted" style="margin-top:12px">'+esc(row.caption||"")+'</p><div class="modal-actions"><button class="btn" data-modal-close>Tutup</button></div>');
+  return;
+ }
+ if(op==="edit")return galleryEditModal(row);
+ if(op==="purge"){
+  const name=prompt('HAPUS PERMANEN? Ketik judul foto persis: '+row.title);
+  if(name===null)return;
+  if(name!==row.title){toast("Judul konfirmasi tidak cocok",true);return}
+  return galleryMutate({action:"admin-purge",id,confirm:name},"Foto dihapus permanen");
+ }
+ if(op==="approve"||op==="reject"){
+  let note="";
+  if(op==="approve"){if(!confirm('Setujui foto "'+row.title+'" dan tampilkan di website?'))return;}
+  else{
+   const result=prompt('Alasan menolak foto "'+row.title+'" (min. 5 karakter):');
+   if(result===null)return;
+   note=result.trim();
+   if(note.length<5){toast("Alasan minimal 5 karakter",true);return}
+  }
+  return galleryMutate({action:"admin-review",id,decision:op==="approve"?"approved":"rejected",note},
+   op==="approve"?"Foto disetujui & tayang":"Foto ditolak");
+ }
+ const names={archive:"arsipkan",restore:"pulihkan dari arsip",trash:"pindahkan ke sampah",restore_trash:"pulihkan dari sampah"};
+ if(!Object.hasOwn(names,op))return;
+ if(!confirm("Yakin ingin "+names[op]+" foto "+row.title+"?"))return;
+ await galleryMutate({action:"admin-"+op,id},"Status foto berhasil diperbarui");
+}
+async function galleryAdminUpload(form){
+ if(state.busy)return;
+ const data=new FormData(form),file=data.get("file"),title=String(data.get("title")||"").trim(),
+  caption=String(data.get("caption")||"").trim();
+ if(!(file instanceof File)||!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size<1||file.size>5*1024*1024){
+  toast("Pilih foto JPG/PNG/WebP maksimal 5 MB",true);return;
+ }
+ state.busy=true;
+ const button=form.querySelector('button[type="submit"]');
+ button.disabled=true;button.textContent="MENGUPLOAD...";
+ try{
+  const ticket=await galleryApi({action:"admin-direct-prepare",title,caption,mime:file.type,size:file.size});
+  const url=SB+"/storage/v1/object/upload/sign/"+encodeURIComponent(ticket.bucket)+"/"+
+   ticket.path.split("/").map(encodeURIComponent).join("/")+"?token="+encodeURIComponent(ticket.token);
+  const body=new FormData();body.append("cacheControl","3600");body.append("",file);
+  const upload=await fetch(url,{method:"PUT",headers:{"apikey":PUB,"x-upsert":"false"},body});
+  if(!upload.ok){
+   const detail=await upload.json().catch(()=>({}));
+   throw Error(detail.message||detail.error||"File gagal diupload (HTTP "+upload.status+")");
+  }
+  await galleryApi({action:"admin-direct-submit",id:ticket.id});
+  closeModal();toast("Foto admin berhasil diupload dan ditayangkan");await load();
+ }catch(e){toast(e.message||"Upload foto gagal",true)}
+ finally{state.busy=false;button.disabled=false;button.textContent="UPLOAD & TAYANGKAN"}
+}
+
+
+async function presskitApi(body){
+ const token=await getToken();
+ const r=await fetch(PRESSKIT_ENDPOINT,{
+  method:"POST",headers:{"authorization":"Bearer "+token,"apikey":PUB,"content-type":"application/json"},
+  cache:"no-store",body:JSON.stringify(body)
+ });
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok||!j.ok)throw Error(j.error||"Layanan Press Kit belum tersedia");
+ return j;
+}
+function presskitStatus(row){
+ if(row.deleted_at)return "trash";
+ if(row.archived_at)return "archived";
+ if(row.status==="approved"&&row.is_published)return "published";
+ return row.status;
+}
+function presskitCard(row){
+ const id=esc(row.id),name=esc(row.band_name),st=presskitStatus(row);
+ const buttons=[];
+ const btn=(act,label,cls="btn")=>'<button class="'+cls+'" data-presskit-op="'+act+'" data-id="'+id+'">'+label+'</button>';
+ buttons.push(btn("download","Lihat / Download Berkas"));
+ if(st!=="trash")buttons.push(btn("edit","Edit Nama"));
+ if(st==="pending"||st==="rejected"){
+  buttons.push(btn("approve","Setujui & Tayangkan","btn btn-lime"));
+  buttons.push(btn("reject","Tolak","btn btn-red"));
+ }
+ if(st==="trash"){
+  buttons.length=0;buttons.push(btn("restore_trash","Pulihkan","btn btn-lime"),btn("purge","Hapus Permanen","btn btn-red"));
+ }else if(st==="archived"){
+  buttons.push(btn("restore","Pulihkan dari Arsip","btn btn-lime"),btn("trash","Ke Sampah","btn btn-red"));
+ }else{
+  buttons.push(btn("archive","Arsip"),btn("trash","Ke Sampah","btn btn-red"));
+ }
+ const humanSize=(Number(row.file_size||0)/1048576).toFixed(1)+" MB";
+ return '<article class="item presskit-admin-card"><div class="item-media" style="background:#dcebc0;display:grid;place-items:center;font-size:58px;color:#223f2e;font-weight:900">EPK</div>'+
+ '<div class="item-body"><div class="pills"><span class="pill '+esc(st)+'">'+esc(statusLabels[st]||st)+'</span><span class="pill">'+esc(row.mime_type==="application/pdf"?"PDF":"WORD")+'</span></div>'+
+ '<h3>'+name+'</h3><div class="sub">'+esc(row.original_filename||"Press Kit")+' · '+humanSize+'</div>'+
+ '<time>Masuk: '+date(row.submitted_at||row.created_at)+'</time>'+(row.review_note?'<p class="muted">Catatan: '+esc(row.review_note)+'</p>':"")+
+ '</div><div class="item-actions">'+buttons.join("")+'</div></article>';
+}
+function renderPresskit(){
+ const rows=state.presskitRows.filter(r=>state.presskitFilter==="all"||presskitStatus(r)===state.presskitFilter);
+ $("presskit-count").textContent=rows.length+" Press Kit";
+ $("presskit-alert").hidden=!state.presskitError;
+ $("presskit-alert").textContent=state.presskitError;
+ $("presskit-cards").innerHTML=rows.length?rows.map(presskitCard).join(""):
+ '<div class="empty"><strong>Belum ada Press Kit.</strong><p>Kiriman baru dari pengunjung akan muncul di sini.</p></div>';
+}
+function renderPresskitReview(){
+ const visible=state.reviewFilter==="all"||state.reviewFilter==="pending";
+ const rows=state.presskitRows.filter(r=>r.status==="pending"&&!r.archived_at&&!r.deleted_at);
+ $("presskit-review-area").hidden=!rows.length||!visible;
+ $("presskit-review-cards").innerHTML=visible?rows.map(presskitCard).join(""):"";
+}
+async function presskitMutate(body,message){
+ if(state.busy)return;state.busy=true;
+ try{await presskitApi(body);toast(message);await load();}
+ catch(e){toast(e.message||"Gagal memperbarui Press Kit",true)}
+ finally{state.busy=false}
+}
+async function presskitAction(button){
+ if(state.busy)return;
+ const id=button.dataset.id,op=button.dataset.presskitOp,row=state.presskitRows.find(r=>r.id===id);
+ if(!row){toast("Press Kit sudah berubah. Muat ulang daftar.",true);return}
+ if(op==="download"){
+  state.busy=true;button.disabled=true;
+  try{
+   const data=await presskitApi({action:"admin-download",id});
+   const url=safeURL(data.url);
+   if(!url||new URL(url).hostname!=="kiuhzrowbypovoydymam.supabase.co")throw Error("URL unduhan tidak aman");
+   const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";document.body.append(a);a.click();a.remove();
+  }catch(e){toast(e.message||"Gagal menyiapkan unduhan",true)}
+  finally{state.busy=false;button.disabled=false}
+  return;
+ }
+ if(op==="edit"){
+  const name=prompt("Edit nama band:",row.band_name);
+  if(name===null)return;
+  return presskitMutate({action:"admin-edit",id,band_name:name},"Nama band diperbarui");
+ }
+ if(op==="purge"){
+  const name=prompt('Hapus PERMANEN? Ketik nama band persis "'+row.band_name+'":');
+  if(name!==row.band_name){if(name!==null)toast("Konfirmasi tidak cocok",true);return}
+  return presskitMutate({action:"admin-purge",id,confirm:name},"Press Kit dihapus permanen");
+ }
+ if(op==="approve"||op==="reject"){
+  let note="";
+  if(op==="approve"){
+   if(!confirm('Sudah periksa isi dokumen? Setujui Press Kit "'+row.band_name+'" dan izinkan publik mengunduh?'))return;
+  }else{
+   const value=prompt("Alasan penolakan Press Kit "+row.band_name+" (minimal 5 karakter):");
+   if(value===null)return;
+   note=value.trim();if(note.length<5){toast("Alasan minimal 5 karakter",true);return}
+  }
+  return presskitMutate({action:"admin-review",id,decision:op==="approve"?"approved":"rejected",note},
+   op==="approve"?"Press Kit disetujui dan ditayangkan":"Pengajuan Press Kit ditolak");
+ }
+ const actions={archive:"admin-archive",restore:"admin-restore",trash:"admin-trash",restore_trash:"admin-restore-trash"};
+ if(!actions[op])return;
+ if(!confirm("Yakin ingin "+(op==="trash"?"pindahkan ke Sampah":"mengubah status")+" Press Kit "+row.band_name+"?"))return;
+ await presskitMutate({action:actions[op],id},"Status Press Kit diperbarui");
+}
+
+
+async function mediaApi(body){
+ const token=await getToken(),r=await fetch(MEDIA_ENDPOINT,{
+  method:"POST",headers:{"authorization":"Bearer "+token,"apikey":PUB,"content-type":"application/json"},
+  body:JSON.stringify(body),cache:"no-store"
+ });
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok||!j.ok)throw Error(j.error||"Layanan link admin tidak tersedia");
+ return j;
+}
+function renderAdminMedia(){
+ const kind=state.view;const active=["video","release"].includes(kind);
+ $("media-manager").hidden=!active;
+ if(!active)return;
+ $("media-manager-title").textContent=kind==="video"?"LINK VIDEO STUDIO":"LINK RILISAN MUSIK";
+ $("media-add").textContent=kind==="video"?"+ LINK VIDEO":"+ LINK RILISAN";
+ $("media-manager-alert").hidden=!state.mediaError;
+ $("media-manager-alert").textContent=state.mediaError;
+ const rows=state.mediaRows.filter(x=>x.kind===kind);
+ $("media-manager-cards").innerHTML=rows.length?rows.map(r=>{
+  const st=r.deleted_at?"trash":r.archived_at?"archived":r.is_published?"published":"archived";
+  const safe=safeURL(r.link_url),title=esc(r.band_name||r.platform);
+  const btn=(op,label,style="btn")=>'<button class="'+style+'" data-media-op="'+op+'" data-id="'+esc(r.id)+'">'+label+'</button>';
+  let actions=[];
+  if(st!=="trash"){
+   actions=[btn("edit","Edit Link"),btn("toggle",r.is_published?"Sembunyikan":"Tayangkan")];
+   if(st==="archived")actions.push(btn("restore","Pulihkan Arsip"));
+   else actions.push(btn("archive","Arsip"));
+   actions.push(btn("trash","Ke Sampah","btn btn-red"));
+  }else actions=[btn("restore_trash","Pulihkan","btn btn-lime"),btn("purge","Hapus permanen","btn btn-red")];
+  return '<article class="item"><div class="item-media" style="background:#dcebc0;display:grid;place-items:center;font-size:46px;color:#213e2f">'+(r.kind==="video"?"PLAY":"LINK")+'</div>'+
+   '<div class="item-body"><div class="pills"><span class="pill '+esc(st)+'">'+esc(statusLabels[st])+'</span><span class="pill">'+esc(r.platform)+'</span></div>'+
+   '<h3>'+title+'</h3><p style="overflow-wrap:anywhere;font-size:12px">'+esc(r.link_url)+'</p>'+
+   '<time>'+date(r.created_at)+'</time></div><div class="item-actions">'+
+   (safe?'<a class="btn" href="'+esc(safe)+'" target="_blank" rel="noopener noreferrer">Buka Link</a>':"")+
+   actions.join("")+'</div></article>';
+ }).join(""):'<div class="empty"><strong>Belum ada link.</strong><p>Tambahkan link pertama untuk ditampilkan di website.</p></div>';
+}
+function mediaModal(row=null){
+ const kind=row?.kind||state.view;
+ if(!["video","release"].includes(kind))return;
+ modal(modalHead(row?"Edit Link":"Tambah Link "+(kind==="video"?"Video":"Rilisan"))+
+  '<p class="muted">Video cukup URL YouTube atau Instagram. Rilisan cukup nama band dan URL Spotify/YouTube/Instagram. Hanya admin yang bisa menambahkan.</p>'+
+  '<form id="media-form" data-kind="'+kind+'" data-id="'+esc(row?.id||"")+'" style="margin-top:16px">'+
+  (kind==="release"?'<label class="field"><span>Nama Band *</span><input name="band_name" value="'+esc(row?.band_name||"")+'" required minlength="2" maxlength="80" placeholder="Nama band"></label>':"")+
+  '<label class="field" style="margin-top:12px"><span>Link '+(kind==="video"?"Video":"Musik")+' *</span><input name="link_url" type="url" value="'+esc(row?.link_url||"")+'" required maxlength="500" placeholder="https://..."></label>'+
+  '<div class="modal-actions"><button type="button" class="btn" data-modal-close>Batal</button><button type="submit" class="btn btn-dark">SIMPAN LINK</button></div></form>');
+}
+async function saveMedia(form){
+ if(state.busy)return;state.busy=true;
+ const data=new FormData(form),id=form.dataset.id,kind=form.dataset.kind;
+ try{
+  await mediaApi({action:id?"admin-edit":"admin-create",...(id?{id}:{}),
+   kind,band_name:String(data.get("band_name")||""),link_url:String(data.get("link_url")||"")});
+  closeModal();toast("Link tersimpan dan langsung tampil di website.");await load();
+ }catch(e){toast(e.message||"Gagal menyimpan link",true)}
+ finally{state.busy=false}
+}
+async function mediaAction(button){
+ if(state.busy)return;
+ const id=button.dataset.id,op=button.dataset.mediaOp,row=state.mediaRows.find(r=>r.id===id);
+ if(!row)return toast("Konten sudah berubah, muat ulang",true);
+ if(op==="edit")return mediaModal(row);
+ if(op==="purge"){
+  const confirmName=prompt("Ketik "+(row.band_name||row.platform)+" untuk hapus permanen:");
+  if(confirmName!==(row.band_name||row.platform))return;
+  return mediaMutate({action:"admin-purge",id,confirm:confirmName},"Link dihapus");
+ }
+ const acts={toggle:"admin-hide",archive:"admin-archive",restore:"admin-restore",trash:"admin-trash",restore_trash:"admin-restore-trash"};
+ if(!acts[op])return;
+ if(!confirm("Yakin ubah status link ini?"))return;
+ await mediaMutate({action:acts[op],id},"Status link berhasil diubah");
+}
+async function mediaMutate(body,message){
+ if(state.busy)return;state.busy=true;
+ try{await mediaApi(body);toast(message);await load()}
+ catch(e){toast(e.message||"Gagal memperbarui link",true)}
+ finally{state.busy=false}
+}
+
 function showApp(){ $("login").hidden=true;$("workspace").hidden=false;$("logged-user").textContent=state.auth?.user?.email||"ADMIN"; }
 function showLogin(){ $("workspace").hidden=true;$("login").hidden=false }
 async function login(e){
@@ -412,6 +799,12 @@ async function load(){
  state.activity=Array.isArray(data.activity)?data.activity:[];
  try{const g=await guestApi({action:"admin-list"});state.reviewRows=Array.isArray(g.rows)?g.rows:[];state.reviewError="";}
  catch(e){state.reviewRows=[];state.reviewError=String(e.message||e);}
+ try{const g=await galleryApi({action:"admin-list"});state.galleryRows=Array.isArray(g.rows)?g.rows:[];state.galleryError="";}
+ catch(e){state.galleryRows=[];state.galleryError=String(e.message||e);}
+ try{const p=await presskitApi({action:"admin-list"});state.presskitRows=Array.isArray(p.rows)?p.rows:[];state.presskitError="";}
+ catch(e){state.presskitRows=[];state.presskitError=String(e.message||e);}
+ try{const m=await mediaApi({action:"admin-list"});state.mediaRows=Array.isArray(m.rows)?m.rows:[];state.mediaError="";}
+ catch(e){state.mediaRows=[];state.mediaError=String(e.message||e);}
  render();return data;
 }
 function matchesView(x){
@@ -462,7 +855,8 @@ function renderReview(){
   ...guestRows.filter(x=>match(x.status)).map(x=>({kind:"guest",row:x,at:x.submitted_at||x.created_at})),
   ...publicRows.filter(x=>match(x.review_status==="pending"?"pending":x.review_status==="rejected"?"rejected":"approved")).map(x=>({kind:"public",row:x,at:x.submitted_at||x.created_at}))
  ].sort((a,b)=>Date.parse(b.at||0)-Date.parse(a.at||0));
- $("review-count").textContent=(pendingPublic.length+guestRows.filter(x=>x.status==="pending").length)+" menunggu keputusan";
+ $("review-count").textContent=(pendingPublic.length+guestRows.filter(x=>x.status==="pending").length+state.galleryRows.filter(x=>x.review_status==="pending"&&!x.archived_at&&!x.deleted_at).length+state.presskitRows.filter(x=>x.status==="pending"&&!x.archived_at&&!x.deleted_at).length)+" menunggu keputusan";
+ renderGalleryReview();renderPresskitReview();
  $("review-alert").hidden=!state.reviewError;
  $("review-alert").textContent=state.reviewError?"Pengajuan tamu belum dapat dimuat: "+state.reviewError:"";
  $("review-cards").innerHTML=selected.length?selected.map(({kind,row:x})=>{
@@ -501,11 +895,17 @@ async function handleReview(button){
 function render(){
  const s=state.items,active=s.filter(x=>!x.archived_at&&!x.deleted_at),published=active.filter(x=>statusOf(x)==="published").length,pending=active.filter(x=>statusOf(x)==="pending").length,archived=s.filter(x=>x.archived_at&&!x.deleted_at).length,trashed=s.filter(x=>x.deleted_at).length;
  $("stats").innerHTML=[["Total aktif",active.length,"Band, rilisan dan video"],["Tayang",published,"Konten dipublikasikan"],["Menunggu",pending,"Butuh review admin"],["Arsip / sampah",archived+" / "+trashed,"Konten disembunyikan"]].map(x=>'<div class="stat"><div class="label">'+x[0]+'</div><div class="value">'+x[1]+'</div><small>'+x[2]+'</small></div>').join("");
- const counts={review:state.reviewRows.filter(x=>x.status==="pending").length+s.filter(x=>x.source==="public"&&x.review_status==="pending"&&!x.deleted_at&&!x.archived_at).length,all:active.length,video:active.filter(x=>typeOf(x)==="video").length,band:active.filter(x=>typeOf(x)==="band").length,release:active.filter(x=>typeOf(x)==="release").length,upload:active.filter(x=>x.source==="public"||x.source==="guest").length,archive:archived,trash:trashed};
+ const counts={review:state.reviewRows.filter(x=>x.status==="pending").length+s.filter(x=>x.source==="public"&&x.review_status==="pending"&&!x.deleted_at&&!x.archived_at).length+state.galleryRows.filter(x=>x.review_status==="pending"&&!x.archived_at&&!x.deleted_at).length+state.presskitRows.filter(x=>x.status==="pending"&&!x.archived_at&&!x.deleted_at).length,gallery:state.galleryRows.filter(x=>!x.deleted_at&&!x.archived_at).length,presskit:state.presskitRows.filter(x=>!x.deleted_at&&!x.archived_at).length,all:active.length,video:active.filter(x=>typeOf(x)==="video").length+state.mediaRows.filter(x=>x.kind==="video"&&!x.deleted_at&&!x.archived_at).length,band:active.filter(x=>typeOf(x)==="band").length,release:active.filter(x=>typeOf(x)==="release").length+state.mediaRows.filter(x=>x.kind==="release"&&!x.deleted_at&&!x.archived_at).length,upload:active.filter(x=>x.source==="public"||x.source==="guest").length,archive:archived,trash:trashed};
  for(const [k,v]of Object.entries(counts)){let e=document.querySelector('[data-count="'+k+'"]');if(e)e.textContent=v}
  for(const b of document.querySelectorAll("[data-nav]"))b.classList.toggle("active",b.dataset.nav===state.view);
- $("review-section").hidden=state.view!=="review";$("content-section").hidden=state.view==="review";
+ $("review-section").hidden=state.view!=="review";
+ $("gallery-section").hidden=state.view!=="gallery";
+ $("presskit-section").hidden=state.view!=="presskit";
+ $("content-section").hidden=state.view==="review"||state.view==="gallery"||state.view==="presskit";
+ renderAdminMedia();
  if(state.view==="review"){renderReview();return}
+ if(state.view==="gallery"){renderGallery();return}
+ if(state.view==="presskit"){renderPresskit();return}
  $("section-title").textContent=titles[state.view];$("section-sub").textContent=state.view==="trash"?"Konten yang belum dihapus permanen masih bisa dipulihkan":state.view==="archive"?"Konten disembunyikan dari website publik, tetapi file tetap tersimpan":"Kelola data asli Wingking Studio dengan aman";
  $("filters").hidden=state.view==="activity";$("activity").hidden=state.view!=="activity";$("cards").hidden=state.view==="activity";
  if(state.view==="activity"){
@@ -592,6 +992,12 @@ async function exportCSV(){
 document.addEventListener("click",e=>{
  if(e.target.closest("[data-modal-close]")||e.target===$("modal")){closeModal();return}
  const b=e.target.closest("[data-nav]");if(b){state.view=b.dataset.nav;state.status="all";state.search="";$("search").value="";$("statusfilter").value="all";render();return}
+ const mediaButton=e.target.closest("[data-media-op]");
+ if(mediaButton){mediaAction(mediaButton);return}
+ const presskitButton=e.target.closest("[data-presskit-op]");
+ if(presskitButton){presskitAction(presskitButton);return}
+ const galleryButton=e.target.closest("[data-gallery-op]");
+ if(galleryButton){galleryOperation(galleryButton);return}
  const reviewButton=e.target.closest("[data-review-action]");
  if(reviewButton){handleReview(reviewButton);return}
  if(e.target.closest("[data-op]")){interact(e);return}
@@ -603,6 +1009,9 @@ document.addEventListener("click",e=>{
  }
 });
 document.addEventListener("submit",e=>{
+ if(e.target.id==="media-form"){e.preventDefault();saveMedia(e.target);return}
+ if(e.target.id==="gallery-admin-upload-form"){e.preventDefault();galleryAdminUpload(e.target);return}
+ if(e.target.id==="gallery-edit-form"){e.preventDefault();const f=new FormData(e.target);galleryMutate({action:"admin-edit",id:e.target.dataset.id,title:String(f.get("title")||""),caption:String(f.get("caption")||"")},"Foto galeri berhasil diedit");return}
  if(e.target.id==="password-change-form"){e.preventDefault();updateAdminPassword(e.target);return}
  if(e.target.id==="editform"){
   e.preventDefault();const f=e.target,p={};for(const [k,v]of new FormData(f))p[k]=String(v);
@@ -618,8 +1027,14 @@ $("statusfilter").addEventListener("change",e=>{state.status=e.target.value;rend
 $("refresh").addEventListener("click",()=>load().then(()=>toast("Data terbaru berhasil dimuat")).catch(e=>toast(e.message,true)));
  $("review-refresh").addEventListener("click",()=>load().then(()=>toast("Antrean review diperbarui")).catch(e=>toast(e.message,true)));
  $("review-status").addEventListener("change",e=>{state.reviewFilter=e.target.value;renderReview()});
+$("media-add").addEventListener("click",()=>mediaModal());
+$("presskit-refresh").addEventListener("click",()=>load().then(()=>toast("Press Kit diperbarui")).catch(e=>toast(e.message,true)));
+$("presskit-filter").addEventListener("change",e=>{state.presskitFilter=e.target.value;renderPresskit()});
+$("gallery-admin-upload").addEventListener("click",galleryUploadModal);
+$("gallery-refresh").addEventListener("click",()=>load().then(()=>toast("Galeri diperbarui")).catch(e=>toast(e.message,true)));
+$("gallery-filter").addEventListener("change",e=>{state.galleryFilter=e.target.value;renderGallery()});
 $("export").addEventListener("click",exportCSV);
-for(const key of ["logout","mobilelogout"])$(key).addEventListener("click",()=>{writeSession(null);state.items=[];state.activity=[];state.reviewRows=[];state.reviewError="";showLogin();toast("Berhasil keluar")});
+for(const key of ["logout","mobilelogout"])$(key).addEventListener("click",()=>{writeSession(null);state.items=[];state.activity=[];state.reviewRows=[];state.reviewError="";state.galleryRows=[];state.galleryError="";state.presskitRows=[];state.presskitError="";state.mediaRows=[];state.mediaError="";showLogin();toast("Berhasil keluar")});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modal").hidden)closeModal()});
 startup();
 </script>

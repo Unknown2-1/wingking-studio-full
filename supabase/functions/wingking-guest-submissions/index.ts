@@ -6,7 +6,7 @@ const db=createClient(SB_URL,SERVICE,{auth:{persistSession:false,autoRefreshToke
 const bucket="wk-guest-private",maxImage=5*1024*1024,maxVideo=35*1024*1024;
 const mime={photo:["image/jpeg","image/png","image/webp"],price:["image/jpeg","image/png","image/webp","application/pdf"],cover:["image/jpeg","image/png","image/webp"],video:["video/mp4","video/webm","video/quicktime"]};
 const extensions={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","application/pdf":"pdf","video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov"};
-const okayOrigin=req=>{const o=req.headers.get("origin")||"";return ["https://wingking-studio.vercel.app","https://wingking-private-review-console.vercel.app"].includes(o)||/^http:\/\/localhost(:\d+)?$/.test(o)};
+const okayOrigin=req=>{const o=req.headers.get("origin")||"";return ["https://wingking-studio.vercel.app","https://wingking-private-review-console.vercel.app"].includes(o)||/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)};
 const cors=req=>({"Access-Control-Allow-Origin":okayOrigin(req)?req.headers.get("origin"):"null","Access-Control-Allow-Methods":"POST, OPTIONS","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info","Vary":"Origin","Cache-Control":"no-store"});
 const json=(r,v,status=200)=>new Response(JSON.stringify(v),{status,headers:{"Content-Type":"application/json; charset=utf-8",...cors(r)}});
 const err=(message,status=400)=>{throw {message,status}};
@@ -30,6 +30,16 @@ async function moderator(req){
 }
 async function main(req,b){
  const action=String(b.action||"");
+ // Legacy guest submissions are closed. Admin review of existing records is preserved.
+ if(action==="prepare"||action==="finish")err("Form lama tidak tersedia. Gunakan Press Kit Band WINGKING.",410);
+ let submitterId="";
+ if(action==="prepare"||action==="finish"){
+   const jwt=(req.headers.get("authorization")||"").replace(/^Bearer\s+/i,"");
+   if(!jwt||jwt.length>5000)err("Verifikasi email terlebih dahulu",401);
+   const {data:{user},error}=await db.auth.getUser(jwt);
+   if(error||!user?.email||!user.email_confirmed_at)err("Sesi tidak valid atau email belum diverifikasi",401);
+   submitterId=user.id;
+ }
  if(action==="prepare"){
    const {data,files}=validate(b);
    const ip=(req.headers.get("cf-connecting-ip")||req.headers.get("x-real-ip")||req.headers.get("x-forwarded-for")||"unknown").split(",")[0].trim(),ip_hash=await sha(ip+"|"+SERVICE.slice(0,24));
@@ -39,16 +49,17 @@ async function main(req,b){
    if((a.count||0)>=4||(g.count||0)>=250)err("Batas pengajuan hari ini tercapai",429);
    const id=crypto.randomUUID(),receipt=crypto.randomUUID()+"-"+crypto.randomUUID();
    for(const [kind,f] of Object.entries(files))f.path=id+"/"+kind+"."+extensions[f.type];
-   const {error}=await db.from("wk_guest_requests").insert({id,receipt_hash:await sha(receipt),ip_hash,payload:data,assets:files,status:"draft"});if(error)err("Gagal membuat pengajuan",500);
+   const {error}=await db.from("wk_guest_requests").insert({id,receipt_hash:await sha(receipt),ip_hash,payload:data,assets:files,status:"draft",submitted_by:submitterId});if(error)err("Gagal membuat pengajuan",500);
    const uploads=[];for(const [kind,f] of Object.entries(files)){const {data:s,error:e}=await db.storage.from(bucket).createSignedUploadUrl(f.path);if(e||!s?.token)err("Gagal membuat link upload",500);uploads.push({kind,path:f.path,token:s.token,type:f.type})}
    return {ok:true,id,receipt,uploads};
  }
  if(action==="finish"||action==="status"){
    const id=txt(b.id,80),receipt=txt(b.receipt,150);
    if(!id||!receipt)err("Kode tidak ditemukan");
-   const {data:r,error}=await db.from("wk_guest_requests").select("id,receipt_hash,status,assets,review_note").eq("id",id).maybeSingle();
+   const {data:r,error}=await db.from("wk_guest_requests").select("id,receipt_hash,status,assets,review_note,submitted_by").eq("id",id).maybeSingle();
    if(error||!r||r.receipt_hash!==await sha(receipt))err("Kode pengajuan tidak cocok",404);
    if(action==="status")return {ok:true,status:r.status,note:r.review_note};
+   if(r.submitted_by!==submitterId)err("Pengajuan ini dibuat dengan akun email lain",403);
    if(r.status==="pending")return {ok:true,status:"pending"};if(r.status!=="draft")err("Pengajuan sudah diproses");
    const {data:items,error:e}=await db.storage.from(bucket).list(id,{limit:20});if(e)err("Gagal memeriksa file",500);
    for(const f of Object.values(r.assets||{})){const name=f.path.split("/").pop(),found=(items||[]).find(x=>x.name===name);if(!found)err("File "+name+" belum selesai diupload");const size=Number(found.metadata?.size||0);if(size<=0||size>(f.type.startsWith("video/")?maxVideo:maxImage))err("Ukuran file tidak sesuai")}
