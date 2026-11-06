@@ -638,7 +638,7 @@ function ExternalVideoCard({item,index}){
       <span className="wk-external-video-play"><HE size={30}/></span>
     </div>
     <div className="wk-external-video-caption"><small>STUDIO SESSIONS / {item.platform}</small>
-      <strong>LANGSUNG NONTON!</strong><span>BUKA DI {String(item.platform||"PLATFORM").toUpperCase()} <dt size={17}/></span>
+      <strong>LANGSUNG NONTON!</strong><span>BUKA DI {String(item.platform||"PLATFORM").toUpperCase()} <ArrowUpRight size={17}/></span>
     </div>
   </a>;
 }
@@ -648,7 +648,7 @@ function ExternalReleaseCard({item}){
     aria-label={"Dengarkan rilisan "+item.band_name+" di "+item.platform}>
     <AssetImage name="watermelon-music" alt="Maskot semangka bernyanyi" />
     <div><small>RILISAN / {item.platform}</small><strong>{item.band_name||"Band Wingking"}</strong>
-      <span>DENGARKAN SEKARANG <dt size={16}/></span></div>
+      <span>DENGARKAN SEKARANG <ArrowUpRight size={16}/></span></div>
   </a>;
 }
 
@@ -1149,9 +1149,9 @@ function BandPressKitUploadModal({onClose,onSaved,showToast}){
           <input id="presskit-file" type="file" required
             accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             onChange={e=>setFile(e.target.files?.[0]||null)} />
-          <button className="presskit-primary" type="submit" disabled={busy}>{busy?"SEDANG MENGIRIM...":"KIRIM BANDKU"} <dt size={18}/></button>
+          <button className="presskit-primary" type="submit" disabled={busy}>{busy?"SEDANG MENGIRIM...":"KIRIM BANDKU"} <ArrowUpRight size={18}/></button>
           <p className="presskit-help">Berkas disimpan privat sampai admin menyetujui. Pastikan hanya berisi kontak yang boleh dipublikasikan.</p>
-        </form>)}
+        </form>}
         {notice&&<p className="presskit-notice" role="status">{notice}</p>}
       </div>}
     </section>
