@@ -39,6 +39,7 @@ async function main(req,b){
    submitterId=user.id;
  }
  if(action==="prepare"){
+   err("Form upload lama ditutup. Daftarkan band melalui Press Kit WINGKING.",410);
    const {data,files}=validate(b);
    const ip=(req.headers.get("cf-connecting-ip")||req.headers.get("x-real-ip")||req.headers.get("x-forwarded-for")||"unknown").split(",")[0].trim(),ip_hash=await sha(ip+"|"+SERVICE.slice(0,24));
    const since=new Date(Date.now()-86400000).toISOString();

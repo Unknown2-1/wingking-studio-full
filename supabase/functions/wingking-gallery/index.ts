@@ -101,6 +101,7 @@ async function publish(row:Record<string,any>,adminId:string){
 }
 async function handle(req:Request,b:Record<string,any>){
  const action=clean(b.action,40);
+ if(action==="prepare")fail("Upload foto hanya dapat dilakukan admin WINGKING.",403);
  if(action==="prepare"||action==="admin-direct-prepare"){
   const admin=action==="admin-direct-prepare",user=await actor(req,admin);
   const values=validateFile(b);
@@ -125,6 +126,7 @@ async function handle(req:Request,b:Record<string,any>){
   if(signedErr||!signed?.token)fail("Gagal menyiapkan upload: "+(signedErr?.message||"token kosong"),503);
   return {ok:true,id,path,token:signed.token,bucket:PRIVATE};
  }
+ if(action==="submit")fail("Upload foto hanya dapat dilakukan admin WINGKING.",403);
  if(action==="submit"||action==="admin-direct-submit"){
   const admin=action==="admin-direct-submit",user=await actor(req,admin);
   const row=await findRow(b.id);
