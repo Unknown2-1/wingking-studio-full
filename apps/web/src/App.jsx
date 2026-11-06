@@ -22,6 +22,10 @@ import {
 import { config } from "./config.js";
 import WingkingAssistant from "./WingkingAssistant.jsx";
 
+// Always redirect email login links to the live public site, not localhost.
+const EMAIL_UPLOAD_REDIRECT = "https://wingking-studio.vercel.app/upload.html";
+const EMAIL_GALLERY_REDIRECT = "https://wingking-studio.vercel.app/?gallery=upload";
+
 const Lc = ArrowRight,
   dt = ArrowUpRight,
   Wy = CloudUpload,
@@ -700,7 +704,9 @@ function StudioGalleryModal({ onClose }) {
   const [photos, setPhotos] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [galleryError, setGalleryError] = React.useState("");
-  const [showUpload, setShowUpload] = React.useState(false);
+  const [showUpload, setShowUpload] = React.useState(() =>
+    new URLSearchParams(window.location.search).get("gallery") === "upload"
+  );
   const [email, setEmail] = React.useState("");
   const [code, setCode] = React.useState("");
   const [codeSent, setCodeSent] = React.useState(false);
@@ -742,15 +748,25 @@ function StudioGalleryModal({ onClose }) {
   React.useEffect(() => {
     refreshGallery();
     let alive = true;
+    let subscription;
     if (supabase) {
-      supabase.auth.getSession().then(({ data }) => {
+      const updateUser = (user) => {
         if (!alive) return;
-        const user = data?.session?.user;
         setVerified(Boolean(user?.email && user?.email_confirmed_at));
         if (user?.email) setEmail(user.email);
+      };
+      supabase.auth.getSession().then(({ data }) => {
+        updateUser(data?.session?.user);
       }).catch(() => {});
+      const listener = supabase.auth.onAuthStateChange((_event, session) => {
+        updateUser(session?.user);
+      });
+      subscription = listener?.data?.subscription;
     }
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+      subscription?.unsubscribe();
+    };
   }, [refreshGallery]);
 
   const galleryRequest = async (action, payload = {}) => {
@@ -784,7 +800,7 @@ function StudioGalleryModal({ onClose }) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
         throw new Error("Isi email yang benar dulu, ya.");
       const { error } = await supabase.auth.signInWithOtp({
-        email: address, options: { shouldCreateUser: true },
+        email: address, options: { shouldCreateUser: true, emailRedirectTo: EMAIL_GALLERY_REDIRECT },
       });
       if (error) throw error;
       setCodeSent(true);
@@ -1438,7 +1454,7 @@ function UploadBandModal({
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: authEmail.trim(),
-        options: { shouldCreateUser: true },
+        options: { shouldCreateUser: true, emailRedirectTo: EMAIL_UPLOAD_REDIRECT },
       });
       if (error) throw error;
       setOtpSent(true);
@@ -1593,7 +1609,7 @@ function UploadBandModal({
                           try {
                             const { error } = await supabase.auth.signInWithOtp({
                               email: authEmail.trim(),
-                              options: { shouldCreateUser: !0 },
+                              options: { shouldCreateUser: !0, emailRedirectTo: EMAIL_UPLOAD_REDIRECT },
                             });
                             if (error) throw error;
                             r("Kode OTP baru sudah dikirim.");
@@ -1994,7 +2010,9 @@ function HomePage() {
     [r, l] = React.useState(null),
     [u, c] = React.useState(null),
     [h, m] = React.useState(!1),
-    [galleryOpen, setGalleryOpen] = React.useState(!1),
+    [galleryOpen, setGalleryOpen] = React.useState(() =>
+      new URLSearchParams(window.location.search).get("gallery") === "upload"
+    ),
     [y, d] = React.useState(!1),
     [b, R] = React.useState(!1),
     [k, B] = React.useState(!1),
@@ -2191,7 +2209,7 @@ function HomePage() {
             React.createElement(
               "a",
               { href: "#keseruan", onClick: () => d(!1) },
-              "Studio Season",
+              "Studio Sessions",
             ),
             React.createElement(
               "a",
@@ -2338,7 +2356,7 @@ function HomePage() {
               React.createElement(
                 PillLink,
                 { href: "#keseruan" },
-                "Studio Season",
+                "Studio Sessions",
               ),
               React.createElement(
                 "a",

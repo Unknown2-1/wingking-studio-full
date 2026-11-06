@@ -114,7 +114,7 @@ async function requestOtp() {
   if (!authClient) throw Error("Login email belum dikonfigurasi.");
   const { error } = await authClient.auth.signInWithOtp({
     email: authEmail.value.trim(),
-    options: { shouldCreateUser: true },
+    options: { shouldCreateUser: true, emailRedirectTo: "https://wingking-studio.vercel.app/upload.html" },
   });
   if (error) throw error;
   otpInstruction.textContent =
