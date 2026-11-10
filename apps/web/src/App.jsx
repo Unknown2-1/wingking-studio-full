@@ -682,13 +682,14 @@ function ExternalReleaseCard({ item }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={
-        "Dengarkan rilisan " + item.band_name + " di " + item.platform
+        "Dengarkan " + item.title + " oleh " + item.band_name + " di " + item.platform
       }
     >
       <AssetImage name="watermelon-music" alt="Maskot semangka bernyanyi" />
       <div>
         <small>RILISAN / {item.platform}</small>
-        <strong>{item.band_name || "Band Wingking"}</strong>
+        <strong>{item.title}</strong>
+        <span className="wk-release-artist">{item.band_name}</span>
         <span>
           DENGARKAN SEKARANG <ArrowUpRight size={16} />
         </span>
@@ -2784,7 +2785,7 @@ function HomePage() {
                 platform: Y.platform,
                 title: Y.title.trim(),
                 band_name: Y.band_name,
-                kind: "Rilisan / " + Y.platform,
+                kind: "Single",
                 caption: "",
                 cover_url: "",
                 listen_url: Y.link_url,
@@ -3226,7 +3227,9 @@ function HomePage() {
             "div",
             { className: "releases-grid reveal-on-scroll" },
             Ae.filter((F) =>
-              (F.band_name || F.title || "")
+              [F.title, F.band_name, F.wk_bands?.name]
+                .filter(Boolean)
+                .join(" ")
                 .toLowerCase()
                 .includes(releaseSearch.trim().toLowerCase()),
             )
