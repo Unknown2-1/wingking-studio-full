@@ -4750,6 +4750,7 @@ html[data-motion="off"] .hero h1 {
 .wk-external-release small{font-size:10px;font-weight:850;text-transform:uppercase}
 .wk-external-release strong{font:900 clamp(21px,3vw,34px)/1.1 Outfit,sans-serif;overflow-wrap:anywhere}
 .wk-external-release span{font-size:11px;font-weight:900;display:flex;gap:6px;align-items:center}
+.wk-external-release .wk-release-artist{font-size:12px;font-weight:700;line-height:1.25;opacity:.82;display:block}
 .wk-release-search{display:flex;align-items:center;gap:10px;max-width:440px;margin:20px 0 25px;background:#fffdf2;padding:8px 14px;border:2px solid #203b2e;border-radius:999px}
 .wk-release-search input{border:0;outline:0;background:transparent;min-width:0;flex:1;font-size:14px;color:#203b2e;padding:8px}
 @media(max-width:550px){.wk-external-video{min-height:350px}.wk-external-video-art{min-height:170px}.wk-external-video-art img{height:200px}.wk-external-release img{width:74px;height:85px}.wk-external-release{min-height:120px}}
