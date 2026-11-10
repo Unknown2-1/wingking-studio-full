@@ -49,7 +49,29 @@ function emailOtpErrorMessage(error) {
     return "Terlalu banyak permintaan kode. Jangan tekan berulang-ulang; coba lagi setelah jeda.";
   if (code === "email_address_not_authorized")
     return "Email penerima belum diizinkan oleh layanan bawaan. Admin perlu mengaktifkan SMTP WINGKING.";
+  if (/535|BadCredentials|Authentication failed|SMTP.*auth|Username and Password not accepted/i.test(raw))
+    return "Pengirim email WINGKING sedang bermasalah. Admin perlu memperbaiki koneksi SMTP. Kode belum terkirim.";
+  if (/otp_expired|token has expired|expired/i.test(raw)) return "Kode sudah kedaluwarsa. Minta kode baru.";
   return raw || "Kode verifikasi belum bisa dikirim. Coba lagi nanti.";
+}
+
+
+// Shared OTP sender for WINGKING forms. Never show "sent" after a failed Auth request.
+// The server also rate limits; this client guard reduces accidental repeated sends.
+const wingkingOtpNextAllowed = new Map();
+async function sendWingkingOtp(address, redirectTo) {
+  if (!supabase) throw new Error("Verifikasi email sedang tidak tersedia.");
+  const emailAddress = String(address || "").trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress))
+    throw new Error("Masukkan alamat email yang benar.");
+  const wait = Math.ceil(((wingkingOtpNextAllowed.get(emailAddress) || 0) - Date.now()) / 1000);
+  if (wait > 0) throw new Error("Tunggu " + wait + " detik sebelum mengirim kode lagi.");
+  const { error } = await supabase.auth.signInWithOtp({
+    email: emailAddress,
+    options: { shouldCreateUser: true, emailRedirectTo: redirectTo },
+  });
+  if (error) throw error;
+  wingkingOtpNextAllowed.set(emailAddress, Date.now() + 60000);
 }
 
 const hasBackend = !!config.supabaseKey;
@@ -920,10 +942,7 @@ function StudioGalleryModal({ onClose }) {
       const address = email.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
         throw new Error("Isi email yang benar dulu, ya.");
-      const { error } = await supabase.auth.signInWithOtp({
-        email: address, options: { shouldCreateUser: true, emailRedirectTo: EMAIL_GALLERY_REDIRECT },
-      });
-      if (error) throw error;
+      await sendWingkingOtp(address, EMAIL_GALLERY_REDIRECT);
       setCodeSent(true);
       setNotice("Kode verifikasi dikirim. Cek inbox atau folder spam.");
     } catch (err) {
@@ -1145,10 +1164,7 @@ function BandPressKitUploadModal({onClose,onSaved,showToast}){
     try{
       const address=email.trim().toLowerCase();
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))throw Error("Isi alamat email yang benar.");
-      const {error}=await supabase.auth.signInWithOtp({
-        email:address,options:{shouldCreateUser:true,emailRedirectTo:"https://wingking-studio.vercel.app/?band=upload"}
-      });
-      if(error)throw error;
+      await sendWingkingOtp(address, "https://wingking-studio.vercel.app/?band=upload");
       setOtpSent(true);setNotice("Kode dikirim. Cek inbox/spam; jangan minta berulang-ulang.");
     }catch(error){setNotice(emailOtpErrorMessage(error))}
     finally{setBusy(false)}
@@ -1221,7 +1237,8 @@ function BandPressKitUploadModal({onClose,onSaved,showToast}){
             required maxLength={6} placeholder="000000" value={code}
             onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))}/>
           <button className="presskit-primary" type="submit" disabled={busy}>{busy?"MEMERIKSA...":"VERIFIKASI KODE"}</button>
-          <button type="button" className="presskit-secondary" onClick={()=>{setOtpSent(false);setCode("")}}>Ganti email / kirim kode baru</button>
+          <button type="button" className="presskit-secondary" disabled={busy} onClick={sendOtp}>Kirim ulang kode</button>
+          <button type="button" className="presskit-secondary" disabled={busy} onClick={()=>{setOtpSent(false);setCode("")}}>Ganti email</button>
         </form>):<form onSubmit={submit} className="presskit-form">
           <div className="presskit-verified"><VE size={17}/> Email terverifikasi: {email}
             <button type="button" onClick={signOut}>Ganti</button></div>
@@ -1749,11 +1766,7 @@ function UploadBandModal({
     }
     setAuthBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: authEmail.trim(),
-        options: { shouldCreateUser: true, emailRedirectTo: EMAIL_UPLOAD_REDIRECT },
-      });
-      if (error) throw error;
+      await sendWingkingOtp(authEmail, EMAIL_UPLOAD_REDIRECT);
       setOtpSent(true);
       r("Kode OTP dikirim. Cek inbox atau folder spam emailmu.");
     } catch (error) {
@@ -1904,11 +1917,7 @@ function UploadBandModal({
                         onClick: async () => {
                           setAuthBusy(!0);
                           try {
-                            const { error } = await supabase.auth.signInWithOtp({
-                              email: authEmail.trim(),
-                              options: { shouldCreateUser: !0, emailRedirectTo: EMAIL_UPLOAD_REDIRECT },
-                            });
-                            if (error) throw error;
+                            await sendWingkingOtp(authEmail, EMAIL_UPLOAD_REDIRECT);
                             r("Kode OTP baru sudah dikirim.");
                           } catch (error) {
                             r(emailOtpErrorMessage(error));
