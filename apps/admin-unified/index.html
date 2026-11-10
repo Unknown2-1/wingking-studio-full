@@ -720,7 +720,7 @@ function renderAdminMedia(){
  const rows=state.mediaRows.filter(x=>x.kind===kind);
  $("media-manager-cards").innerHTML=rows.length?rows.map(r=>{
   const st=r.deleted_at?"trash":r.archived_at?"archived":r.is_published?"published":"archived";
-  const safe=safeURL(r.link_url),title=esc(r.band_name||r.platform);
+  const safe=safeURL(r.link_url),title=esc(r.kind==="release"?(r.title||"Judul rilisan belum diisi"):(r.band_name||r.platform));
   const btn=(op,label,style="btn")=>'<button class="'+style+'" data-media-op="'+op+'" data-id="'+esc(r.id)+'">'+label+'</button>';
   let actions=[];
   if(st!=="trash"){
@@ -731,7 +731,7 @@ function renderAdminMedia(){
   }else actions=[btn("restore_trash","Pulihkan","btn btn-lime"),btn("purge","Hapus permanen","btn btn-red")];
   return '<article class="item"><div class="item-media" style="background:#dcebc0;display:grid;place-items:center;font-size:46px;color:#213e2f">'+(r.kind==="video"?"PLAY":"LINK")+'</div>'+
    '<div class="item-body"><div class="pills"><span class="pill '+esc(st)+'">'+esc(statusLabels[st])+'</span><span class="pill">'+esc(r.platform)+'</span></div>'+
-   '<h3>'+title+'</h3><p style="overflow-wrap:anywhere;font-size:12px">'+esc(r.link_url)+'</p>'+
+   '<h3>'+title+'</h3>'+(r.kind==="release"?'<p class="muted" style="font-size:12px">'+esc(r.band_name)+' · '+esc(r.platform)+'</p>':"")+'<p style="overflow-wrap:anywhere;font-size:12px">'+esc(r.link_url)+'</p>'+
    '<time>'+date(r.created_at)+'</time></div><div class="item-actions">'+
    (safe?'<a class="btn" href="'+esc(safe)+'" target="_blank" rel="noopener noreferrer">Buka Link</a>':"")+
    actions.join("")+'</div></article>';
@@ -741,9 +741,9 @@ function mediaModal(row=null){
  const kind=row?.kind||state.view;
  if(!["video","release"].includes(kind))return;
  modal(modalHead(row?"Edit Link":"Tambah Link "+(kind==="video"?"Video":"Rilisan"))+
-  '<p class="muted">Video cukup URL YouTube atau Instagram. Rilisan cukup nama band dan URL Spotify/YouTube/Instagram. Hanya admin yang bisa menambahkan.</p>'+
+  '<p class="muted">Video cukup URL YouTube atau Instagram. Rilisan wajib memiliki judul lagu, nama band, dan URL Spotify/YouTube/Instagram. Hanya admin yang bisa menambahkan.</p>'+
   '<form id="media-form" data-kind="'+kind+'" data-id="'+esc(row?.id||"")+'" style="margin-top:16px">'+
-  (kind==="release"?'<label class="field"><span>Nama Band *</span><input name="band_name" value="'+esc(row?.band_name||"")+'" required minlength="2" maxlength="80" placeholder="Nama band"></label>':"")+
+  (kind==="release"?'<label class="field"><span>Judul Lagu / Rilisan *</span><input name="title" value="'+esc(row?.title||"")+'" required minlength="1" maxlength="100" placeholder="Contoh: Langit Malam"></label><label class="field" style="margin-top:12px"><span>Nama Band *</span><input name="band_name" value="'+esc(row?.band_name||"")+'" required minlength="2" maxlength="80" placeholder="Contoh: Band Wingking"></label>':"")+
   '<label class="field" style="margin-top:12px"><span>Link '+(kind==="video"?"Video":"Musik")+' *</span><input name="link_url" type="url" value="'+esc(row?.link_url||"")+'" required maxlength="500" placeholder="https://..."></label>'+
   '<div class="modal-actions"><button type="button" class="btn" data-modal-close>Batal</button><button type="submit" class="btn btn-dark">SIMPAN LINK</button></div></form>');
 }
@@ -752,7 +752,7 @@ async function saveMedia(form){
  const data=new FormData(form),id=form.dataset.id,kind=form.dataset.kind;
  try{
   await mediaApi({action:id?"admin-edit":"admin-create",...(id?{id}:{}),
-   kind,band_name:String(data.get("band_name")||""),link_url:String(data.get("link_url")||"")});
+   kind,title:String(data.get("title")||""),band_name:String(data.get("band_name")||""),link_url:String(data.get("link_url")||"")});
   closeModal();toast("Link tersimpan dan langsung tampil di website.");await load();
  }catch(e){toast(e.message||"Gagal menyimpan link",true)}
  finally{state.busy=false}
