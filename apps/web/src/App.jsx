@@ -1554,16 +1554,13 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
                   >
                     {busy ? "MEMERIKSA..." : "VERIFIKASI KODE"}
                   </button>
-                  <button
-                    type="button"
-                    className="presskit-secondary"
-                    onClick={() => {
+                  <button type="button" className="presskit-secondary"
+                    disabled={busy} onClick={sendOtp}>Kirim ulang kode</button>
+                  <button type="button" className="presskit-secondary"
+                    disabled={busy} onClick={() => {
                       setOtpSent(false);
                       setCode("");
-                    }}
-                  >
-                    Ganti email / kirim kode baru
-                  </button>
+                    }}>Ganti email</button>
                 </form>
               )
             ) : (
