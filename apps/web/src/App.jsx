@@ -2781,14 +2781,12 @@ function HomePage() {
         ]),
           D([
             ...(media.data || [])
-              .filter(
-                (Y) => Y.kind === "release" && String(Y.title || "").trim(),
-              )
+              .filter((Y) => Y.kind === "release")
               .map((Y) => ({
                 id: "media-" + Y.id,
                 external_url: Y.link_url,
                 platform: Y.platform,
-                title: Y.title.trim(),
+                title: String(Y.title || "").trim() || "Judul rilisan belum diisi",
                 band_name: Y.band_name,
                 kind: "Single",
                 caption: "",
