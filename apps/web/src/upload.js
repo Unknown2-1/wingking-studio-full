@@ -127,16 +127,22 @@ function emailOtpErrorMessage(error) {
     return "Terlalu banyak permintaan kode. Jangan tekan berulang-ulang; coba lagi setelah jeda.";
   if (code === "email_address_not_authorized")
     return "Email penerima belum diizinkan oleh layanan bawaan. Admin perlu mengaktifkan SMTP WINGKING.";
-  if (/535|BadCredentials|Authentication failed|SMTP.*auth|Username and Password not accepted/i.test(raw))
+  if (
+    /535|BadCredentials|Authentication failed|SMTP.*auth|Username and Password not accepted/i.test(
+      raw,
+    )
+  )
     return "Pengirim email WINGKING sedang bermasalah. Admin perlu memperbaiki koneksi SMTP. Kode belum terkirim.";
-  if (/otp_expired|token has expired|expired/i.test(raw)) return "Kode sudah kedaluwarsa. Minta kode baru.";
+  if (/otp_expired|token has expired|expired/i.test(raw))
+    return "Kode sudah kedaluwarsa. Minta kode baru.";
   return raw || "Kode verifikasi belum bisa dikirim. Coba lagi nanti.";
 }
 
 let otpRetryAfter = 0;
 async function requestOtp() {
   const seconds = Math.ceil((otpRetryAfter - Date.now()) / 1000);
-  if (seconds > 0) throw Error("Tunggu " + seconds + " detik sebelum meminta kode lagi.");
+  if (seconds > 0)
+    throw Error("Tunggu " + seconds + " detik sebelum meminta kode lagi.");
   if (!authClient) throw Error("Login email belum dikonfigurasi.");
   const { error } = await authClient.auth.signInWithOtp({
     email: authEmail.value.trim(),
