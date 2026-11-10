@@ -2786,7 +2786,8 @@ function HomePage() {
                 id: "media-" + Y.id,
                 external_url: Y.link_url,
                 platform: Y.platform,
-                title: String(Y.title || "").trim() || "Judul rilisan belum diisi",
+                title:
+                  String(Y.title || "").trim() || "Judul rilisan belum diisi",
                 band_name: Y.band_name,
                 kind: "Single",
                 caption: "",
