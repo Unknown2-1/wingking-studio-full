@@ -5168,6 +5168,13 @@ html[data-motion="off"] .hero h1 {
   gap: 6px;
   align-items: center;
 }
+.wk-external-release .wk-release-artist {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  opacity: .8;
+  display: block;
+}
 .wk-release-search {
   display: flex;
   align-items: center;
