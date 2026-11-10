@@ -629,19 +629,107 @@ function VideoPlaceholder({ index: s }) {
   );
 }
 
-function ExternalVideoCard({item,index}){
-  const url=validatedUrl(item.external_url);
-  return <a className="clip-card wk-external-video" href={url||"#"} target="_blank" rel="noopener noreferrer"
-    aria-label={"Tonton video di "+item.platform} style={{background:"#203c30"}}>
-    <div className="wk-external-video-art">
-      <AssetImage name="watermelon-music" alt="Maskot semangka bermusik" />
-      <span className="wk-external-video-play"><HE size={30}/></span>
-    </div>
-    <div className="wk-external-video-caption"><small>STUDIO SESSIONS / {item.platform}</small>
-      <strong>LANGSUNG NONTON!</strong><span>BUKA DI {String(item.platform||"PLATFORM").toUpperCase()} <ArrowUpRight size={17}/></span>
-    </div>
-  </a>;
+function studioVideoPoster(link) {
+  try {
+    const url = new URL(link);
+    const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+    let id = "";
+    if (hostname === "youtu.be") id = url.pathname.split("/")[1] || "";
+    else if (
+      ["youtube.com", "m.youtube.com", "music.youtube.com"].includes(hostname)
+    ) {
+      id = url.searchParams.get("v") || "";
+      if (!id && url.pathname.startsWith("/shorts/"))
+        id = url.pathname.split("/")[2] || "";
+    }
+    return /^[A-Za-z0-9_-]{11}$/.test(id)
+      ? "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg"
+      : "";
+  } catch {
+    return "";
+  }
 }
+
+function ExternalVideoCard({ item, index }) {
+  const link = validatedUrl(item.external_url);
+  const preview = validatedUrl(item.video_url);
+  const poster = studioVideoPoster(item.external_url);
+  const videoRef = React.useRef(null);
+  const [previewError, setPreviewError] = React.useState(false);
+
+  React.useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !preview || previewError) return;
+    video.muted = true;
+    if (typeof IntersectionObserver === "undefined") {
+      video.play().catch(() => {});
+      return () => video.pause();
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      },
+      { threshold: 0.25 },
+    );
+    observer.observe(video);
+    return () => {
+      observer.disconnect();
+      video.pause();
+    };
+  }, [preview, previewError]);
+
+  return (
+    <a
+      className="clip-card wk-external-video"
+      href={link || "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={"Tonton video Wingking di " + item.platform}
+      style={{ background: "#203c30" }}
+    >
+      <div className="wk-external-video-art">
+        {preview && !previewError ? (
+          <video
+            ref={videoRef}
+            className="wk-external-video-preview"
+            src={preview}
+            poster={poster || undefined}
+            muted
+            playsInline
+            loop
+            preload="metadata"
+            onError={() => setPreviewError(true)}
+            aria-label={"Preview video Wingking - " + item.platform}
+          />
+        ) : poster ? (
+          <img
+            className="wk-external-video-poster"
+            src={poster}
+            alt={"Pratinjau video Wingking di " + item.platform}
+            loading="lazy"
+          />
+        ) : (
+          <div className="wk-external-video-unavailable">
+            PREVIEW TIDAK TERSEDIA
+          </div>
+        )}
+        <span className="wk-external-video-play">
+          <HE size={30} />
+        </span>
+      </div>
+      <div className="wk-external-video-caption">
+        <small>STUDIO SESSIONS / {item.platform}</small>
+        <strong>LANGSUNG NONTON!</strong>
+        <span>
+          BUKA DI {String(item.platform || "PLATFORM").toUpperCase()}{" "}
+          <ArrowUpRight size={17} />
+        </span>
+      </div>
+    </a>
+  );
+}
+
 function ExternalReleaseCard({item}){
   const url=validatedUrl(item.external_url);
   return <a className="wk-external-release" href={url||"#"} target="_blank" rel="noopener noreferrer"
@@ -2279,7 +2367,7 @@ function HomePage() {
             .limit(100),
           supabase
             .from("wk_media_links")
-            .select("id,kind,band_name,title,link_url,platform,created_at")
+            .select("id,kind,band_name,title,link_url,video_url,platform,created_at")
             .order("created_at",{ascending:false}).limit(100),
         ]);
         if (O.error || q.error || _.error || kit.error || media.error)
@@ -2340,7 +2428,7 @@ function HomePage() {
           Z([
             ...(media.data || []).filter(Y=>Y.kind==="video").map(Y=>({
               id:"media-"+Y.id,external_url:Y.link_url,platform:Y.platform,
-              title:"Studio Sessions",caption:"",video_url:"",
+              title:"Studio Sessions",caption:"",video_url:Y.video_url||"",
             })),
             ...(_.data || []),
             ...X.filter((Y) => Y.kind === "video" && Y.video_url).map((Y) => ({
