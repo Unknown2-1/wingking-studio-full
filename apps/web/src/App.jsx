@@ -1001,14 +1001,7 @@ function StudioGalleryModal({ onClose }) {
       const address = email.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
         throw new Error("Isi email yang benar dulu, ya.");
-      const { error } = await supabase.auth.signInWithOtp({
-        email: address,
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: EMAIL_GALLERY_REDIRECT,
-        },
-      });
-      if (error) throw error;
+      await sendWingkingOtp(address, EMAIL_GALLERY_REDIRECT);
       setCodeSent(true);
       setNotice("Kode verifikasi dikirim. Cek inbox atau folder spam.");
     } catch (err) {
@@ -1359,14 +1352,7 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
       const address = email.trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
         throw Error("Isi alamat email yang benar.");
-      const { error } = await supabase.auth.signInWithOtp({
-        email: address,
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: "https://wingking-studio.vercel.app/?band=upload",
-        },
-      });
-      if (error) throw error;
+      await sendWingkingOtp(address, "https://wingking-studio.vercel.app/?band=upload");
       setOtpSent(true);
       setNotice("Kode dikirim. Cek inbox/spam; jangan minta berulang-ulang.");
     } catch (error) {
@@ -2196,14 +2182,7 @@ function UploadBandModal({
     }
     setAuthBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: authEmail.trim(),
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: EMAIL_UPLOAD_REDIRECT,
-        },
-      });
-      if (error) throw error;
+      await sendWingkingOtp(authEmail, EMAIL_UPLOAD_REDIRECT);
       setOtpSent(true);
       r("Kode OTP dikirim. Cek inbox atau folder spam emailmu.");
     } catch (error) {
@@ -2359,16 +2338,7 @@ function UploadBandModal({
                         onClick: async () => {
                           setAuthBusy(!0);
                           try {
-                            const { error } = await supabase.auth.signInWithOtp(
-                              {
-                                email: authEmail.trim(),
-                                options: {
-                                  shouldCreateUser: !0,
-                                  emailRedirectTo: EMAIL_UPLOAD_REDIRECT,
-                                },
-                              },
-                            );
-                            if (error) throw error;
+                            await sendWingkingOtp(authEmail, EMAIL_UPLOAD_REDIRECT);
                             r("Kode OTP baru sudah dikirim.");
                           } catch (error) {
                             r(emailOtpErrorMessage(error));
