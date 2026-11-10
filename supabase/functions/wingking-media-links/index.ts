@@ -1,8 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.76.1";
-const URL=Deno.env.get("SUPABASE_URL")||"";
+const SUPABASE_API_URL=Deno.env.get("SUPABASE_URL")||"";
 const KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||Deno.env.get("SUPABASE_SECRET_KEY")||"";
-if(!URL||!KEY)throw Error("Missing server configuration");
-const db=createClient(URL,KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+if(!SUPABASE_API_URL||!KEY)throw Error("Missing server configuration");
+const db=createClient(SUPABASE_API_URL,KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const originOK=(o:string)=>!o||[
  "https://wingking-studio.vercel.app","https://wingking-private-review-console.vercel.app",
  "http://localhost:5173","http://localhost:3000","http://127.0.0.1:5173"
