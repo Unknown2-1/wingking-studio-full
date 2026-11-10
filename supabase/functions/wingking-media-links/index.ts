@@ -24,9 +24,10 @@ async function admin(req:Request){
  return user;
 }
 function validate(b:Record<string,unknown>){
- const kind=val(b.kind,16),band_name=val(b.band_name,80),raw=val(b.link_url,500);
+ const kind=val(b.kind,16),band_name=val(b.band_name,80),title=val(b.title,100),titleSent=Object.prototype.hasOwnProperty.call(b,"title"),raw=val(b.link_url,500);
  if(kind!=="video"&&kind!=="release")bad("Jenis harus video atau rilisan.");
  if(kind==="release"&&(band_name.length<2||band_name.length>80))bad("Nama band harus 2–80 karakter.");
+ if(kind==="release"&&titleSent&&!title)bad("Judul lagu atau rilisan wajib diisi.");
  let url:URL;
  try{url=new URL(raw)}catch{bad("Link tidak valid.")}
  if(url.protocol!=="https:"||url.username||url.password||url.port&&url.port!=="443")bad("Gunakan link HTTPS tanpa kredensial.");
@@ -38,7 +39,7 @@ function validate(b:Record<string,unknown>){
  if(!platform)bad("Gunakan link YouTube, Instagram, atau Spotify.");
  if(url.href.length>500)bad("Link terlalu panjang.");
  if(kind==="video"&&platform==="Spotify")bad("Spotify bukan sumber video, gunakan YouTube atau Instagram.");
- return {kind,band_name:kind==="release"?band_name:"",link_url:url.href,platform};
+ return {kind,...(titleSent?{title:kind==="release"?title:""}:{}),band_name:kind==="release"?band_name:"",link_url:url.href,platform};
 }
 async function audit(userId:string,row:Record<string,any>,action:string){
  const {error}=await db.from("wk_content_activity").insert({actor_id:userId,source:"media",content_id:row.id,action,label:row.band_name||row.platform});
