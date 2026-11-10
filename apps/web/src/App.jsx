@@ -2725,7 +2725,7 @@ function HomePage() {
             .limit(100),
           supabase
             .from("wk_media_links")
-            .select("id,kind,band_name,link_url,platform,created_at")
+            .select("id,kind,band_name,title,link_url,platform,created_at")
             .order("created_at", { ascending: false })
             .limit(100),
         ]);
@@ -2777,14 +2777,14 @@ function HomePage() {
         ]),
           D([
             ...(media.data || [])
-              .filter((Y) => Y.kind === "release")
+              .filter((Y) => Y.kind === "release" && String(Y.title || "").trim())
               .map((Y) => ({
                 id: "media-" + Y.id,
                 external_url: Y.link_url,
                 platform: Y.platform,
-                title: Y.band_name,
+                title: Y.title.trim(),
                 band_name: Y.band_name,
-                kind: "Single",
+                kind: "Rilisan / " + Y.platform,
                 caption: "",
                 cover_url: "",
                 listen_url: Y.link_url,
@@ -2885,7 +2885,7 @@ function HomePage() {
           var w;
           return {
             ...F,
-            band_name: (w = F.wk_bands) == null ? void 0 : w.name,
+            band_name: ((w = F.wk_bands) == null ? void 0 : w.name) || F.band_name || "",
           };
         })
       : L.length
