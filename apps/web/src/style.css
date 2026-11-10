@@ -5215,7 +5215,6 @@ html[data-motion="off"] .hero h1 {
   }
 }
 
-
 /* Display actual admin-uploaded MP4 preview footage, never a placeholder mascot. */
 .wk-external-video-art .wk-external-video-preview,
 .wk-external-video-art .wk-external-video-poster {
@@ -5240,6 +5239,8 @@ html[data-motion="off"] .hero h1 {
   text-align: center;
   font-size: 13px;
   font-weight: 850;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
 }
-.wk-external-video-play { pointer-events: none; }
+.wk-external-video-play {
+  pointer-events: none;
+}
