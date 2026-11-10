@@ -645,9 +645,9 @@ function ExternalVideoCard({item,index}){
 function ExternalReleaseCard({item}){
   const url=validatedUrl(item.external_url);
   return <a className="wk-external-release" href={url||"#"} target="_blank" rel="noopener noreferrer"
-    aria-label={"Dengarkan rilisan "+item.band_name+" di "+item.platform}>
+    aria-label={"Dengarkan "+item.title+" oleh "+item.band_name+" di "+item.platform}>
     <AssetImage name="watermelon-music" alt="Maskot semangka bernyanyi" />
-    <div><small>RILISAN / {item.platform}</small><strong>{item.band_name||"Band Wingking"}</strong>
+    <div><small>RILISAN / {item.platform}</small><strong>{item.title}</strong><span className="wk-release-artist">{item.band_name}</span>
       <span>DENGARKAN SEKARANG <ArrowUpRight size={16}/></span></div>
   </a>;
 }
@@ -2279,7 +2279,7 @@ function HomePage() {
             .limit(100),
           supabase
             .from("wk_media_links")
-            .select("id,kind,band_name,link_url,platform,created_at")
+            .select("id,kind,band_name,title,link_url,platform,created_at")
             .order("created_at",{ascending:false}).limit(100),
         ]);
         if (O.error || q.error || _.error || kit.error || media.error)
@@ -2323,7 +2323,7 @@ function HomePage() {
           D([
             ...(media.data || []).filter(Y=>Y.kind==="release").map(Y=>({
               id:"media-"+Y.id,external_url:Y.link_url,platform:Y.platform,
-              title:Y.band_name,band_name:Y.band_name,kind:"Single",caption:"",
+              title:String(Y.title||"").trim()||"Judul rilisan belum diisi",band_name:Y.band_name,kind:"Single",caption:"",
               cover_url:"",listen_url:Y.link_url
             })),
             ...(q.data || []),
@@ -2416,7 +2416,7 @@ function HomePage() {
           var w;
           return {
             ...F,
-            band_name: (w = F.wk_bands) == null ? void 0 : w.name,
+            band_name: ((w = F.wk_bands) == null ? void 0 : w.name) || F.band_name || "",
           };
         })
       : L.length
@@ -2753,7 +2753,7 @@ function HomePage() {
           React.createElement(
             "div",
             { className: "releases-grid reveal-on-scroll" },
-            Ae.filter(F=>(F.band_name||F.title||"").toLowerCase().includes(releaseSearch.trim().toLowerCase()))
+            Ae.filter(F=>[F.title,F.band_name,F.wk_bands?.name].filter(Boolean).join(" ").toLowerCase().includes(releaseSearch.trim().toLowerCase()))
               .slice(0, releaseSearch.trim()?24:k?12:3).map((F,w)=>
                 F.external_url
                 ? React.createElement(ExternalReleaseCard,{key:F.id,item:F})
