@@ -125,6 +125,8 @@ function emailOtpErrorMessage(error) {
     /rate limit|too many requests/i.test(raw)
   )
     return "Terlalu banyak permintaan kode. Jangan tekan berulang-ulang; coba lagi setelah jeda.";
+  if (/error sending confirmation email|error sending magic link|failed to send email|smtp.*error|mailer.*error/i.test(raw))
+    return "Kode OTP belum terkirim karena layanan email WINGKING sedang bermasalah. Tim admin perlu memeriksa pengaturan pengirim email.";
   if (code === "email_address_not_authorized")
     return "Email penerima belum diizinkan oleh layanan bawaan. Admin perlu mengaktifkan SMTP WINGKING.";
   if (
