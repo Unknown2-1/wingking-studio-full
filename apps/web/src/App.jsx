@@ -682,7 +682,12 @@ function ExternalReleaseCard({ item }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={
-        "Dengarkan " + item.title + " oleh " + item.band_name + " di " + item.platform
+        "Dengarkan " +
+        item.title +
+        " oleh " +
+        item.band_name +
+        " di " +
+        item.platform
       }
     >
       <AssetImage name="watermelon-music" alt="Maskot semangka bernyanyi" />
@@ -736,21 +741,19 @@ function VideoSection({ clips: s, onAdd: a }) {
         "div",
         { className: "clip-rail" },
         r
-          ? s
-              .slice(0, 8)
-              .map((l, u) =>
-                l.external_url
-                  ? React.createElement(ExternalVideoCard, {
-                      item: l,
-                      index: u,
-                      key: l.id,
-                    })
-                  : React.createElement(VideoCard, {
-                      item: l,
-                      index: u,
-                      key: l.id,
-                    }),
-              )
+          ? s.slice(0, 8).map((l, u) =>
+              l.external_url
+                ? React.createElement(ExternalVideoCard, {
+                    item: l,
+                    index: u,
+                    key: l.id,
+                  })
+                : React.createElement(VideoCard, {
+                    item: l,
+                    index: u,
+                    key: l.id,
+                  }),
+            )
           : Array.from({ length: 3 }, (l, u) =>
               React.createElement(VideoPlaceholder, { index: u, key: u }),
             ),
@@ -2778,7 +2781,9 @@ function HomePage() {
         ]),
           D([
             ...(media.data || [])
-              .filter((Y) => Y.kind === "release" && String(Y.title || "").trim())
+              .filter(
+                (Y) => Y.kind === "release" && String(Y.title || "").trim(),
+              )
               .map((Y) => ({
                 id: "media-" + Y.id,
                 external_url: Y.link_url,
@@ -2886,7 +2891,8 @@ function HomePage() {
           var w;
           return {
             ...F,
-            band_name: ((w = F.wk_bands) == null ? void 0 : w.name) || F.band_name || "",
+            band_name:
+              ((w = F.wk_bands) == null ? void 0 : w.name) || F.band_name || "",
           };
         })
       : L.length

@@ -5172,7 +5172,7 @@ html[data-motion="off"] .hero h1 {
   font-size: 12px;
   font-weight: 700;
   line-height: 1.25;
-  opacity: .8;
+  opacity: 0.8;
   display: block;
 }
 .wk-release-search {
