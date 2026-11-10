@@ -1352,7 +1352,10 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
       const address = email.trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
         throw Error("Isi alamat email yang benar.");
-      await sendWingkingOtp(address, "https://wingking-studio.vercel.app/?band=upload");
+      await sendWingkingOtp(
+        address,
+        "https://wingking-studio.vercel.app/?band=upload",
+      );
       setOtpSent(true);
       setNotice("Kode dikirim. Cek inbox/spam; jangan minta berulang-ulang.");
     } catch (error) {
@@ -1554,13 +1557,25 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
                   >
                     {busy ? "MEMERIKSA..." : "VERIFIKASI KODE"}
                   </button>
-                  <button type="button" className="presskit-secondary"
-                    disabled={busy} onClick={sendOtp}>Kirim ulang kode</button>
-                  <button type="button" className="presskit-secondary"
-                    disabled={busy} onClick={() => {
+                  <button
+                    type="button"
+                    className="presskit-secondary"
+                    disabled={busy}
+                    onClick={sendOtp}
+                  >
+                    Kirim ulang kode
+                  </button>
+                  <button
+                    type="button"
+                    className="presskit-secondary"
+                    disabled={busy}
+                    onClick={() => {
                       setOtpSent(false);
                       setCode("");
-                    }}>Ganti email</button>
+                    }}
+                  >
+                    Ganti email
+                  </button>
                 </form>
               )
             ) : (
@@ -2335,7 +2350,10 @@ function UploadBandModal({
                         onClick: async () => {
                           setAuthBusy(!0);
                           try {
-                            await sendWingkingOtp(authEmail, EMAIL_UPLOAD_REDIRECT);
+                            await sendWingkingOtp(
+                              authEmail,
+                              EMAIL_UPLOAD_REDIRECT,
+                            );
                             r("Kode OTP baru sudah dikirim.");
                           } catch (error) {
                             r(emailOtpErrorMessage(error));
