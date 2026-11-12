@@ -19,26 +19,32 @@ Jangan menyimpan atau memasukkan kata sandi SMTP di repo, Vercel `VITE_*` enviro
 4. Simpan konfigurasi. Alternatif produksi yang lebih andal: SMTP transaksi dari Resend/Brevo dengan domain pengirim terverifikasi.
 5. Jangan mengubah SMTP tanpa akses pemilik akun pengirim, dan **jangan pernah kirim App Password ke GitHub atau chat**.
 
-## Pastikan email membawa kode OTP, bukan cuma Magic Link
+## Pastikan email membawa kode OTP, bukan cuma tautan konfirmasi
 
-Buka [Authentication — Email Templates](https://supabase.com/dashboard/project/kiuhzrowbypovoydymam/auth/templates) → **Magic Link**. Gunakan subjek `Kode Verifikasi WINGKING STUDIO` dan template berikut:
+`signInWithOtp` dapat memakai template **Confirm signup** untuk email baru dan **Magic Link** untuk akun yang sudah ada. Perbarui keduanya di [Authentication — Email Templates](https://supabase.com/dashboard/project/kiuhzrowbypovoydymam/auth/templates). Jika hanya mengubah Magic Link, email akun baru masih dapat menampilkan “Confirm your email address” tanpa kode.
+
+Gunakan subjek `Kode Verifikasi WINGKING STUDIO` dan template berikut pada kedua template:
 
 ```html
 <div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:24px;background:#fbf7e8;color:#203b2e">
   <h2>WINGKING STUDIO</h2>
   <p>Masukkan kode ini untuk memverifikasi email dan melanjutkan pengajuan band.</p>
   <p style="font-size:34px;letter-spacing:7px;font-weight:800;color:#203b2e">{{ .Token }}</p>
+  <p>Atau buka website WINGKING untuk melanjutkan:</p>
+  <p><a href="{{ .ConfirmationURL }}">Lanjutkan ke WINGKING STUDIO</a></p>
   <p>Jangan berikan kode ini ke siapa pun. Kalau kamu tidak meminta verifikasi, abaikan pesan ini.</p>
 </div>
 ```
 
-PENTING: `{{ .Token }}` harus tetap persis seperti itu; Supabase akan menggantinya dengan kode satu kali pakai. Jangan pakai angka hardcoded.
+`{{ .Token }}` harus tetap persis seperti itu; Supabase akan menggantinya dengan kode satu kali pakai. Tautan `{{ .ConfirmationURL }}` opsional; jika digunakan, URL tujuan tetap harus diizinkan pada konfigurasi URL di bawah. Jangan menaruh URL `localhost` secara langsung di template.
 
 ## Redirect
 
 Di [Authentication — URL Configuration](https://supabase.com/dashboard/project/kiuhzrowbypovoydymam/auth/url-configuration):
 - Site URL: `https://wingking-studio.vercel.app`
-- Redirect URLs: `https://wingking-studio.vercel.app/**` (mencakup `/upload.html`, `/?band=upload`, dan `/?gallery=upload`).
+- Redirect URLs: tambahkan `https://wingking-studio.vercel.app/**` atau setidaknya URL yang dipakai aplikasi (`https://wingking-studio.vercel.app/upload.html` dan `https://wingking-studio.vercel.app/?gallery=upload`).
+
+Kode frontend sudah mengirim `emailRedirectTo` ke domain Vercel. Jika tautan email masih membuka `localhost`, periksa Site URL, allowlist Redirect URLs, dan pastikan template memakai `{{ .ConfirmationURL }}` alih-alih URL localhost yang ditulis langsung. Tautan email lama tidak berubah setelah setelan diperbaiki; kirim permintaan OTP baru untuk menguji.
 
 ## Uji end-to-end
 

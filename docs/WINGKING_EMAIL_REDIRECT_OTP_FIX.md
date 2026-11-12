@@ -20,8 +20,8 @@ Redirect URLs tambahan (Exact):
 - https://wingking-studio.vercel.app/
 - https://wingking-studio.vercel.app/upload.html
 - https://wingking-studio.vercel.app/?gallery=upload
-Email template: pertahankan {{ .ConfirmationURL }} sebagai href, dan {{ .Token }} bila ingin kode OTP.
-Pastikan tidak ada link localhost hardcoded di email template.
+Email template **Confirm signup** dan **Magic Link**: gunakan `{{ .Token }}` agar pengguna mendapat kode OTP; `{{ .ConfirmationURL }}` boleh ditambahkan sebagai tautan alternatif. Alur akun baru dapat memakai template Confirm signup, jadi jangan hanya mengubah Magic Link.
+Pastikan tidak ada link localhost hardcoded di email template. Jika tautan masih mengarah ke localhost, cek Site URL dan Redirect URLs di konfigurasi Auth.
 Jangan mengirim service_role key ke frontend.
 
 ## Pengujian end-to-end setelah setelan Supabase Auth tersimpan

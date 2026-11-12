@@ -851,21 +851,19 @@ function VideoSection({ clips: s, onAdd: a }) {
         "div",
         { className: "clip-rail" },
         r
-          ? s
-              .slice(0, 8)
-              .map((l, u) =>
-                l.external_url
-                  ? React.createElement(ExternalVideoCard, {
-                      item: l,
-                      index: u,
-                      key: l.id,
-                    })
-                  : React.createElement(VideoCard, {
-                      item: l,
-                      index: u,
-                      key: l.id,
-                    }),
-              )
+          ? s.slice(0, 8).map((l, u) =>
+              l.external_url
+                ? React.createElement(ExternalVideoCard, {
+                    item: l,
+                    index: u,
+                    key: l.id,
+                  })
+                : React.createElement(VideoCard, {
+                    item: l,
+                    index: u,
+                    key: l.id,
+                  }),
+            )
           : Array.from({ length: 3 }, (l, u) =>
               React.createElement(VideoPlaceholder, { index: u, key: u }),
             ),
@@ -3226,7 +3224,7 @@ function HomePage() {
                 React.createElement(
                   "span",
                   { className: "underlined pink-line" },
-                  "& HARGA.",
+                  "IDAMANMU",
                 ),
               ),
             ),
@@ -3270,7 +3268,7 @@ function HomePage() {
                 name: "burst-star",
                 className: "join-flower",
               }),
-              React.createElement("h3", null, "Bandmu belum ada?"),
+              React.createElement("h3", null, "Band idamanmu belum ada?"),
             ),
             React.createElement(
               "button",
