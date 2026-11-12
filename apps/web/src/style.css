@@ -772,6 +772,13 @@ textarea:focus-visible {
   object-fit: cover;
   z-index: 1;
 }
+.band-initials {
+  z-index: 1;
+  color: #fff8df;
+  font: 900 clamp(88px, 12vw, 150px) / 0.9 Outfit, sans-serif;
+  letter-spacing: -0.09em;
+  text-shadow: 4px 5px 0 var(--ink);
+}
 .band-doodle {
   font: 900 195px/1 Outfit;
   color: #fff8df;
@@ -4952,6 +4959,14 @@ html[data-motion="off"] .hero h1 {
   font-size: 11px;
   opacity: 0.76;
   line-height: 1.5;
+}
+.presskit-photo-preview {
+  display: block;
+  width: min(100%, 260px);
+  max-height: 180px;
+  object-fit: cover;
+  border: 2px solid #213d30;
+  border-radius: 9px;
 }
 .presskit-primary {
   display: inline-flex;

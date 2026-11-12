@@ -5,11 +5,12 @@ const SB=Deno.env.get("SUPABASE_URL")||"";
 const SECRET=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||Deno.env.get("SUPABASE_SECRET_KEY")||"";
 if(!SB||!SECRET)throw Error("Supabase server credentials are not configured");
 const svc=createClient(SB,SECRET,{auth:{persistSession:false,autoRefreshToken:false}});
-const T="wk_presskits",BUCKET="wk-presskit-private",MAX=10*1024*1024;
+const T="wk_presskits",BUCKET="wk-presskit-private",MAX=10*1024*1024,MAX_PHOTO=5*1024*1024;
 const mimeByExt:Record<string,string>={
  pdf:"application/pdf",doc:"application/msword",
  docx:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 };
+const photoMimeByExt:Record<string,string>={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
 const allowOrigin=(o:string)=>!o||[
  "https://wingking-studio.vercel.app","https://wingking-private-review-console.vercel.app",
  "http://localhost:5173","http://127.0.0.1:5173","http://localhost:3000","http://127.0.0.1:3000"
@@ -56,12 +57,25 @@ function validFile(input:Record<string,unknown>){
  if(!Number.isSafeInteger(size)||size<1||size>MAX)bad("Press Kit maksimal 10 MB.");
  return {filename,ext,mime,size};
 }
+function validPhoto(input:unknown){
+ if(input==null)return null;
+ if(typeof input!=="object"||Array.isArray(input))bad("Data foto band tidak valid.");
+ const photo=input as Record<string,unknown>,mime=trim(photo.mime,40),size=Number(photo.size);
+ if(!photoMimeByExt[mime]||!Number.isSafeInteger(size)||size<1||size>MAX_PHOTO)
+  bad("Foto harus JPG, PNG, atau WebP dengan ukuran maksimal 5 MB.");
+ return {mime,size,ext:photoMimeByExt[mime]};
+}
 function validSignature(bytes:Uint8Array,mime:string){
  const head=bytes.slice(0,8),ascii=String.fromCharCode(...head);
  if(mime==="application/pdf")return ascii.startsWith("%PDF-");
  if(mime==="application/msword")return [0xd0,0xcf,0x11,0xe0,0xa1,0xb1,0x1a,0xe1].every((v,i)=>head[i]===v);
  if(mime.endsWith(".document"))return ascii.startsWith("PK\u0003\u0004")||ascii.startsWith("PK\u0005\u0006");
  return false;
+}
+function validPhotoSignature(bytes:Uint8Array,mime:string){
+ if(mime==="image/jpeg")return bytes[0]===0xff&&bytes[1]===0xd8&&bytes[2]===0xff;
+ if(mime==="image/png")return String.fromCharCode(...bytes.slice(0,8))==="\x89PNG\r\n\x1a\n";
+ return mime==="image/webp"&&String.fromCharCode(...bytes.slice(0,4))==="RIFF"&&String.fromCharCode(...bytes.slice(8,12))==="WEBP";
 }
 async function audit(actor:string,row:Record<string,any>,action:string){
  const {error}=await svc.from("wk_content_activity").insert({
@@ -79,24 +93,40 @@ async function signed(row:Record<string,any>,seconds:number){
  if(error||!data?.signedUrl)bad("Berkas tidak dapat diunduh sekarang.",503);
  return data.signedUrl;
 }
+async function signedPhoto(row:Record<string,any>,seconds:number){
+ if(!row.photo_path)return "";
+ if(!String(row.photo_path).startsWith("presskits/"+row.id+"/")||row.photo_path.includes(".."))
+  bad("Alamat foto band tidak valid.",403);
+ const {data,error}=await svc.storage.from(BUCKET).createSignedUrl(row.photo_path,seconds);
+ if(error||!data?.signedUrl)bad("Foto band tidak dapat dimuat sekarang.",503);
+ return data.signedUrl;
+}
 async function handle(req:Request,b:Record<string,any>){
  const action=trim(b.action,40);
  if(action==="prepare"){
   const actor=await user(req);
-  const name=validName(b.band_name),f=validFile(b);
+  const name=validName(b.band_name),f=validFile(b),photo=validPhoto(b.photo);
   const since=new Date(Date.now()-86400000).toISOString();
   const {count,error:limErr}=await svc.from(T).select("id",{head:true,count:"exact"}).eq("submitted_by",actor.id).gte("created_at",since);
   if(limErr)bad("Gagal mengecek batas unggahan.",503);
   if((count||0)>=5)bad("Batas 5 pendaftaran per email per hari tercapai.",429);
   const id=crypto.randomUUID(),file_path="presskits/"+id+"/"+crypto.randomUUID()+"."+f.ext;
+  const photo_path=photo?"presskits/"+id+"/"+crypto.randomUUID()+"."+photo.ext:null;
   const {error}=await svc.from(T).insert({
    id,submitted_by:actor.id,band_name:name,file_path,original_filename:f.filename,
-   mime_type:f.mime,file_size:f.size,status:"draft",is_published:false
+   mime_type:f.mime,file_size:f.size,photo_path,photo_mime_type:photo?.mime||null,
+   photo_size:photo?.size||null,status:"draft",is_published:false
   });
   if(error)bad("Gagal menyiapkan pengajuan.",503);
   const {data:signedUrl,error:signedErr}=await svc.storage.from(BUCKET).createSignedUploadUrl(file_path,{upsert:false});
   if(signedErr||!signedUrl?.token)bad("Gagal menyiapkan tempat upload.",503);
-  return {ok:true,id,path:file_path,token:signedUrl.token,bucket:BUCKET};
+  let photoUpload=null;
+  if(photo_path){
+   const {data:signedPhotoUrl,error:photoErr}=await svc.storage.from(BUCKET).createSignedUploadUrl(photo_path,{upsert:false});
+   if(photoErr||!signedPhotoUrl?.token)bad("Gagal menyiapkan tempat upload foto.",503);
+   photoUpload={path:photo_path,token:signedPhotoUrl.token};
+  }
+  return {ok:true,id,path:file_path,token:signedUrl.token,bucket:BUCKET,photoUpload};
  }
  if(action==="finish"){
   const actor=await user(req),row=await find(b.id);
@@ -108,6 +138,16 @@ async function handle(req:Request,b:Record<string,any>){
   if(file.size<1||file.size>MAX)bad("Ukuran file di server tidak valid.",413);
   const bytes=new Uint8Array(await file.slice(0,12).arrayBuffer());
   if(!validSignature(bytes,row.mime_type))bad("Format berkas tidak cocok dengan file yang diunggah.",415);
+  if(row.photo_path){
+   if(!String(row.photo_path).startsWith("presskits/"+row.id+"/")||row.photo_path.includes(".."))
+    bad("Alamat foto tidak valid.",403);
+   const {data:photo,error:photoError}=await svc.storage.from(BUCKET).download(row.photo_path);
+   if(photoError||!photo)bad("Foto band belum selesai diunggah. Coba lagi.",409);
+   if(photo.size<1||photo.size>MAX_PHOTO||photo.size!==Number(row.photo_size))
+    bad("Ukuran foto di server tidak sesuai.",413);
+   const photoBytes=new Uint8Array(await photo.slice(0,12).arrayBuffer());
+   if(!validPhotoSignature(photoBytes,row.photo_mime_type))bad("Format foto tidak cocok dengan file yang diunggah.",415);
+  }
   const {data:updated,error:save}=await svc.from(T).update({
    status:"pending",file_size:file.size,submitted_at:new Date().toISOString(),updated_at:new Date().toISOString()
   }).eq("id",row.id).eq("status","draft").select("id").maybeSingle();
@@ -120,6 +160,15 @@ async function handle(req:Request,b:Record<string,any>){
    bad("Press Kit ini belum tersedia untuk publik.",403);
   return {ok:true,url:await signed(row,120)};
  }
+ if(action==="public-list"){
+  const {data:rows,error}=await svc.from(T).select("id,band_name,created_at,photo_path")
+   .eq("status","approved").eq("is_published",true).is("archived_at",null).is("deleted_at",null)
+   .order("created_at",{ascending:false}).limit(36);
+  if(error)bad("Daftar band belum dapat dimuat.",503);
+  return {ok:true,rows:await Promise.all((rows||[]).map(async row=>({
+   id:row.id,band_name:row.band_name,created_at:row.created_at,photo_url:await signedPhoto(row,86400)
+  })))};
+ }
  if(action==="status"){
   const actor=await user(req),row=await find(b.id);
   if(row.submitted_by!==actor.id)bad("Kamu tidak bisa melihat pengajuan orang lain.",403);
@@ -130,7 +179,9 @@ async function handle(req:Request,b:Record<string,any>){
   const {data,error}=await svc.from(T).select("*").neq("status","draft")
    .order("created_at",{ascending:false}).limit(250);
   if(error)bad("Daftar Press Kit gagal dimuat.",503);
-  return {ok:true,rows:data||[]};
+  return {ok:true,rows:await Promise.all((data||[]).map(async row=>({
+   ...row,photo_preview_url:await signedPhoto(row,1800)
+  })))};
  }
  if(action==="admin-download"){
   await user(req,true);
@@ -177,7 +228,8 @@ async function handle(req:Request,b:Record<string,any>){
    const {error}=await svc.from(T).delete().eq("id",row.id).not("deleted_at","is",null);
    if(error)bad("Gagal menghapus data.",503);
    await audit(actor.id,row,"purge");
-   const {error:remove}=await svc.storage.from(BUCKET).remove([row.file_path]);
+   const paths=[row.file_path,row.photo_path].filter(Boolean);
+   const {error:remove}=await svc.storage.from(BUCKET).remove(paths);
    if(remove)console.warn("Presskit storage cleanup",remove.message);
    return {ok:true,id:row.id};
   }else bad("Aksi pengelolaan tidak dikenal.",400);

@@ -33,6 +33,8 @@ Tab Band, Video, dan Rilisan serta halaman `/upload.html` meminta OTP email dari
 
 Setelah OTP valid, pengajuan tetap berstatus menunggu dan baru tampil setelah admin Wingking menyetujuinya. Untuk pengujian ujung ke ujung, gunakan project Supabase staging serta alamat email uji.
 
+Pendaftaran Press Kit menerima foto band opsional (JPG, PNG, atau WebP, maksimal 5 MB). Foto dan dokumen disimpan di bucket privat, dapat dilihat admin untuk review, dan foto baru ditampilkan di kartu band setelah disetujui. Untuk mengaktifkannya, terapkan migrasi `20261113010000_wingking_presskit_band_photos.sql` lalu deploy ulang Edge Function `wingking-presskit`.
+
 ## Lokasi file
 - `src/App.jsx`: komponen & logika website (hasil rekonstruksi React.createElement; perlu refactor untuk penamaan dan JSX lebih bersih).
 - `src/main.jsx`: entry React.

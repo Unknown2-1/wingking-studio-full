@@ -481,6 +481,14 @@ function ReleaseCard({ item: s, index: a, onClick: r }) {
   );
 }
 function BandCard({ band: s, index: a, onClick: r }) {
+  const initials =
+    String(s.name || "")
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0] || "")
+      .join("")
+      .toUpperCase() || "B";
   return React.createElement(
     "button",
     {
@@ -505,15 +513,11 @@ function BandCard({ band: s, index: a, onClick: r }) {
             alt: "Foto " + s.name,
             loading: "lazy",
           })
-        : React.createElement(AssetImage, {
-            name: [
-              "watermelon-welcome",
-              "watermelon-sparkle",
-              "watermelon-upload",
-            ][a % 3],
-            className: "band-art-image",
-            alt: "Ilustrasi karakter Wingking",
-          }),
+        : React.createElement(
+            "span",
+            { className: "band-initials", "aria-hidden": "true" },
+            initials,
+          ),
       React.createElement(
         "span",
         { className: "band-sticker" },
@@ -1386,11 +1390,22 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
   const [verified, setVerified] = React.useState(false);
   const [name, setName] = React.useState("");
   const [file, setFile] = React.useState(null);
+  const [photo, setPhoto] = React.useState(null);
+  const [photoPreview, setPhotoPreview] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [notice, setNotice] = React.useState("");
   const [complete, setComplete] = React.useState(false);
   const ENDPOINT =
     config.supabaseUrl.replace(/\/+$/, "") + "/functions/v1/wingking-presskit";
+  React.useEffect(() => {
+    if (!photo) {
+      setPhotoPreview("");
+      return;
+    }
+    const url = URL.createObjectURL(photo);
+    setPhotoPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [photo]);
   React.useEffect(() => {
     if (!supabase) return;
     let alive = true;
@@ -1486,6 +1501,13 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
       if (name.trim().length < 2 || name.trim().length > 80)
         throw Error("Nama band minimal 2 dan maksimal 80 karakter.");
       if (!file) throw Error("Pilih Press Kit PDF atau Word.");
+      if (
+        photo &&
+        (!["image/jpeg", "image/png", "image/webp"].includes(photo.type) ||
+          !photo.size ||
+          photo.size > 5 * 1024 * 1024)
+      )
+        throw Error("Foto harus JPG, PNG, atau WebP dengan ukuran maksimal 5 MB.");
       const ext = file.name.split(".").pop()?.toLowerCase();
       const mimes = {
         pdf: "application/pdf",
@@ -1507,6 +1529,7 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
         filename: converted.name,
         mime: converted.type,
         size: converted.size,
+        photo: photo ? { mime: photo.type, size: photo.size } : null,
       });
       const { error } = await supabase.storage
         .from(ticket.bucket)
@@ -1515,10 +1538,23 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
           upsert: false,
         });
       if (error) throw Error("Upload gagal: " + error.message);
-      await api("finish", { id: ticket.id });
+        if (ticket.photoUpload) {
+          const { error: photoError } = await supabase.storage
+            .from(ticket.bucket)
+            .uploadToSignedUrl(
+              ticket.photoUpload.path,
+              ticket.photoUpload.token,
+              photo,
+              { contentType: photo.type, upsert: false },
+            );
+          if (photoError) throw Error("Upload foto gagal: " + photoError.message);
+        }
+        await api("finish", { id: ticket.id });
       setComplete(true);
       setNotice(
-        "Berhasil! Press Kit masuk antrean review admin dan belum tampil untuk publik.",
+        "Berhasil! Press Kit" +
+          (photo ? " dan foto band" : "") +
+          " masuk antrean review admin. Foto hanya tampil setelah disetujui.",
       );
       showToast?.("Press Kit terkirim. Menunggu persetujuan admin.");
       onSaved?.();
@@ -1566,8 +1602,8 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
               BANDMU!
             </h2>
             <p>
-              Cukup email, nama band dan Press Kit. Harga dan profil band ada di
-              berkasnya.
+              Cukup email, nama band, foto opsional dan Press Kit. Harga dan
+              profil band ada di berkasnya.
             </p>
           </div>
           <AssetImage
@@ -1620,7 +1656,7 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
                   </button>
                   <p className="presskit-help">
                     Setelah verifikasi, kamu bisa lanjut mengisi nama band dan
-                    mengunggah Press Kit.
+                    mengunggah foto band (opsional) dan Press Kit.
                   </p>
                 </form>
               ) : (
@@ -1687,7 +1723,31 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
-                <label htmlFor="presskit-file">03 — UPLOAD PRESS KIT *</label>
+                <label htmlFor="presskit-photo">
+                  03 — FOTO BAND (OPSIONAL)
+                </label>
+                <label className="presskit-filedrop" htmlFor="presskit-photo">
+                  {photo ? (
+                    <img
+                      className="presskit-photo-preview"
+                      src={photoPreview}
+                      alt="Pratinjau foto band"
+                    />
+                  ) : (
+                    <Wy size={28} />
+                  )}
+                  <strong>
+                    {photo ? photo.name : "PILIH FOTO BAND"}
+                  </strong>
+                  <span>JPG, PNG, WebP • maksimal 5 MB</span>
+                </label>
+                <input
+                  id="presskit-photo"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                />
+                <label htmlFor="presskit-file">04 — UPLOAD PRESS KIT *</label>
                 <label className="presskit-filedrop" htmlFor="presskit-file">
                   <Wy size={28} />
                   <strong>
@@ -1711,8 +1771,9 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
                   <ArrowUpRight size={18} />
                 </button>
                 <p className="presskit-help">
-                  Berkas disimpan privat sampai admin menyetujui. Pastikan hanya
-                  berisi kontak yang boleh dipublikasikan.
+                  Foto dan Press Kit disimpan privat sampai admin menyetujui.
+                  Pastikan foto dan dokumen hanya memuat informasi yang boleh
+                  dipublikasikan.
                 </p>
               </form>
             )}
@@ -2834,6 +2895,25 @@ Akustik | 1500000`,
     ),
   );
 }
+async function loadPublicPresskits() {
+  const response = await fetch(
+    config.supabaseUrl.replace(/\/+$/, "") +
+      "/functions/v1/wingking-presskit",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        apikey: config.supabaseKey,
+      },
+      body: JSON.stringify({ action: "public-list" }),
+      cache: "no-store",
+    },
+  );
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || !result.ok)
+    throw Error(result.error || "Daftar band belum dapat dimuat.");
+  return { data: result.rows || [], error: null };
+}
 function HomePage() {
   const [s, a] = React.useState(() => {
       try {
@@ -2901,11 +2981,7 @@ function HomePage() {
             .eq("review_status", "approved")
             .order("created_at", { ascending: !1 })
             .limit(24),
-          supabase
-            .from("wk_presskits")
-            .select("id,band_name,created_at")
-            .order("created_at", { ascending: false })
-            .limit(100),
+          loadPublicPresskits(),
           supabase
             .from("wk_media_links")
             .select(
@@ -2957,7 +3033,7 @@ function HomePage() {
             tagline: "Profil dan harga lengkap di Press Kit",
             accent: "#F1B9C5",
             rate_cards: [],
-            photo_url: "",
+            photo_url: Y.photo_url || "",
           })),
         ]),
           D([

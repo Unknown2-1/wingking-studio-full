@@ -614,6 +614,7 @@ function presskitStatus(row){
 }
 function presskitCard(row){
  const id=esc(row.id),name=esc(row.band_name),st=presskitStatus(row);
+ const photo=safeURL(row.photo_preview_url);
  const buttons=[];
  const btn=(act,label,cls="btn")=>'<button class="'+cls+'" data-presskit-op="'+act+'" data-id="'+id+'">'+label+'</button>';
  buttons.push(btn("download","Lihat / Download Berkas"));
@@ -630,7 +631,7 @@ function presskitCard(row){
   buttons.push(btn("archive","Arsip"),btn("trash","Ke Sampah","btn btn-red"));
  }
  const humanSize=(Number(row.file_size||0)/1048576).toFixed(1)+" MB";
- return '<article class="item presskit-admin-card"><div class="item-media" style="background:#dcebc0;display:grid;place-items:center;font-size:58px;color:#223f2e;font-weight:900">EPK</div>'+
+ return '<article class="item presskit-admin-card"><div class="item-media">'+(photo?'<img src="'+esc(photo)+'" alt="Foto band '+name+'" loading="lazy"><span class="media-type">FOTO BAND</span>':'<div style="background:#dcebc0;display:grid;place-items:center;width:100%;height:100%;font-size:58px;color:#223f2e;font-weight:900">EPK</div>')+'</div>'+
  '<div class="item-body"><div class="pills"><span class="pill '+esc(st)+'">'+esc(statusLabels[st]||st)+'</span><span class="pill">'+esc(row.mime_type==="application/pdf"?"PDF":"WORD")+'</span></div>'+
  '<h3>'+name+'</h3><div class="sub">'+esc(row.original_filename||"Press Kit")+' · '+humanSize+'</div>'+
  '<time>Masuk: '+date(row.submitted_at||row.created_at)+'</time>'+(row.review_note?'<p class="muted">Catatan: '+esc(row.review_note)+'</p>':"")+
