@@ -739,7 +739,6 @@ function ExternalVideoCard({ item, index }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={"Tonton video Wingking di " + item.platform}
-      style={{ background: "#203c30" }}
     >
       <div className="wk-external-video-art">
         {preview && !previewError ? (
@@ -772,11 +771,13 @@ function ExternalVideoCard({ item, index }) {
         </span>
       </div>
       <div className="wk-external-video-caption">
-        <small>STUDIO SESSIONS / {item.platform}</small>
-        <strong>LANGSUNG NONTON!</strong>
-        <span>
-          BUKA DI {String(item.platform || "PLATFORM").toUpperCase()}{" "}
-          <ArrowUpRight size={17} />
+        <span className="wk-session-meta">
+          <small>STUDIO SESSIONS</small>
+          <small>{String(index + 1).padStart(2, "0")}</small>
+        </span>
+        <span className="wk-session-watch">
+          Tonton di {item.platform || "platform"}
+          <ArrowUpRight size={18} aria-hidden="true" />
         </span>
       </div>
     </a>
@@ -830,16 +831,10 @@ function VideoSection({ clips: s, onAdd: a }) {
           React.createElement(
             "span",
             { className: "clip-eyebrow" },
-            "WINGKING AFTER HOURS / TANGKAP MOMENNYA",
+            "LIVE FROM WINGKING",
           ),
-          React.createElement(
-            "h2",
-            null,
-            "KESERUAN",
-            React.createElement("br", null),
-            React.createElement("span", null, "WINGKING!"),
-          ),
-          React.createElement("p", null, "AUDIO POOLS"),
+          React.createElement("h2", null, "STUDIO SESSIONS"),
+          React.createElement("p", null, "Rekaman live dan momen terbaik dari ruang WINGKING."),
         ),
         React.createElement(AssetImage, {
           name: "watermelon-music",
@@ -871,11 +866,11 @@ function VideoSection({ clips: s, onAdd: a }) {
       React.createElement(
         "div",
         { className: "clip-section-footer" },
-        React.createElement("span", null, "REAL MOMENTS. REAL NOISE."),
+        React.createElement("span", null, "REKAMAN ASLI · SUARA ASLI"),
         React.createElement(
           "span",
           null,
-          "GESER UNTUK LIHAT VIDEO ",
+          "PILIH VIDEO UNTUK MENONTON ",
           React.createElement(Lc, { size: 18 }),
         ),
       ),
