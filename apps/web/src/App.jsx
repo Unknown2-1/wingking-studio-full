@@ -682,7 +682,7 @@ function VideoPlaceholder({ index: s }) {
   );
 }
 
-function studioVideoPoster(link) {
+function studioVideoId(link) {
   try {
     const url = new URL(link);
     const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
@@ -695,9 +695,7 @@ function studioVideoPoster(link) {
       if (!id && url.pathname.startsWith("/shorts/"))
         id = url.pathname.split("/")[2] || "";
     }
-    return /^[A-Za-z0-9_-]{11}$/.test(id)
-      ? "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg"
-      : "";
+    return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : "";
   } catch {
     return "";
   }
@@ -706,14 +704,22 @@ function studioVideoPoster(link) {
 function ExternalVideoCard({ item, index }) {
   const link = validatedUrl(item.external_url);
   const preview = validatedUrl(item.video_url);
-  const poster = studioVideoPoster(item.external_url);
+  const youtubeId = studioVideoId(item.external_url);
+  const poster = youtubeId
+    ? "https://i.ytimg.com/vi/" + youtubeId + "/hqdefault.jpg"
+    : "";
+  const cardRef = React.useRef(null);
   const videoRef = React.useRef(null);
+  const youtubeRef = React.useRef(null);
   const [previewError, setPreviewError] = React.useState(false);
+  const [youtubeActive, setYoutubeActive] = React.useState(false);
+  const [soundOn, setSoundOn] = React.useState(false);
 
   React.useEffect(() => {
     const video = videoRef.current;
     if (!video || !preview || previewError) return;
     video.muted = true;
+    setSoundOn(false);
     if (typeof IntersectionObserver === "undefined") {
       video.play().catch(() => {});
       return () => video.pause();
@@ -732,16 +738,73 @@ function ExternalVideoCard({ item, index }) {
     };
   }, [preview, previewError]);
 
+  React.useEffect(() => {
+    if (!youtubeId || preview) return;
+    const card = cardRef.current;
+    if (!card || typeof IntersectionObserver === "undefined") {
+      setYoutubeActive(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setYoutubeActive(entry.isIntersecting);
+        if (!entry.isIntersecting) setSoundOn(false);
+      },
+      { rootMargin: "100px", threshold: 0.1 },
+    );
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, [youtubeId, preview]);
+
+  React.useEffect(() => {
+    const player = youtubeRef.current;
+    if (!player || !youtubeActive) return;
+    player.contentWindow?.postMessage(
+      JSON.stringify({
+        event: "command",
+        func: soundOn ? "unMute" : "mute",
+        args: [],
+      }),
+      "https://www.youtube-nocookie.com",
+    );
+  }, [soundOn, youtubeActive]);
+
+  const toggleSound = () => {
+    const next = !soundOn;
+    if (videoRef.current) videoRef.current.muted = !next;
+    if (youtubeRef.current?.contentWindow) {
+      youtubeRef.current.contentWindow.postMessage(
+        JSON.stringify({
+          event: "command",
+          func: next ? "unMute" : "mute",
+          args: [],
+        }),
+        "https://www.youtube-nocookie.com",
+      );
+    }
+    setSoundOn(next);
+  };
+
   return (
-    <a
+    <article
+      ref={cardRef}
       className="clip-card wk-external-video wk-original-session-card"
-      href={link || "#"}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={"Tonton video Wingking di " + item.platform}
     >
       <div className="wk-external-video-art">
-        {preview && !previewError ? (
+        {youtubeActive && youtubeId && !preview ? (
+          <iframe
+            ref={youtubeRef}
+            className="wk-external-video-embed"
+            src={
+              "https://www.youtube-nocookie.com/embed/" +
+              youtubeId +
+              "?autoplay=1&mute=1&controls=0&playsinline=1&rel=0&enablejsapi=1"
+            }
+            title={"Video Wingking di " + (item.platform || "YouTube")}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        ) : preview && !previewError ? (
           <video
             ref={videoRef}
             className="wk-external-video-preview"
@@ -766,18 +829,37 @@ function ExternalVideoCard({ item, index }) {
             PREVIEW TIDAK TERSEDIA
           </div>
         )}
-        <span className="wk-external-video-play">
-          <HE size={30} />
-        </span>
       </div>
-      <div className="wk-original-session-overlay" aria-hidden="true">
+      <div className="wk-original-session-overlay">
         <span className="wk-original-session-label">WINGKING / LIVE</span>
-        <span className="wk-original-session-link">
-          Tonton di {item.platform || "platform"}
-          <ArrowUpRight size={17} />
-        </span>
+        <div className="wk-original-session-controls">
+          {(preview || youtubeId) && (
+            <button
+              className="wk-original-session-sound"
+              type="button"
+              onClick={toggleSound}
+              aria-label={soundOn ? "Matikan suara" : "Nyalakan suara"}
+              aria-pressed={soundOn}
+            >
+              SUARA {soundOn ? "ON" : "OFF"}
+              <Fy size={15} />
+            </button>
+          )}
+          {link && (
+            <a
+              className="wk-original-session-link"
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={"Buka video di " + (item.platform || "platform")}
+            >
+              {youtubeId ? "YOUTUBE" : item.platform || "BUKA VIDEO"}
+              <ArrowUpRight size={17} />
+            </a>
+          )}
+        </div>
       </div>
-    </a>
+    </article>
   );
 }
 
@@ -828,16 +910,20 @@ function VideoSection({ clips: s, onAdd: a }) {
           React.createElement(
             "span",
             { className: "clip-eyebrow" },
-            "WINGKING AFTER HOURS / TANGKAP MOMENNYA",
+            "WINGKING / LIVE SESSION",
           ),
           React.createElement(
             "h2",
             null,
-            "KESERUAN",
+            "STUDIO",
             React.createElement("br", null),
-            React.createElement("span", null, "WINGKING!"),
+            React.createElement("span", null, "SESSIONS."),
           ),
-          React.createElement("p", null, "AUDIO POOLS"),
+          React.createElement(
+            "p",
+            null,
+            "Video dari studio. Tonton, lalu buka link aslinya.",
+          ),
         ),
         React.createElement(AssetImage, {
           name: "watermelon-music",
@@ -3017,7 +3103,7 @@ function HomePage() {
             React.createElement(
               "a",
               { href: "#band", onClick: () => d(!1) },
-              "Band & Harga",
+              "BAND IDAMANMU",
             ),
             React.createElement(
               "a",
