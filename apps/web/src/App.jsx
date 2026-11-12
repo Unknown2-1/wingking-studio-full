@@ -500,12 +500,6 @@ function BandCard({ band: s, index: a, onClick: r }) {
     React.createElement(
       "div",
       { className: "band-poster" },
-      React.createElement(
-        "span",
-        { className: "band-number" },
-        String(a + 1).padStart(2, "0"),
-        " / BAND",
-      ),
       s.photo_url && validatedUrl(s.photo_url)
         ? React.createElement("img", {
             className: "band-photo",
@@ -1842,11 +1836,19 @@ function PressKitDetailsModal({ band, onClose }) {
         <button className="close-btn" onClick={onClose} aria-label="Tutup">
           <Mi />
         </button>
-        <AssetImage
-          name="watermelon-welcome"
-          alt="Maskot Wingking"
-          className="presskit-details-art"
-        />
+        {band.photo_url && validatedUrl(band.photo_url) ? (
+          <img
+            src={band.photo_url}
+            alt={"Foto " + band.name}
+            className="presskit-details-photo"
+          />
+        ) : (
+          <AssetImage
+            name="watermelon-welcome"
+            alt="Maskot Wingking"
+            className="presskit-details-art"
+          />
+        )}
         <SectionKicker>BAND & HARGA</SectionKicker>
         <h2>{band.name}</h2>
         <p>
