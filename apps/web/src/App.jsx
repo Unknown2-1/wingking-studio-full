@@ -834,7 +834,11 @@ function VideoSection({ clips: s, onAdd: a }) {
             "LIVE FROM WINGKING",
           ),
           React.createElement("h2", null, "STUDIO SESSIONS"),
-          React.createElement("p", null, "Rekaman live dan momen terbaik dari ruang WINGKING."),
+          React.createElement(
+            "p",
+            null,
+            "Rekaman live dan momen terbaik dari ruang WINGKING.",
+          ),
         ),
         React.createElement(AssetImage, {
           name: "watermelon-music",

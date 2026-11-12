@@ -5245,7 +5245,6 @@ html[data-motion="off"] .hero h1 {
   pointer-events: none;
 }
 
-
 /* 12 Nov 2026 — Studio Sessions: clean editorial treatment requested by client.
    Scoped to #keseruan to preserve the festival identity elsewhere. */
 #keseruan.clip-section {
@@ -5270,14 +5269,18 @@ html[data-motion="off"] .hero h1 {
   padding: 0;
   transform: none;
   color: #6a7b6f;
-  font: 750 11px/1.4 "DM Sans", sans-serif;
+  font:
+    750 11px/1.4 "DM Sans",
+    sans-serif;
   letter-spacing: 0.15em;
 }
 #keseruan .clip-heading h2 {
   margin: 16px 0 13px;
   max-width: none;
   color: #243b30;
-  font: 850 clamp(48px, 6.5vw, 90px)/0.98 Outfit, sans-serif;
+  font:
+    850 clamp(48px, 6.5vw, 90px) / 0.98 Outfit,
+    sans-serif;
   letter-spacing: -0.068em;
   -webkit-text-stroke: 0;
   text-shadow: none;
@@ -5286,7 +5289,9 @@ html[data-motion="off"] .hero h1 {
   margin: 0;
   max-width: 640px;
   color: #617266;
-  font: 450 clamp(15px, 1.25vw, 18px)/1.6 "DM Sans", sans-serif;
+  font:
+    450 clamp(15px, 1.25vw, 18px) / 1.6 "DM Sans",
+    sans-serif;
 }
 #keseruan .clip-heading-mascot {
   display: none;
@@ -5315,7 +5320,10 @@ html[data-motion="off"] .hero h1 {
   color: #233a2f;
   box-shadow: none;
   transform: none;
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
 }
 #keseruan .clip-card.wk-external-video:hover,
 #keseruan .clip-card.wk-external-video:focus-visible {
@@ -5370,12 +5378,16 @@ html[data-motion="off"] .hero h1 {
 }
 #keseruan .wk-session-meta small {
   color: #718276;
-  font: 750 10px/1.25 "DM Sans", sans-serif;
+  font:
+    750 10px/1.25 "DM Sans",
+    sans-serif;
   letter-spacing: 0.11em;
 }
 #keseruan .wk-session-watch {
   color: #243b30;
-  font: 750 clamp(15px, 1.3vw, 17px)/1.35 "DM Sans", sans-serif;
+  font:
+    750 clamp(15px, 1.3vw, 17px) / 1.35 "DM Sans",
+    sans-serif;
   letter-spacing: -0.025em;
 }
 #keseruan .wk-session-watch svg {
@@ -5386,7 +5398,9 @@ html[data-motion="off"] .hero h1 {
   padding-top: 17px;
   border-top: 1px solid #d9e0d4;
   color: #65766b;
-  font: 750 11px/1.4 "DM Sans", sans-serif;
+  font:
+    750 11px/1.4 "DM Sans",
+    sans-serif;
   letter-spacing: 0.06em;
 }
 #keseruan .clip-card-placeholder {
