@@ -114,28 +114,48 @@ function setVerifiedUser(user) {
 function emailOtpErrorMessage(error) {
   const code = String(error?.code || "");
   const raw = String(error?.message || "");
-  if (code === "over_email_send_rate_limit" || /email.*rate limit|rate limit.*email/i.test(raw))
+  if (
+    code === "over_email_send_rate_limit" ||
+    /email.*rate limit|rate limit.*email/i.test(raw)
+  )
     return "Batas pengiriman email WINGKING sudah tercapai. Coba lagi nanti. Admin sedang perlu mengaktifkan layanan SMTP pengirim khusus.";
-  if (code === "over_request_rate_limit" || error?.status === 429 || /rate limit|too many requests/i.test(raw))
+  if (
+    code === "over_request_rate_limit" ||
+    error?.status === 429 ||
+    /rate limit|too many requests/i.test(raw)
+  )
     return "Terlalu banyak permintaan kode. Jangan tekan berulang-ulang; coba lagi setelah jeda.";
-  if (/error sending confirmation email|error sending magic link|failed to send email|smtp.*error|mailer.*error/i.test(raw))
+  if (
+    /error sending confirmation email|error sending magic link|failed to send email|smtp.*error|mailer.*error/i.test(
+      raw,
+    )
+  )
     return "Kode OTP belum terkirim karena layanan email WINGKING sedang bermasalah. Tim admin perlu memeriksa pengaturan pengirim email.";
   if (code === "email_address_not_authorized")
     return "Email penerima belum diizinkan oleh layanan bawaan. Admin perlu mengaktifkan SMTP WINGKING.";
-  if (/535|BadCredentials|Authentication failed|SMTP.*auth|Username and Password not accepted/i.test(raw))
+  if (
+    /535|BadCredentials|Authentication failed|SMTP.*auth|Username and Password not accepted/i.test(
+      raw,
+    )
+  )
     return "Pengirim email WINGKING sedang bermasalah. Admin perlu memperbaiki koneksi SMTP. Kode belum terkirim.";
-  if (/otp_expired|token has expired|expired/i.test(raw)) return "Kode sudah kedaluwarsa. Minta kode baru.";
+  if (/otp_expired|token has expired|expired/i.test(raw))
+    return "Kode sudah kedaluwarsa. Minta kode baru.";
   return raw || "Kode verifikasi belum bisa dikirim. Coba lagi nanti.";
 }
 
 let otpRetryAfter = 0;
 async function requestOtp() {
   const seconds = Math.ceil((otpRetryAfter - Date.now()) / 1000);
-  if (seconds > 0) throw Error("Tunggu " + seconds + " detik sebelum meminta kode lagi.");
+  if (seconds > 0)
+    throw Error("Tunggu " + seconds + " detik sebelum meminta kode lagi.");
   if (!authClient) throw Error("Login email belum dikonfigurasi.");
   const { error } = await authClient.auth.signInWithOtp({
     email: authEmail.value.trim(),
-    options: { shouldCreateUser: true, emailRedirectTo: "https://wingking-studio.vercel.app/upload.html" },
+    options: {
+      shouldCreateUser: true,
+      emailRedirectTo: "https://wingking-studio.vercel.app/upload.html",
+    },
   });
   if (error) throw error;
   otpRetryAfter = Date.now() + 60000;
