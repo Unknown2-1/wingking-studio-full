@@ -5217,7 +5217,8 @@ html[data-motion="off"] .hero h1 {
 
 /* Display actual admin-uploaded MP4 preview footage, never a placeholder mascot. */
 .wk-external-video-art .wk-external-video-preview,
-.wk-external-video-art .wk-external-video-poster {
+.wk-external-video-art .wk-external-video-poster,
+.wk-external-video-art .wk-external-video-embed {
   position: absolute;
   inset: 0;
   display: block;
@@ -5242,223 +5243,105 @@ html[data-motion="off"] .hero h1 {
   letter-spacing: 0.08em;
 }
 .wk-external-video-play {
-  pointer-events: none;
+  cursor: pointer;
 }
 
-/* 12 Nov 2026 — Studio Sessions: clean editorial treatment requested by client.
-   Scoped to #keseruan to preserve the festival identity elsewhere. */
-#keseruan.clip-section {
-  padding: clamp(68px, 7vw, 108px) 0 clamp(62px, 6vw, 94px);
-  background: #f8f5eb;
-  border-top: 1px solid #dfe2d7;
-  border-bottom: 1px solid #dfe2d7;
-}
-#keseruan .clip-heading {
-  align-items: flex-end;
-  justify-content: flex-start;
-  margin-bottom: 36px;
-  gap: 0;
-}
-#keseruan .clip-heading > div {
-  max-width: 800px;
-}
-#keseruan .clip-eyebrow {
-  background: none;
-  border: 0;
-  border-radius: 0;
-  padding: 0;
-  transform: none;
-  color: #6a7b6f;
-  font:
-    750 11px/1.4 "DM Sans",
-    sans-serif;
-  letter-spacing: 0.15em;
-}
-#keseruan .clip-heading h2 {
-  margin: 16px 0 13px;
-  max-width: none;
-  color: #243b30;
-  font:
-    850 clamp(48px, 6.5vw, 90px) / 0.98 Outfit,
-    sans-serif;
-  letter-spacing: -0.068em;
-  -webkit-text-stroke: 0;
-  text-shadow: none;
-}
-#keseruan .clip-heading p {
-  margin: 0;
-  max-width: 640px;
-  color: #617266;
-  font:
-    450 clamp(15px, 1.25vw, 18px) / 1.6 "DM Sans",
-    sans-serif;
-}
-#keseruan .clip-heading-mascot {
-  display: none;
-}
-#keseruan .clip-rail,
-#keseruan .clip-rail:has(.clip-card-placeholder) {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: stretch;
-  gap: clamp(16px, 2vw, 26px);
-  overflow: visible;
-  overscroll-behavior-x: auto;
-  scroll-snap-type: none;
-  margin: 0;
-  padding: 0;
-}
-#keseruan .clip-card.wk-external-video {
-  width: 100%;
-  min-width: 0;
+
+/* Client preview — return to full-bleed 9:16 video cards from the original
+   Studio Sessions treatment, without the large caption panels.
+   All rules scoped to these video cards; other components are unchanged. */
+#keseruan .clip-card.wk-original-session-card {
+  display: block;
+  position: relative;
   min-height: 0;
-  flex: none;
-  aspect-ratio: auto;
-  border: 1px solid #d7ddd2;
-  border-radius: 18px;
-  background: #fffdf7;
-  color: #233a2f;
-  box-shadow: none;
-  transform: none;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    border-color 180ms ease;
+  width: auto;
+  aspect-ratio: 9 / 16;
+  flex: 0 0 clamp(238px, 24vw, 316px);
+  border: 2px solid #243b30;
+  border-radius: 22px;
+  box-shadow: 4px 5px 0 #243b30;
+  background: #243b30;
+  color: #fff;
 }
-#keseruan .clip-card.wk-external-video:hover,
-#keseruan .clip-card.wk-external-video:focus-visible {
-  transform: translateY(-4px);
-  border-color: #b8c9b7;
-  box-shadow: 0 14px 26px rgba(30, 58, 43, 0.1);
-}
-#keseruan .wk-external-video-art {
+#keseruan .wk-original-session-card .wk-external-video-art {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  flex: none;
-  aspect-ratio: 4/5;
+  height: 100%;
   min-height: 0;
-  background: #263c32;
+  background: #243b30;
+  overflow: hidden;
 }
-#keseruan .wk-external-video-art .wk-external-video-preview,
-#keseruan .wk-external-video-art .wk-external-video-poster {
+#keseruan .wk-original-session-card .wk-external-video-preview,
+#keseruan .wk-original-session-card .wk-external-video-poster,
+#keseruan .wk-original-session-card .wk-external-video-embed {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  border: 0;
+  background: #172d27;
 }
-#keseruan .wk-external-video-play {
-  top: 14px;
-  right: 14px;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  padding: 9px;
-  border: 1px solid rgba(35, 58, 47, 0.2);
-  border-radius: 50%;
-  background: rgba(255, 253, 247, 0.94);
-  color: #243b30;
-  box-shadow: 0 2px 12px rgba(24, 38, 30, 0.1);
-}
-#keseruan .wk-external-video-play svg {
-  width: 19px;
-  height: 19px;
-}
-#keseruan .wk-external-video-caption {
+#keseruan .wk-original-session-card .wk-original-session-overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 11px;
-  min-height: 88px;
-  padding: 18px 20px 19px;
-  background: #fffdf7;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 15px 18px;
+  color: #fff;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 33, 25, 0.30) 0%,
+    transparent 26%,
+    transparent 59%,
+    rgba(14, 29, 22, 0.68) 100%
+  );
 }
-#keseruan .wk-session-meta,
-#keseruan .wk-session-watch {
-  display: flex;
+#keseruan .wk-original-session-label {
+  width: fit-content;
+  font: 800 11px/1.25 "DM Sans", sans-serif;
+  letter-spacing: 0.09em;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+}
+#keseruan .wk-original-session-controls {
+  display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 }
-#keseruan .wk-session-meta small {
-  color: #718276;
-  font:
-    750 10px/1.25 "DM Sans",
-    sans-serif;
-  letter-spacing: 0.11em;
+#keseruan .wk-original-session-sound,
+#keseruan .wk-original-session-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 9px 13px;
+  border: 1px solid #243b30;
+  border-radius: 999px;
+  background: #fff8e5;
+  color: #173b2b;
+  font: 900 11px/1.2 "DM Sans", sans-serif;
+  text-decoration: none;
+  pointer-events: auto;
 }
-#keseruan .wk-session-watch {
-  color: #243b30;
-  font:
-    750 clamp(15px, 1.3vw, 17px) / 1.35 "DM Sans",
-    sans-serif;
-  letter-spacing: -0.025em;
+#keseruan .wk-original-session-sound {
+  cursor: pointer;
 }
-#keseruan .wk-session-watch svg {
-  flex: none;
+#keseruan .wk-original-session-sound:hover,
+#keseruan .wk-original-session-link:hover {
+  background: #ffcf54;
 }
-#keseruan .clip-section-footer {
-  margin-top: 28px;
-  padding-top: 17px;
-  border-top: 1px solid #d9e0d4;
-  color: #65766b;
-  font:
-    750 11px/1.4 "DM Sans",
-    sans-serif;
-  letter-spacing: 0.06em;
+#keseruan .wk-original-session-card:hover {
+  transform: translateY(-3px);
 }
-#keseruan .clip-card-placeholder {
-  width: 100%;
-  min-width: 0;
-  flex: none;
-  aspect-ratio: 4/5;
-  border: 1px solid #d7ddd2;
-  border-radius: 18px;
-  box-shadow: none;
-}
-#keseruan .clip-card-placeholder:nth-child(2) {
-  transform: none;
-}
-@media (max-width: 900px) {
-  #keseruan .clip-rail,
-  #keseruan .clip-rail:has(.clip-card-placeholder) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 620px) {
-  #keseruan.clip-section {
-    padding: 58px 0 62px;
-  }
-  #keseruan .clip-heading {
-    margin-bottom: 27px;
-  }
-  #keseruan .clip-heading h2 {
-    margin: 14px 0 13px;
-    font-size: clamp(42px, 10vw, 62px);
-  }
-  #keseruan .clip-heading p {
-    font-size: 15px;
-  }
-  #keseruan .clip-rail,
-  #keseruan .clip-rail:has(.clip-card-placeholder) {
-    display: flex;
-    gap: 14px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    overscroll-behavior-x: contain;
-    margin: 0 -20px 0 0;
-    padding: 0 20px 14px 0;
-  }
-  #keseruan .clip-rail .clip-card {
-    width: min(75vw, 320px);
-    flex: 0 0 min(75vw, 320px);
-    scroll-snap-align: start;
-  }
-  #keseruan .clip-section-footer > span:first-child {
-    display: none;
-  }
-  #keseruan .clip-section-footer > span:last-child {
-    margin-left: auto;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  #keseruan .clip-card.wk-external-video {
-    transition: none;
+@media (max-width: 580px) {
+  #keseruan .clip-card.wk-original-session-card {
+    flex-basis: min(71vw, 290px);
   }
 }
