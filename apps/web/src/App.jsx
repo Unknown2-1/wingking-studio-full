@@ -3421,7 +3421,7 @@ function HomePage() {
                 React.createElement(
                   "small",
                   null,
-                  "Hubungi minimal sehari sebelum acara.",
+                  "Hubungi minimal sehari sebelum booked.",
                 ),
               ),
             ),
