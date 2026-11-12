@@ -1,3 +1,5 @@
+> **SINKRONISASI TIM — 12 November 2026:** Repository resmi adalah `Unknown2-1/wingking-studio-full`. Branch `main` dan `dev/unknown2-1` sudah disejajarkan agar memakai kode website publik yang sama. Source website yang aktif berada di `apps/web/`, **bukan** `apps/live-public/dist/` atau `legacy-nextjs/`. Jika localhost masih menunjukkan data/demo lama, periksa `apps/web/.env.local`. Ikuti [panduan sinkronisasi tim](docs/TEAM_SYNC_LATEST.md).
+
 # WINGKING STUDIO
 
 Website musik lokal: band, rilisan, video, price list, form upload, dan admin moderasi. **Repository ini untuk tim developer.**
