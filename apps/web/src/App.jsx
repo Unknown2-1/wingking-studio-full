@@ -1501,7 +1501,9 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
           !photo.size ||
           photo.size > 5 * 1024 * 1024)
       )
-        throw Error("Foto harus JPG, PNG, atau WebP dengan ukuran maksimal 5 MB.");
+        throw Error(
+          "Foto harus JPG, PNG, atau WebP dengan ukuran maksimal 5 MB.",
+        );
       const ext = file.name.split(".").pop()?.toLowerCase();
       const mimes = {
         pdf: "application/pdf",
@@ -1532,18 +1534,18 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
           upsert: false,
         });
       if (error) throw Error("Upload gagal: " + error.message);
-        if (ticket.photoUpload) {
-          const { error: photoError } = await supabase.storage
-            .from(ticket.bucket)
-            .uploadToSignedUrl(
-              ticket.photoUpload.path,
-              ticket.photoUpload.token,
-              photo,
-              { contentType: photo.type, upsert: false },
-            );
-          if (photoError) throw Error("Upload foto gagal: " + photoError.message);
-        }
-        await api("finish", { id: ticket.id });
+      if (ticket.photoUpload) {
+        const { error: photoError } = await supabase.storage
+          .from(ticket.bucket)
+          .uploadToSignedUrl(
+            ticket.photoUpload.path,
+            ticket.photoUpload.token,
+            photo,
+            { contentType: photo.type, upsert: false },
+          );
+        if (photoError) throw Error("Upload foto gagal: " + photoError.message);
+      }
+      await api("finish", { id: ticket.id });
       setComplete(true);
       setNotice(
         "Berhasil! Press Kit" +
@@ -1730,9 +1732,7 @@ function BandPressKitUploadModal({ onClose, onSaved, showToast }) {
                   ) : (
                     <Wy size={28} />
                   )}
-                  <strong>
-                    {photo ? photo.name : "PILIH FOTO BAND"}
-                  </strong>
+                  <strong>{photo ? photo.name : "PILIH FOTO BAND"}</strong>
                   <span>JPG, PNG, WebP • maksimal 5 MB</span>
                 </label>
                 <input
@@ -2899,8 +2899,7 @@ Akustik | 1500000`,
 }
 async function loadPublicPresskits() {
   const response = await fetch(
-    config.supabaseUrl.replace(/\/+$/, "") +
-      "/functions/v1/wingking-presskit",
+    config.supabaseUrl.replace(/\/+$/, "") + "/functions/v1/wingking-presskit",
     {
       method: "POST",
       headers: {
