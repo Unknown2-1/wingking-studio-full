@@ -30,7 +30,6 @@ function validate(b:Record<string,unknown>){
  if(kind!=="video"&&kind!=="release")bad("Jenis harus video atau rilisan.");
  if(kind==="release"&&(band_name.length<2||band_name.length>80))bad("Nama band harus 2–80 karakter.");
  if(kind==="release"&&titleSent&&!title)bad("Judul lagu atau rilisan wajib diisi.");
- if(kind==="video"&&title.length>100)bad("Judul video maksimal 100 karakter.");
  let link_url="",platform="Lainnya";
  if(raw){
   let url:URL;
@@ -44,7 +43,7 @@ function validate(b:Record<string,unknown>){
   else if(kind==="release")bad("Link rilisan harus dari YouTube, Instagram, atau Spotify.");
   link_url=url.href;
  }else if(kind==="release")bad("Link rilisan wajib diisi.");
- return {kind,title,band_name:kind==="release"?band_name:"",link_url,platform};
+ return {kind,title:kind==="video"?"":title,band_name:kind==="release"?band_name:"",link_url,platform};
 }
 async function audit(userId:string,row:Record<string,any>,action:string){
  const {error}=await db.from("wk_content_activity").insert({actor_id:userId,source:"media",content_id:row.id,action,label:row.title||row.band_name||row.platform});
