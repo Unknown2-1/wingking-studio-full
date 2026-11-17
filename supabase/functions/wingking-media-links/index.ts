@@ -30,7 +30,7 @@ function validate(b:Record<string,unknown>){
  if(kind!=="video"&&kind!=="release")bad("Jenis harus video atau rilisan.");
  if(kind==="release"&&(band_name.length<2||band_name.length>80))bad("Nama band harus 2–80 karakter.");
  if(kind==="release"&&titleSent&&!title)bad("Judul lagu atau rilisan wajib diisi.");
- if(kind==="video"&&(title.length<2||title.length>100))bad("Judul video harus 2–100 karakter.");
+ if(kind==="video"&&title.length>100)bad("Judul video maksimal 100 karakter.");
  let link_url="",platform="Lainnya";
  if(raw){
   let url:URL;

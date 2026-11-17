@@ -7,12 +7,12 @@ Updated: 17 November 2026
 - Admin approves/rejects the application. Only approved, published, non-archived Press Kit cards are visible.
 - Download uses an **ephemeral signed URL**, after checking the record is approved.
 - Releases: search and visit admin-curated YouTube / Instagram / Spotify links. No public upload.
-- Studio Sessions: admin-uploaded MP4/WebM videos (up to 36 MB) with a required title and optional HTTPS destination link. Existing URL-based cards remain supported.
+- Studio Sessions: admin-uploaded MP4/WebM videos (up to 36 MB) with an optional HTTPS destination link. Existing URL-based cards remain supported.
 - Gallery: view-only for visitors; public photo upload removed.
 
 ## Admin Hub
 - **Press Kit Band** menu has review, file download, rename, approve/reject, archive/restore, trash/purge.
-- **Kelola Video**: **Tambah Video** uploads the video file, requires a title, and optionally accepts any HTTPS destination link. Uploads use a signed URL to the public `wk-clips` bucket; only authenticated moderators can request upload tokens.
+- **Kelola Video**: **Tambah Video** uploads the video file and optionally accepts any HTTPS destination link. No title is required; untitled videos use the default “Studio Sessions” label on the website. Uploads use a signed URL to the public `wk-clips` bucket; only authenticated moderators can request upload tokens.
 - **Rilisan Musik**: existing link-based form for a release title, band name, and supported music link.
 - **Galeri Studio**: direct upload and management remains.
 - Legacy guest and gallery public upload functions return 410/403. Existing review/history entries are retained.
@@ -37,7 +37,7 @@ Updated: 17 November 2026
 3. Sign in with a fresh OTP (requires external Gmail SMTP setup), upload PDF and DOCX, confirm status Pending.
 4. Login admin: preview/download, reject with note, then approve; inspect public catalog and download.
 5. Archive/restore/trash/purge; confirm that deleted records cannot generate public signed URLs.
-6. Upload an MP4/WebM video with and without a destination link; verify title, playback, sound control, and optional outbound link on the public Studio Sessions cards.
+6. Upload an MP4/WebM video with and without a destination link; verify the default label, playback, sound control, and optional outbound link on the public Studio Sessions cards.
 7. Add a Spotify release link in admin and verify it appears publicly.
 8. On iPhone: check form readability, scrolling, session persistence, and signed upload.
 
