@@ -3,6 +3,8 @@ const SUPABASE_API_URL=Deno.env.get("SUPABASE_URL")||"";
 const KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||Deno.env.get("SUPABASE_SECRET_KEY")||"";
 if(!SUPABASE_API_URL||!KEY)throw Error("Missing server configuration");
 const db=createClient(SUPABASE_API_URL,KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const VIDEO_BUCKET="wk-clips",MAX_VIDEO=36*1024*1024;
+const videoMimeByExt:Record<string,string>={"video/mp4":"mp4","video/webm":"webm"};
 const originOK=(o:string)=>!o||[
  "https://wingking-studio.vercel.app","https://wingking-private-review-console.vercel.app",
  "http://localhost:5173","http://localhost:3000","http://127.0.0.1:5173"
@@ -28,22 +30,33 @@ function validate(b:Record<string,unknown>){
  if(kind!=="video"&&kind!=="release")bad("Jenis harus video atau rilisan.");
  if(kind==="release"&&(band_name.length<2||band_name.length>80))bad("Nama band harus 2–80 karakter.");
  if(kind==="release"&&titleSent&&!title)bad("Judul lagu atau rilisan wajib diisi.");
- let url:URL;
- try{url=new URL(raw)}catch{bad("Link tidak valid.")}
- if(url.protocol!=="https:"||url.username||url.password||url.port&&url.port!=="443")bad("Gunakan link HTTPS tanpa kredensial.");
- const host=url.hostname.toLowerCase().replace(/^www\./,"");
- let platform="";
- if(["youtube.com","m.youtube.com","music.youtube.com","youtu.be"].includes(host))platform="YouTube";
- else if(["instagram.com","m.instagram.com"].includes(host))platform="Instagram";
- else if(["open.spotify.com","spotify.com"].includes(host))platform="Spotify";
- if(!platform)bad("Gunakan link YouTube, Instagram, atau Spotify.");
- if(url.href.length>500)bad("Link terlalu panjang.");
- if(kind==="video"&&platform==="Spotify")bad("Spotify bukan sumber video, gunakan YouTube atau Instagram.");
- return {kind,...(titleSent?{title:kind==="release"?title:""}:{}),band_name:kind==="release"?band_name:"",link_url:url.href,platform};
+ if(kind==="video"&&(title.length<2||title.length>100))bad("Judul video harus 2–100 karakter.");
+ let link_url="",platform="Lainnya";
+ if(raw){
+  let url:URL;
+  try{url=new URL(raw)}catch{bad("Link tidak valid.")}
+  if(url.protocol!=="https:"||url.username||url.password||url.port&&url.port!=="443")bad("Gunakan link HTTPS tanpa kredensial.");
+  if(url.href.length>500)bad("Link terlalu panjang.");
+  const host=url.hostname.toLowerCase().replace(/^www\./,"");
+  if(["youtube.com","m.youtube.com","music.youtube.com","youtu.be"].includes(host))platform="YouTube";
+  else if(["instagram.com","m.instagram.com"].includes(host))platform="Instagram";
+  else if(["open.spotify.com","spotify.com"].includes(host))platform="Spotify";
+  else if(kind==="release")bad("Link rilisan harus dari YouTube, Instagram, atau Spotify.");
+  link_url=url.href;
+ }else if(kind==="release")bad("Link rilisan wajib diisi.");
+ return {kind,title,band_name:kind==="release"?band_name:"",link_url,platform};
 }
 async function audit(userId:string,row:Record<string,any>,action:string){
- const {error}=await db.from("wk_content_activity").insert({actor_id:userId,source:"media",content_id:row.id,action,label:row.band_name||row.platform});
+ const {error}=await db.from("wk_content_activity").insert({actor_id:userId,source:"media",content_id:row.id,action,label:row.title||row.band_name||row.platform});
  if(error)console.warn("media audit",error.code);
+}
+function validVideoPath(id:unknown,path:unknown){
+ return typeof id==="string"&&uuid(id)&&typeof path==="string"&&
+  new RegExp("^admin/"+id+"/[0-9a-f-]{36}\\.(mp4|webm)$","i").test(path)&&!path.includes("..");
+}
+function validVideoSignature(bytes:Uint8Array,mime:string){
+ if(mime==="video/mp4")return bytes.length>=12&&String.fromCharCode(...bytes.slice(4,8))==="ftyp";
+ return mime==="video/webm"&&bytes.length>=4&&[0x1a,0x45,0xdf,0xa3].every((v,i)=>bytes[i]===v);
 }
 async function handle(req:Request,b:Record<string,any>){
  const action=val(b.action,40);
@@ -54,8 +67,68 @@ async function handle(req:Request,b:Record<string,any>){
   return {ok:true,rows:data||[]};
  }
  const a=await admin(req);
+ if(action==="admin-video-prepare"){
+  const v=validate({kind:"video",title:b.title,link_url:b.link_url});
+  const mime=val(b.mime,40),size=Number(b.size),ext=videoMimeByExt[mime];
+  if(!ext||!Number.isSafeInteger(size)||size<1||size>MAX_VIDEO)bad("Video harus MP4 atau WebM dengan ukuran maksimal 36 MB.");
+  const id=crypto.randomUUID(),path="admin/"+id+"/"+crypto.randomUUID()+"."+ext;
+  const {data:signed,error}=await db.storage.from(VIDEO_BUCKET).createSignedUploadUrl(path,{upsert:false});
+  if(error||!signed?.token)bad("Gagal menyiapkan upload video.",503);
+  return {ok:true,id,path,token:signed.token,bucket:VIDEO_BUCKET,...v,mime,size};
+ }
+ if(action==="admin-video-cancel"){
+  if(!validVideoPath(b.id,b.path))bad("Alamat video tidak valid.");
+  const {data:existing,error}=await db.from("wk_media_links").select("id").eq("video_path",b.path).maybeSingle();
+  if(error)bad("Gagal memeriksa video.",503);
+  if(existing)bad("Video ini sudah terhubung ke konten.");
+  const dir=String(b.path).split("/").slice(0,2).join("/"),filename=String(b.path).split("/").pop()||"";
+  const {data:files,error:listError}=await db.storage.from(VIDEO_BUCKET).list(dir,{limit:2,search:filename});
+  if(listError)bad("Gagal memeriksa upload sementara.",503);
+  if(files?.some(file=>file.name===filename)){
+   const {error:removeError}=await db.storage.from(VIDEO_BUCKET).remove([String(b.path)]);
+   if(removeError)bad("Upload sementara belum berhasil dibersihkan.",503);
+  }
+  return {ok:true};
+ }
+ if(action==="admin-video-submit"){
+  const v=validate({kind:"video",title:b.title,link_url:b.link_url});
+  const id=b.id,path=b.path,mime=val(b.mime,40),ext=videoMimeByExt[mime];
+  if(!validVideoPath(id,path)||!ext||!String(path).endsWith("."+ext))bad("Alamat video tidak valid.");
+  const {data:existing,error:existingError}=await db.from("wk_media_links").select("id").eq("video_path",path).maybeSingle();
+  if(existingError)bad("Gagal memeriksa video.",503);
+  if(existing){
+   if(existing.id===id)return {ok:true,id};
+   bad("Video ini sudah terhubung ke konten.",409);
+  }
+  const dir=String(path).split("/").slice(0,2).join("/"),filename=String(path).split("/").pop()||"";
+  const {data:files,error:listError}=await db.storage.from(VIDEO_BUCKET).list(dir,{limit:2,search:filename});
+  if(listError)bad("Gagal memeriksa upload video.",503);
+  if(!files?.some(file=>file.name===filename))bad("Video belum selesai diunggah. Coba lagi.",409);
+  const {data:blob,error:downloadError}=await db.storage.from(VIDEO_BUCKET).download(String(path));
+  if(downloadError||!blob)bad("Video belum bisa dibaca. Coba lagi.",409);
+  if(blob.size<1||blob.size>MAX_VIDEO)bad("Ukuran video tidak valid.",413);
+  const bytes=new Uint8Array(await blob.arrayBuffer());
+  if(!validVideoSignature(bytes,mime))bad("Isi file tidak sesuai format video yang dipilih.",415);
+  const video_url=db.storage.from(VIDEO_BUCKET).getPublicUrl(String(path)).data.publicUrl;
+  const {data,error}=await db.from("wk_media_links").insert({
+   ...v,id,video_url,video_path:path,created_by:a.id,is_published:true
+  }).select("id").single();
+  if(error){
+   const {data:linked,error:linkedError}=await db.from("wk_media_links").select("id").eq("video_path",path).maybeSingle();
+   if(linkedError)bad("Video belum dapat dikaitkan ke data konten.",503);
+   if(linked?.id===id)return {ok:true,id};
+   if(!linked){
+    const {error:removeError}=await db.storage.from(VIDEO_BUCKET).remove([String(path)]);
+    if(removeError)console.warn("Unpublished video cleanup pending:",removeError.message);
+   }
+   bad("Gagal menyimpan video.",503);
+  }
+  await audit(a.id,{id:data.id,title:v.title},"create");
+  return {ok:true,id:data.id};
+ }
  if(action==="admin-create"){
   const v=validate(b);
+  if(v.kind==="video")bad("Upload file video untuk membuat konten video.");
   const {data,error}=await db.from("wk_media_links").insert({...v,created_by:a.id}).select("id").single();
   if(error)bad("Gagal menambah link.",503);
   await audit(a.id,{id:data.id,band_name:v.band_name,platform:v.platform},"create");
@@ -80,10 +153,16 @@ async function handle(req:Request,b:Record<string,any>){
  else if(action==="admin-restore-trash"){if(!old.deleted_at)bad("Konten tidak di Sampah.");p.deleted_at=null;p.archived_at=null;act="restore_trash";}
  else if(action==="admin-purge"){
   if(!old.deleted_at)bad("Pindahkan ke Sampah dulu.");
-  if(val(b.confirm,80)!==(old.band_name||old.platform))bad("Konfirmasi tidak cocok.");
+  if(val(b.confirm,100)!==(old.title||old.band_name||old.platform))bad("Konfirmasi tidak cocok.");
   const {error}=await db.from("wk_media_links").delete().eq("id",old.id).not("deleted_at","is",null);
   if(error)bad("Gagal menghapus media.",503);
-  await audit(a.id,old,"purge");return {ok:true,id:old.id};
+  await audit(a.id,old,"purge");
+  let warning="";
+  if(old.video_path&&validVideoPath(old.id,old.video_path)){
+   const {error:removeError}=await db.storage.from(VIDEO_BUCKET).remove([old.video_path]);
+   if(removeError)warning="Video dihapus dari daftar, tetapi file storage perlu dibersihkan manual.";
+  }
+  return {ok:true,id:old.id,...(warning?{warning}:{})};
  }else bad("Aksi tidak dikenal.");
  const {error}=await db.from("wk_media_links").update(p).eq("id",old.id);
  if(error)bad("Gagal mengubah konten.",503);

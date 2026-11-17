@@ -381,8 +381,8 @@ h1, h2, h3, p { margin-top: 0px; }
   <section id="content-section" hidden>
   <div class="section-head"><div><h2 id="section-title">Semua Konten</h2><div class="muted" id="section-sub">Konten Wingking Studio</div></div><div class="countnote" id="countnote"></div></div>
   <section id="media-manager" class="media-manager" hidden>
-    <div class="section-head"><div><h3 id="media-manager-title">LINK KONTEN ADMIN</h3><p class="muted">Video cukup link. Rilisan cukup nama band dan link.</p></div>
-      <button id="media-add" class="btn btn-lime" type="button">+ TAMBAH LINK</button></div>
+    <div class="section-head"><div><h3 id="media-manager-title">VIDEO STUDIO</h3><p class="muted" id="media-manager-description">Upload video MP4/WebM, isi judul, dan tambahkan tautan opsional. Maksimal 36 MB.</p></div>
+      <button id="media-add" class="btn btn-lime" type="button">+ TAMBAH VIDEO</button></div>
     <div id="media-manager-alert" class="note" hidden></div>
     <div class="cards" id="media-manager-cards"></div>
    </section>
@@ -714,49 +714,66 @@ function renderAdminMedia(){
  const kind=state.view;const active=["video","release"].includes(kind);
  $("media-manager").hidden=!active;
  if(!active)return;
- $("media-manager-title").textContent=kind==="video"?"LINK VIDEO STUDIO":"LINK RILISAN MUSIK";
- $("media-add").textContent=kind==="video"?"+ LINK VIDEO":"+ LINK RILISAN";
+ $("media-manager-title").textContent=kind==="video"?"VIDEO STUDIO":"LINK RILISAN MUSIK";
+ $("media-manager-description").textContent=kind==="video"?"Upload video MP4/WebM, isi judul, dan tambahkan tautan opsional. Maksimal 36 MB.":"Rilisan wajib memiliki judul, nama band, dan link YouTube, Instagram, atau Spotify.";
+ $("media-add").textContent=kind==="video"?"+ TAMBAH VIDEO":"+ LINK RILISAN";
  $("media-manager-alert").hidden=!state.mediaError;
  $("media-manager-alert").textContent=state.mediaError;
  const rows=state.mediaRows.filter(x=>x.kind===kind);
  $("media-manager-cards").innerHTML=rows.length?rows.map(r=>{
   const st=r.deleted_at?"trash":r.archived_at?"archived":r.is_published?"published":"archived";
-  const safe=safeURL(r.link_url),title=esc(r.kind==="release"?(r.title||"Judul rilisan belum diisi"):(r.band_name||r.platform));
+  const safe=safeURL(r.link_url),preview=safeURL(r.video_url),title=esc(r.title||(r.kind==="release"?"Judul rilisan belum diisi":r.band_name||r.platform));
   const btn=(op,label,style="btn")=>'<button class="'+style+'" data-media-op="'+op+'" data-id="'+esc(r.id)+'">'+label+'</button>';
   let actions=[];
   if(st!=="trash"){
-   actions=[btn("edit","Edit Link"),btn("toggle",r.is_published?"Sembunyikan":"Tayangkan")];
+   actions=[btn("edit",r.kind==="video"?"Edit Video":"Edit Link"),btn("toggle",r.is_published?"Sembunyikan":"Tayangkan")];
    if(st==="archived")actions.push(btn("restore","Pulihkan Arsip"));
    else actions.push(btn("archive","Arsip"));
    actions.push(btn("trash","Ke Sampah","btn btn-red"));
   }else actions=[btn("restore_trash","Pulihkan","btn btn-lime"),btn("purge","Hapus permanen","btn btn-red")];
-  return '<article class="item"><div class="item-media" style="background:#dcebc0;display:grid;place-items:center;font-size:46px;color:#213e2f">'+(r.kind==="video"?"PLAY":"LINK")+'</div>'+
+  return '<article class="item"><div class="item-media">'+(r.kind==="video"&&preview?'<video src="'+esc(preview)+'" muted playsinline controls preload="metadata" style="width:100%;height:100%;object-fit:cover"></video>':'<div style="background:#dcebc0;display:grid;place-items:center;width:100%;height:100%;font-size:46px;color:#213e2f">'+(r.kind==="video"?"PLAY":"LINK")+'</div>')+'</div>'+
    '<div class="item-body"><div class="pills"><span class="pill '+esc(st)+'">'+esc(statusLabels[st])+'</span><span class="pill">'+esc(r.platform)+'</span></div>'+
-   '<h3>'+title+'</h3>'+(r.kind==="release"?'<p class="muted" style="font-size:12px">'+esc(r.band_name)+' · '+esc(r.platform)+'</p>':"")+'<p style="overflow-wrap:anywhere;font-size:12px">'+esc(r.link_url)+'</p>'+
+   '<h3>'+title+'</h3>'+(r.kind==="release"?'<p class="muted" style="font-size:12px">'+esc(r.band_name)+' · '+esc(r.platform)+'</p>':"")+(safe?'<p style="overflow-wrap:anywhere;font-size:12px">'+esc(r.link_url)+'</p>':'<p class="muted" style="font-size:12px">Tidak ada tautan tambahan</p>')+
    '<time>'+date(r.created_at)+'</time></div><div class="item-actions">'+
    (safe?'<a class="btn" href="'+esc(safe)+'" target="_blank" rel="noopener noreferrer">Buka Link</a>':"")+
    actions.join("")+'</div></article>';
- }).join(""):'<div class="empty"><strong>Belum ada link.</strong><p>Tambahkan link pertama untuk ditampilkan di website.</p></div>';
+ }).join(""):'<div class="empty"><strong>Belum ada ' + (kind==="video"?"video":"rilisan") + '.</strong><p>Tambahkan ' + (kind==="video"?"video":"rilisan") + ' pertama untuk ditampilkan di website.</p></div>';
 }
 function mediaModal(row=null){
  const kind=row?.kind||state.view;
  if(!["video","release"].includes(kind))return;
- modal(modalHead(row?"Edit Link":"Tambah Link "+(kind==="video"?"Video":"Rilisan"))+
-  '<p class="muted">Video cukup URL YouTube atau Instagram. Rilisan wajib memiliki judul lagu, nama band, dan URL Spotify/YouTube/Instagram. Hanya admin yang bisa menambahkan.</p>'+
-  '<form id="media-form" data-kind="'+kind+'" data-id="'+esc(row?.id||"")+'" style="margin-top:16px">'+
-  (kind==="release"?'<label class="field"><span>Judul Lagu / Rilisan *</span><input name="title" value="'+esc(row?.title||"")+'" required minlength="1" maxlength="100" placeholder="Contoh: Langit Malam"></label><label class="field" style="margin-top:12px"><span>Nama Band *</span><input name="band_name" value="'+esc(row?.band_name||"")+'" required minlength="2" maxlength="80" placeholder="Contoh: Band Wingking"></label>':"")+
-  '<label class="field" style="margin-top:12px"><span>Link '+(kind==="video"?"Video":"Musik")+' *</span><input name="link_url" type="url" value="'+esc(row?.link_url||"")+'" required maxlength="500" placeholder="https://..."></label>'+
-  '<div class="modal-actions"><button type="button" class="btn" data-modal-close>Batal</button><button type="submit" class="btn btn-dark">SIMPAN LINK</button></div></form>');
+ const isVideo=kind==="video",heading=row?"Edit "+(isVideo?"Video":"Rilisan"):isVideo?"Tambah Video":"Tambah Rilisan";
+ const intro=isVideo?"Upload video MP4/WebM maksimal 36 MB. Judul wajib; tautan tambahan opsional dan boleh menuju situs HTTPS apa pun.":"Rilisan wajib memiliki judul lagu, nama band, dan link YouTube/Instagram/Spotify.";
+ const fields=isVideo
+  ? '<label class="field"><span>Judul video *</span><input name="title" value="'+esc(row?.title||"")+'" required minlength="2" maxlength="100" placeholder="Contoh: Live Session Wingking"></label>'+
+    (row?"":'<label class="field" style="margin-top:12px"><span>Upload video MP4/WebM, maks. 36 MB *</span><input name="file" type="file" accept="video/mp4,video/webm,.mp4,.webm" required></label>')+
+    '<label class="field" style="margin-top:12px"><span>Link tambahan (opsional)</span><input name="link_url" type="url" value="'+esc(row?.link_url||"")+'" maxlength="500" placeholder="https://... (YouTube, Instagram, Spotify, atau lainnya)"></label>'
+  : '<label class="field"><span>Judul Lagu / Rilisan *</span><input name="title" value="'+esc(row?.title||"")+'" required minlength="1" maxlength="100" placeholder="Contoh: Langit Malam"></label><label class="field" style="margin-top:12px"><span>Nama Band *</span><input name="band_name" value="'+esc(row?.band_name||"")+'" required minlength="2" maxlength="80" placeholder="Contoh: Band Wingking"></label><label class="field" style="margin-top:12px"><span>Link Musik *</span><input name="link_url" type="url" value="'+esc(row?.link_url||"")+'" required maxlength="500" placeholder="https://..."></label>';
+ modal(modalHead(heading)+'<p class="muted">'+intro+' Hanya admin yang bisa menambahkan.</p><form id="media-form" data-kind="'+kind+'" data-id="'+esc(row?.id||"")+'" style="margin-top:16px">'+fields+'<div class="modal-actions"><button type="button" class="btn" data-modal-close>Batal</button><button type="submit" class="btn btn-dark">'+(isVideo&&!row?"UPLOAD & TAYANGKAN":row?"SIMPAN PERUBAHAN":"SIMPAN RILISAN")+'</button></div></form>');
 }
 async function saveMedia(form){
- if(state.busy)return;state.busy=true;
- const data=new FormData(form),id=form.dataset.id,kind=form.dataset.kind;
+ if(state.busy)return;
+ state.busy=true;
+ const data=new FormData(form),id=form.dataset.id,kind=form.dataset.kind,button=form.querySelector('button[type="submit"]');
+ const title=String(data.get("title")||"").trim(),link_url=String(data.get("link_url")||"").trim();
+ let ticket=null;
+ const submitText=button.textContent;button.disabled=true;button.textContent=kind==="video"&&!id?"MENGUPLOAD...":"MENYIMPAN...";
  try{
-  await mediaApi({action:id?"admin-edit":"admin-create",...(id?{id}:{}),
-   kind,title:String(data.get("title")||""),band_name:String(data.get("band_name")||""),link_url:String(data.get("link_url")||"")});
-  closeModal();toast("Link tersimpan dan langsung tampil di website.");await load();
- }catch(e){toast(e.message||"Gagal menyimpan link",true)}
- finally{state.busy=false}
+  if(kind==="video"&&!id){
+   const file=data.get("file");
+   if(!(file instanceof File)||!["video/mp4","video/webm"].includes(file.type)||file.size<1||file.size>36*1024*1024)throw Error("Pilih video MP4/WebM dengan ukuran maksimal 36 MB.");
+   ticket=await mediaApi({action:"admin-video-prepare",title,link_url,mime:file.type,size:file.size});
+   const url=SB+"/storage/v1/object/upload/sign/"+encodeURIComponent(ticket.bucket)+"/"+ticket.path.split("/").map(encodeURIComponent).join("/")+"?token="+encodeURIComponent(ticket.token);
+   const body=new FormData();body.append("cacheControl","3600");body.append("",file);
+   const upload=await fetch(url,{method:"PUT",headers:{"apikey":PUB,"x-upsert":"false"},body});
+   if(!upload.ok){const detail=await upload.json().catch(()=>({}));throw Error(detail.message||detail.error||"Video gagal diupload (HTTP "+upload.status+")");}
+   await mediaApi({action:"admin-video-submit",id:ticket.id,path:ticket.path,mime:file.type,title,link_url});
+  }else await mediaApi({action:id?"admin-edit":"admin-create",...(id?{id}:{}),kind,title,band_name:String(data.get("band_name")||""),link_url});
+  closeModal();toast(kind==="video"?"Video berhasil diupload dan ditayangkan.":"Rilisan tersimpan dan ditayangkan.");await load();
+ }catch(e){
+  if(ticket){try{await mediaApi({action:"admin-video-cancel",id:ticket.id,path:ticket.path});}catch(cleanupError){console.error("Video upload cleanup failed:",cleanupError);}}
+  toast(e.message||"Gagal menyimpan media",true);
+ }finally{state.busy=false;button.disabled=false;button.textContent=submitText;}
 }
 async function mediaAction(button){
  if(state.busy)return;
@@ -764,8 +781,9 @@ async function mediaAction(button){
  if(!row)return toast("Konten sudah berubah, muat ulang",true);
  if(op==="edit")return mediaModal(row);
  if(op==="purge"){
-  const confirmName=prompt("Ketik "+(row.band_name||row.platform)+" untuk hapus permanen:");
-  if(confirmName!==(row.band_name||row.platform))return;
+  const label=row.title||row.band_name||row.platform;
+  const confirmName=prompt("Ketik "+label+" untuk hapus permanen:");
+  if(confirmName!==label)return;
   return mediaMutate({action:"admin-purge",id,confirm:confirmName},"Link dihapus");
  }
  const acts={toggle:"admin-hide",archive:"admin-archive",restore:"admin-restore",trash:"admin-trash",restore_trash:"admin-restore-trash"};
@@ -775,7 +793,7 @@ async function mediaAction(button){
 }
 async function mediaMutate(body,message){
  if(state.busy)return;state.busy=true;
- try{await mediaApi(body);toast(message);await load()}
+ try{const data=await mediaApi(body);toast(message+(data.warning?" · "+data.warning:""));await load()}
  catch(e){toast(e.message||"Gagal memperbarui link",true)}
  finally{state.busy=false}
 }

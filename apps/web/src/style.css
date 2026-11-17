@@ -5314,6 +5314,8 @@ html[data-motion="off"] .hero h1 {
 }
 #keseruan .wk-original-session-label {
   width: fit-content;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   font: 800 11px/1.25 "DM Sans", sans-serif;
   letter-spacing: 0.09em;
   text-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
